@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>콘텐츠LAB - 잡코리아</title>
+  <style>
+    :root {
+      --color-white: #FFFFFF;
+      --color-black: #000000;
+      --color-grey-11: #1A1A1E;
+      --color-grey-13: #222222;
+      --color-grey-20: #333333;
+      --color-grey-27: #444444;
+      --color-grey-40: #666666;
+      --color-grey-42: #6A6A6A;
+      --color-grey-53: #888888;
+      --color-grey-60: #999999;
+      --color-grey-62: #9E9E9E;
+      --color-grey-76: #C3C3C3;
+      --color-grey-78: #C2C6CD;
+      --color-grey-80: #CCCCCC;
+      --color-grey-82: #D2D2D2;
+      --color-grey-85: #D5D8DC;
+      --color-grey-87: #DDDDDD;
+      --color-grey-88: #E0E0E0;
+      --color-grey-90: #E5E6E8;
+      --color-grey-91: #E8E8E8;
+      --color-grey-92: #EBEBEB;
+      --color-grey-93: #EEEEEE;
+      --color-grey-94: #EFEFF1;
+      --color-grey-96: #F2F4F7;
+      --color-grey-97: #F6F7F9;
+      --color-azure-50: #0057FF;
+      --color-azure-54: #1B55F6;
+      --color-azure-72: #AFB5BE;
+      --color-blue-50: #003CFF;
+      --color-red-50: #FF0000;
+      --color-red-55: #FF501B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-white);
+      color: var(--color-grey-20);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: var(--color-white);
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-top {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo img {
+      width: 133px;
+      height: 70px;
+      object-fit: contain;
+    }
+
+    .search-bar {
+      width: 440px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid var(--color-grey-91);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .search-region {
+      display: flex;
+      align-items: center;
+      padding: 0 0 0 20px;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .search-region .icon {
+      color: var(--color-azure-54);
+    }
+
+    .search-region span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-grey-11);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 11px 15px;
+      font-size: 15px;
+      color: var(--color-azure-72);
+      overflow: hidden;
+    }
+
+    .search-btn {
+      width: 37px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .search-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--color-grey-78);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-outline {
+      height: 42px;
+      padding: 0 13px;
+      border-radius: 10px;
+      border: 1px solid var(--color-grey-85);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      cursor: pointer;
+    }
+
+    .btn-outline.primary {
+      color: var(--color-azure-54);
+    }
+
+    .btn-outline.secondary {
+      color: var(--color-grey-60);
+    }
+
+    /* Nav */
+    .header-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 65px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      border-top: 1px solid var(--color-grey-91);
+    }
+
+    .header-nav a {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-grey-13);
+      line-height: 65px;
+    }
+
+    .header-nav a.active {
+      color: var(--color-blue-50);
+    }
+
+    /* ===== Main Layout ===== */
+    .main-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 34px 0 92px;
+      display: flex;
+      gap: 30px;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      width: 210px;
+      flex-shrink: 0;
+      background: var(--color-white);
+      border: 1px solid var(--color-grey-90);
+      border-top: none;
+      padding-top: 20px;
+      align-self: flex-start;
+    }
+
+    .sidebar-section {
+      padding: 16px 19px 20px;
+      border-bottom: 1px solid var(--color-grey-94);
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-black);
+      margin-bottom: 14px;
+    }
+
+    .sidebar-links {
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-links a {
+      font-size: 13px;
+      color: var(--color-grey-40);
+    }
+
+    .sidebar-links a.active {
+      font-weight: 700;
+      color: var(--color-azure-50);
+    }
+
+    /* ===== Content ===== */
+    .content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .content-title {
+      display: none;
+    }
+
+    /* Featured Cards */
+    .featured-section {
+      margin-bottom: 32px;
+    }
+
+    .featured-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .featured-section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-grey-13);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .featured-section-title .fire {
+      font-size: 20px;
+    }
+
+    .featured-more {
+      font-size: 13px;
+      color: var(--color-grey-53);
+      cursor: pointer;
+    }
+
+    .featured-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .featured-card {
+      background: var(--color-white);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--color-grey-91);
+    }
+
+    .featured-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .featured-card-img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+    }
+
+    .featured-card-body {
+      padding: 16px;
+    }
+
+    .featured-card-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .featured-card-badge.hot {
+      background: #FFF0F0;
+      color: #FF4D4F;
+    }
+
+    .featured-card-badge.new {
+      background: #F0F5FF;
+      color: var(--color-azure-50);
+    }
+
+    .featured-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-grey-13);
+      line-height: 22px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 10px;
+      min-height: 44px;
+    }
+
+    .featured-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--color-grey-53);
+    }
+
+    .featured-card-meta .views {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .featured-card-meta .views svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--color-grey-62);
+    }
+
+    .featured-card-rank {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .featured-card-img-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--color-grey-91);
+      padding-bottom: 0;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-grey-53);
+      cursor: pointer;
+      border: none;
+      background: none;
+      position: relative;
+      margin-bottom: -2px;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      color: var(--color-grey-20);
+    }
+
+    .tab.active {
+      color: var(--color-azure-50);
+      border-bottom: 2px solid var(--color-azure-50);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 16px 0;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 40px;
+    }
+
+    .toolbar-count {
+      font-size: 12px;
+      color: var(--color-grey-53);
+      line-height: 18px;
+    }
+
+    .toolbar-count strong {
+      color: var(--color-grey-42);
+      font-weight: 700;
+    }
+
+    .toolbar-sort {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--color-grey-96);
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .toolbar-sort-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--color-grey-53);
+      border: none;
+      background: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toolbar-sort-btn.active {
+      background: var(--color-white);
+      color: var(--color-grey-13);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .toolbar-search {
+      width: 260px;
+      height: 40px;
+      background: var(--color-grey-96);
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .toolbar-search:focus-within {
+      background: var(--color-white);
+      border-color: var(--color-azure-50);
+      box-shadow: 0 0 0 3px rgba(0, 87, 255, 0.1);
+    }
+
+    .toolbar-search svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--color-grey-62);
+      flex-shrink: 0;
+    }
+
+    .toolbar-search:focus-within svg {
+      fill: var(--color-azure-50);
+    }
+
+    .toolbar-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--color-grey-13);
+      background: transparent;
+    }
+
+    .toolbar-search input::placeholder {
+      color: var(--color-grey-62);
+    }
+
+    /* Suggest Tags (under search) */
+    .suggest-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .suggest-tags .label {
+      font-size: 12px;
+      color: var(--color-grey-62);
+      white-space: nowrap;
+    }
+
+    .suggest-tag {
+      font-size: 12px;
+      color: var(--color-grey-53);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .suggest-tag:hover {
+      color: var(--color-azure-50);
+    }
+
+    /* Article List */
+    .article-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .article-item {
+      display: flex;
+      gap: 24px;
+      padding: 20px;
+      background: var(--color-white);
+      border-radius: 16px;
+      border: 1px solid var(--color-grey-91);
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .article-item:hover {
+      border-color: var(--color-grey-82);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .article-thumb {
+      width: 200px;
+      height: 132px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .article-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .article-item:hover .article-thumb img {
+      transform: scale(1.05);
+    }
+
+    .article-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .article-category-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--color-grey-96);
+      color: var(--color-grey-42);
+      margin-bottom: 8px;
+    }
+
+    .article-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-grey-13);
+      line-height: 24px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .article-title .badge-new {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--color-azure-50);
+      border-radius: 50%;
+      vertical-align: top;
+      margin-left: 4px;
+      margin-top: 2px;
+    }
+
+    .article-desc {
+      font-size: 14px;
+      color: var(--color-grey-53);
+      line-height: 21px;
+      margin-top: 6px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--color-grey-62);
+    }
+
+    .article-meta .dot-sep {
+      width: 2px;
+      height: 2px;
+      background: var(--color-grey-82);
+      border-radius: 50%;
+    }
+
+    .article-meta .views {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .article-meta .views svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--color-grey-78);
+    }
+
+    /* Pagination */
+    .pagination {
+      padding: 40px 0 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .page-num {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-grey-53);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.15s;
+    }
+
+    .page-num:hover {
+      background: var(--color-grey-96);
+    }
+
+    .page-num.active {
+      background: var(--color-grey-13);
+      color: var(--color-white);
+      font-weight: 700;
+    }
+
+    .page-next {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background 0.15s;
+    }
+
+    .page-next:hover {
+      background: var(--color-grey-96);
+    }
+
+    .page-next svg {
+      width: 8px;
+      height: 14px;
+      fill: var(--color-grey-62);
+    }
+
+    /* ===== Ad Sidebar ===== */
+    .ad-sidebar {
+      width: 120px;
+      flex-shrink: 0;
+      margin-top: 36px;
+    }
+
+    .ad-sidebar img {
+      width: 120px;
+      height: 600px;
+      display: block;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      background: var(--color-white);
+      border-top: 1px solid var(--color-grey-87);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Footer Ads */
+    .footer-ads {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 0;
+    }
+
+    .footer-ad-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--color-grey-20);
+      line-height: 17px;
+      padding: 0 20px;
+    }
+
+    .footer-ad-text strong {
+      display: block;
+      font-weight: 700;
+    }
+
+    .footer-ad-banner img {
+      width: 495px;
+      height: 110px;
+      display: block;
+    }
+
+    /* Footer Notice */
+    .footer-notice {
+      background: var(--color-grey-97);
+      border: 1px solid var(--color-grey-92);
+      padding: 0 21px;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .footer-notice-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-notice-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-black);
+      white-space: nowrap;
+    }
+
+    .footer-notice-text {
+      font-size: 12px;
+      color: var(--color-grey-20);
+    }
+
+    .footer-notice-date {
+      font-size: 12px;
+      color: var(--color-grey-53);
+      margin-left: 3px;
+    }
+
+    .footer-notice-right {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .footer-notice-link {
+      font-size: 12px;
+      color: var(--color-grey-20);
+      padding-right: 15px;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .footer-notice-link::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 11px;
+      background: var(--color-grey-88);
+    }
+
+    .footer-notice-link:last-child::after {
+      display: none;
+    }
+
+    .footer-notice-more {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-black);
+      margin-left: 15px;
+      white-space: nowrap;
+    }
+
+    /* Footer Nav */
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      gap: 33px;
+      padding: 20px 0;
+    }
+
+    .footer-nav a {
+      font-size: 14px;
+      color: var(--color-black);
+    }
+
+    .footer-nav a.bold {
+      font-weight: 700;
+    }
+
+    /* Footer Contact */
+    .footer-contact {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 0 0 5px;
+      font-size: 13px;
+      color: var(--color-grey-53);
+      flex-wrap: wrap;
+    }
+
+    .footer-contact .divider {
+      color: var(--color-grey-80);
+    }
+
+    .footer-contact .social-icons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .footer-contact .social-icons img {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Footer Copyright */
+    .footer-copyright {
+      text-align: center;
+      padding: 23px 0 30px;
+      font-size: 11px;
+      color: var(--color-grey-53);
+    }
+
+    .footer-copyright strong {
+      font-weight: 700;
+    }
+
+    /* SVG icons (simple placeholders) */
+    .icon-eye {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <a href="#" class="logo">
+          <img src="https://placehold.co/133x70" alt="잡코리아 로고">
+        </a>
+        <div class="search-bar">
+          <div class="search-region">
+            <span class="icon">📍</span>
+            <span>지역 전체</span>
+            <span style="color: var(--color-azure-72);">▾</span>
+          </div>
+          <div class="search-input">JOB 검색</div>
+          <div class="search-btn">
+            <svg viewBox="0 0 22 22"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" fill="none"/><line x1="14" y1="14" x2="20" y2="20" stroke="currentColor" stroke-width="2"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-outline primary">회원가입/로그인</button>
+        <button class="btn-outline secondary">기업 서비스 ▾</button>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="#">JOB 찾기</a>
+      <a href="#">합격축하금</a>
+      <a href="#">공채정보</a>
+      <a href="#">신입·인턴</a>
+      <a href="#">기업·연봉</a>
+      <a href="#" class="active">콘텐츠</a>
+      <a href="#">취업톡톡</a>
+    </nav>
+  </header>
+
+  <!-- Main -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">커리어 소식</div>
+        <div class="sidebar-links">
+          <a href="#" class="active">콘텐츠Lab</a>
+          <a href="#">뉴스레터</a>
+          <a href="#">합격자소서</a>
+          <a href="#">인적성·면접후기</a>
+          <a href="#">직무인터뷰</a>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">실전공략</div>
+        <div class="sidebar-links">
+          <a href="#">인성역량검사</a>
+          <a href="#">공기업 모의고사</a>
+          <a href="#">역량테스트(MICT)</a>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">취업 TOOL</div>
+        <div class="sidebar-links">
+          <a href="#">글자수 세기</a>
+          <a href="#">어학점수 변환</a>
+          <a href="#">사진크기조정</a>
+          <a href="#">연봉계산기</a>
+          <a href="#">연차/근속연수 계산기</a>
+          <a href="#">퇴직금계산기</a>
+          <a href="#">실업급여계산기</a>
+          <a href="#">학점계산기</a>
+          <a href="#">온라인 도장</a>
+          <a href="#">문서서식 자료</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+      <h1 class="content-title">콘텐츠LAB</h1>
+
+      <!-- Featured Cards -->
+      <div class="featured-section">
+        <div class="featured-section-header">
+          <div class="featured-section-title"><span class="fire">🔥</span> 인기 콘텐츠</div>
+          <span class="featured-more">더보기 ›</span>
+        </div>
+        <div class="featured-cards">
+          <div class="featured-card">
+            <div class="featured-card-img-wrapper">
+              <img class="featured-card-img" src="https://placehold.co/400x250/4F46E5/FFFFFF?text=Career" alt="">
+              <span class="featured-card-rank">1</span>
+            </div>
+            <div class="featured-card-body">
+              <span class="featured-card-badge hot">HOT</span>
+              <div class="featured-card-title">LG·롯데·삼성·한화·KT·신세계 6개 기업에서 통한 정 부장의 대기업 공략법</div>
+              <div class="featured-card-meta">
+                <span>5일 전</span>
+                <span>·</span>
+                <span class="views">
+                  <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                  3,174
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="featured-card">
+            <div class="featured-card-img-wrapper">
+              <img class="featured-card-img" src="https://placehold.co/400x250/7C3AED/FFFFFF?text=Interview" alt="">
+              <span class="featured-card-rank">2</span>
+            </div>
+            <div class="featured-card-body">
+              <span class="featured-card-badge hot">HOT</span>
+              <div class="featured-card-title">개발자에서 PMO까지, IT 베테랑이 말하는 승진의 물꼬를 트는 비결</div>
+              <div class="featured-card-meta">
+                <span>2일 전</span>
+                <span>·</span>
+                <span class="views">
+                  <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                  1,197
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="featured-card">
+            <div class="featured-card-img-wrapper">
+              <img class="featured-card-img" src="https://placehold.co/400x250/2563EB/FFFFFF?text=Conference" alt="">
+              <span class="featured-card-rank">3</span>
+            </div>
+            <div class="featured-card-body">
+              <span class="featured-card-badge new">NEW</span>
+              <div class="featured-card-title">잡코리아 커리어 컨퍼런스│선배가 알려주는 이직 치트키</div>
+              <div class="featured-card-meta">
+                <span>6일 전</span>
+                <span>·</span>
+                <span class="views">
+                  <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                  5,760
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="featured-card">
+            <div class="featured-card-img-wrapper">
+              <img class="featured-card-img" src="https://placehold.co/400x250/059669/FFFFFF?text=Resign" alt="">
+              <span class="featured-card-rank">4</span>
+            </div>
+            <div class="featured-card-body">
+              <span class="featured-card-badge new">NEW</span>
+              <div class="featured-card-title">낮엔 직장인, 밤엔 구직자, 이직잠행족 리얼로그.zip</div>
+              <div class="featured-card-meta">
+                <span>1일 전</span>
+                <span>·</span>
+                <span class="views">
+                  <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                  399
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active">전체</div>
+        <div class="tab">디자인</div>
+        <div class="tab">개발</div>
+        <div class="tab">데이터</div>
+        <div class="tab">AI</div>
+        <div class="tab">마케팅</div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="toolbar-count">총 <strong>2,610</strong>개</div>
+          <div class="toolbar-sort">
+            <button class="toolbar-sort-btn active">인기순</button>
+            <button class="toolbar-sort-btn">최신순</button>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+          <div class="toolbar-search">
+            <svg viewBox="0 0 20 20"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none"/><line x1="13" y1="13" x2="18" y2="18" stroke="currentColor" stroke-width="2"/></svg>
+            <input type="text" placeholder="관심 있는 커리어 토픽을 찾아보세요">
+          </div>
+          <div class="suggest-tags">
+            <span class="label">추천</span>
+            <span class="suggest-tag">#AI</span>
+            <span class="suggest-tag">#이직</span>
+            <span class="suggest-tag">#연봉</span>
+            <span class="suggest-tag">#커리어</span>
+            <span class="suggest-tag">#취업</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Article List -->
+      <div class="article-list">
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/F0F5FF/4F46E5?text=HR" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">HR 팀장들의 솔직한 위기의 순간 <span class="badge-new"></span></div>
+            <div class="article-desc">흐레카 데이의 생생한 현장을 공개합니다</div>
+            <div class="article-meta">
+              <span>1일 전</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                399
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/F5F3FF/7C3AED?text=IT" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">개발자에서 PMO까지, IT 베테랑이 말하는 승진의 물꼬를 트는 비결 <span class="badge-new"></span></div>
+            <div class="article-desc">개발자로 커리어를 시작해 PM을 거쳐 PMO까지, 아모레퍼시픽 박혜민 부장이 말하는 승진의 물꼬를 트는 비결을 들어보았습니다.</div>
+            <div class="article-meta">
+              <span>2일 전</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                1,197
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/EFF6FF/2563EB?text=Career" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">LG·롯데·삼성·한화·KT·신세계 6개 기업에서 통한 정 부장의 대기업 공략법</div>
+            <div class="article-desc">Cyber Security 분야에서 책임 연구원으로 일하는 20년 차 시니어, LG전자 정성후 부장의 대기업 공략법</div>
+            <div class="article-meta">
+              <span>5일 전</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                3,174
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/ECFDF5/059669?text=Conference" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">잡코리아 커리어 컨퍼런스│선배가 알려주는 이직 치트키</div>
+            <div class="article-desc">이직에 대한 모든 것, 잡코리아가 알려드릴게요. 컨퍼런스 신청하면 네이버페이 1만 원까지 받아요!</div>
+            <div class="article-meta">
+              <span>6일 전</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                5,760
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/FEF2F2/DC2626?text=Tips" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">취업활동 증명서는 언제, 어떻게 발급 받나요?</div>
+            <div class="article-desc">취업활동 증명서 발급, 모르면 실업급여 못 받아요.</div>
+            <div class="article-meta">
+              <span>2026.03.16</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                4,114
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/F0F5FF/4F46E5?text=Event" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">이벤트</span>
+            <div class="article-title">[이벤트] 개발자끼리 밸런스게임하고 스타벅스 커피 받자!</div>
+            <div class="article-desc">개발자 밸런스게임에 참여하면 추첨을 통해 100분께 스타벅스 커피 쿠폰을 드립니다.</div>
+            <div class="article-meta">
+              <span>2026.03.16</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                2,232
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/FFF7ED/EA580C?text=Event" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">이벤트</span>
+            <div class="article-title">[이벤트] 붙은 사람들 : 취업/이직했다면 합격 썰 풀고 선물 받자!</div>
+            <div class="article-desc">꽁꽁 얼어붙은 채용 시장을 뚫은 당신의 합격 노하우를 들려주세요.</div>
+            <div class="article-meta">
+              <span>2026.03.11</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                4,282
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/F5F3FF/7C3AED?text=Interview" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">[리스펙트 인터뷰] 잡코에게 '이직' 이유를 묻다</div>
+            <div class="article-desc">잡코리아가 이직한 이유. 제가 공개합니다.</div>
+            <div class="article-meta">
+              <span>2026.03.10</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                6,349
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/ECFDF5/059669?text=Brand" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">햄버거 맛은 기본, 성장에도 진심인 맥도날드</div>
+            <div class="article-desc">잡코리아가 듣고 온 맥도날드 매니저 인터뷰</div>
+            <div class="article-meta">
+              <span>2025.12.30</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                40,908
+              </span>
+            </div>
+          </div>
+        </article>
+        <article class="article-item">
+          <div class="article-thumb"><img src="https://placehold.co/400x264/EFF6FF/2563EB?text=Resume" alt=""></div>
+          <div class="article-body">
+            <span class="article-category-badge">콘텐츠</span>
+            <div class="article-title">퇴근후이력서 : 현업 선배와 함께 합격률 높이는 이력서 쓰기</div>
+            <div class="article-desc">잡코리아가 주최한 &lt;퇴근후이력서&gt;는 취업·이직에 대한 고민을 갖고 있는 마케팅/PM·PO/개발 직무 0~5년차 분들이 현업 선배..</div>
+            <div class="article-meta">
+              <span>2025.12.24</span>
+              <span class="dot-sep"></span>
+              <span class="views">
+                <svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>
+                34,643
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <span class="page-num active">1</span>
+        <span class="page-num">2</span>
+        <span class="page-num">3</span>
+        <span class="page-num">4</span>
+        <span class="page-num">5</span>
+        <span class="page-num">6</span>
+        <span class="page-num">7</span>
+        <span class="page-num">8</span>
+        <span class="page-num">9</span>
+        <span class="page-num">10</span>
+        <span class="page-next">
+          <svg viewBox="0 0 8 14"><path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </span>
+      </div>
+    </main>
+
+    <!-- Ad Sidebar -->
+    <aside class="ad-sidebar">
+      <img src="https://placehold.co/120x600" alt="광고">
+    </aside>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <!-- Ads -->
+      <div class="footer-ads">
+        <div class="footer-ad-text">
+          전문분야 일 경험을 취업의 디딤돌로
+          <strong>서울 민간형 매력일자리 참여자 모집</strong>
+        </div>
+        <div class="footer-ad-banner">
+          <img src="https://placehold.co/495x110" alt="광고 배너">
+        </div>
+        <div class="footer-ad-text">
+          시간, 장소 제약없이
+          <strong>쉽고 편하게 누구나 N잡해!</strong>
+        </div>
+      </div>
+
+      <!-- Notice Bar -->
+      <div class="footer-notice">
+        <div class="footer-notice-left">
+          <span class="footer-notice-label">공지사항</span>
+          <span class="footer-notice-text">잡코리아 기업회원 이용약관 개정 안내</span>
+          <span class="footer-notice-date">26.03.18</span>
+        </div>
+        <div class="footer-notice-right">
+          <a href="#" class="footer-notice-link">전문채용관</a>
+          <a href="#" class="footer-notice-link">슈퍼기업관</a>
+          <a href="#" class="footer-notice-link">헤드헌팅 의뢰</a>
+          <a href="#" class="footer-notice-link">기업러닝</a>
+          <span class="footer-notice-more">더보기 ›</span>
+        </div>
+      </div>
+
+      <!-- Footer Nav -->
+      <nav class="footer-nav">
+        <a href="#">회사소개</a>
+        <a href="#">이용약관</a>
+        <a href="#" class="bold">개인정보처리방침</a>
+        <a href="#">Open API</a>
+        <a href="#">광고문의</a>
+        <a href="#">제휴문의</a>
+        <a href="#">고객센터</a>
+      </nav>
+
+      <!-- Contact -->
+      <div class="footer-contact">
+        <span>고객센터 : 1588-9350 (평일 09:00 ~ 19:00 토요일 09:00 ~ 15:00)</span>
+        <span class="divider">l</span>
+        <span>FAX : 02-565-9351</span>
+        <span class="divider">l</span>
+        <span>Email : helpdesk@jobkorea.co.kr</span>
+        <span class="divider">l</span>
+        <span>톡톡상담</span>
+        <span class="divider">l</span>
+        <span class="social-icons">
+          <img src="https://placehold.co/20x20" alt="SNS">
+          <img src="https://placehold.co/20x20" alt="SNS">
+          <img src="https://placehold.co/20x20" alt="SNS">
+          <img src="https://placehold.co/20x20" alt="SNS">
+          <img src="https://placehold.co/20x20" alt="SNS">
+        </span>
+      </div>
+
+      <!-- Copyright -->
+      <div class="footer-copyright">
+        &copy; <strong>Worxphere</strong> LLC. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
