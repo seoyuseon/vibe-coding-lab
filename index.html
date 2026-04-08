@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>콘텐츠LAB Index</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: #f5f6f8;
+      color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 32px;
+      color: #222;
+    }
+
+    .page-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .page-list a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 20px 24px;
+      text-decoration: none;
+      color: #1a1a1a;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+
+    .page-list a:hover {
+      border-color: #3182f6;
+      box-shadow: 0 2px 8px rgba(49, 130, 246, 0.12);
+    }
+
+    .page-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .page-path {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .arrow {
+      font-size: 18px;
+      color: #bbb;
+      transition: color 0.15s;
+    }
+
+    .page-list a:hover .arrow {
+      color: #3182f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>콘텐츠LAB Index</h1>
+    <div class="page-list">
+      <a href="pc_contents/index.html">
+        <div class="page-info">
+          <span class="page-title">콘텐츠LAB</span>
+          <span class="page-path">pc_contents/index.html</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a href="klik-visa-contents-main/visa-contents-main.html">
+        <div class="page-info">
+          <span class="page-title">비자 콘텐츠 메인</span>
+          <span class="page-path">klik-visa-contents-main/visa-contents-main.html</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a href="klik-visa-contents2/index.html">
+        <div class="page-info">
+          <span class="page-title">비자 정보·발급 가이드 (KLiK)</span>
+          <span class="page-path">klik-visa-contents2/index.html</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a href="survey/survey.html">
+        <div class="page-info">
+          <span class="page-title">설문조사</span>
+          <span class="page-path">survey/survey.html</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
