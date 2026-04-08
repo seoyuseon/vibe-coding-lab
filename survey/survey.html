@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>설문조사 - 잡코리아</title>
+  <style>
+    :root {
+      /* JAMS 2.0 Color Tokens */
+      --color-white: #FFFFFF;
+      --color-black: #000000;
+      --color-text-primary: #222222;
+      --color-text-secondary: #6A6A6A;
+      --color-text-tertiary: #9E9E9E;
+      --color-primary: #1B55F6;
+      --color-primary-light: #4C7AFB;
+      --color-primary-pc: #5288FF;
+      --color-border-light: #F4F4F4;
+      --color-border-medium: #D2D2D2;
+      --color-gift-bg: #CBE8E3;
+      --color-info-bg: rgba(238, 240, 244, 0.7);
+      --color-footer-bg: #EEF0F4;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--color-white);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Mobile GNB ===== */
+    .gnb-mobile {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px 6px 20px;
+      background: var(--color-white);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .gnb-mobile-title {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 26px;
+      letter-spacing: -0.5px;
+      color: var(--color-text-primary);
+    }
+
+    .gnb-close {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .gnb-close svg {
+      width: 24px;
+      height: 24px;
+      color: var(--color-text-primary);
+    }
+
+    /* ===== PC GNB ===== */
+    .gnb-pc {
+      display: none;
+    }
+
+    /* ===== Page Wrapper ===== */
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 96px;
+    }
+
+    /* ===== Contents ===== */
+    .contents {
+      width: 100%;
+      padding: 52px 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Text Section */
+    .text-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .survey-date {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 18px;
+      color: var(--color-primary-light);
+    }
+
+    .survey-title {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 34px;
+      letter-spacing: -0.5px;
+      color: var(--color-text-primary);
+    }
+
+    .survey-desc {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 22px;
+      color: var(--color-text-primary);
+    }
+
+    .survey-desc strong {
+      font-weight: 600;
+    }
+
+    /* Gift Section */
+    .gift-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gift-image {
+      background: var(--color-gift-bg);
+      border-radius: 8px 8px 0 0;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .gift-image img {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+    }
+
+    .gift-info {
+      background: var(--color-info-bg);
+      border-radius: 0 0 8px 8px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .info-bullet {
+      width: 2px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .info-label span {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      color: var(--color-text-secondary);
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+      color: var(--color-text-primary);
+    }
+
+    .info-value.brand {
+      font-weight: 800;
+    }
+
+    /* ===== Button Area ===== */
+    /* Mobile: Fixed Bottom */
+    .button-fixed {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      background: var(--color-white);
+      z-index: 10;
+    }
+
+    .button-fixed::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02));
+      pointer-events: none;
+    }
+
+    /* PC: Inline Button */
+    .button-inline {
+      display: none;
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 52px;
+      background: var(--color-primary);
+      color: var(--color-white);
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primary:active {
+      opacity: 0.85;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      display: none;
+    }
+
+    /* ============================================
+       PC Responsive (768px+)
+       ============================================ */
+    @media (min-width: 768px) {
+
+      /* Hide Mobile GNB */
+      .gnb-mobile {
+        display: none;
+      }
+
+      /* Show PC GNB */
+      .gnb-pc {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90px;
+        background: var(--color-white);
+        border-bottom: 1px solid var(--color-border-medium);
+        flex-shrink: 0;
+      }
+
+      .gnb-pc-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 1030px;
+        padding: 0 20px;
+      }
+
+      .gnb-pc-logo {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .gnb-pc-logo svg {
+        height: 22px;
+        width: auto;
+      }
+
+      .gnb-pc-logo span {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 26px;
+        letter-spacing: -0.5px;
+        color: var(--color-black);
+      }
+
+      .gnb-pc-nav {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .gnb-pc-nav a {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .gnb-pc-nav a:hover {
+        color: var(--color-text-primary);
+      }
+
+      /* Page Wrapper */
+      .page-wrapper {
+        flex: 1;
+        padding-top: 52px;
+        padding-bottom: 80px;
+      }
+
+      /* Contents */
+      .contents {
+        max-width: 360px;
+        padding-top: 32px;
+        gap: 24px;
+      }
+
+      .survey-date {
+        color: var(--color-primary-pc);
+      }
+
+      /* Hide Mobile Fixed Button */
+      .button-fixed {
+        display: none;
+      }
+
+      /* Show Inline Button */
+      .button-inline {
+        display: block;
+        width: 100%;
+        max-width: 360px;
+        padding: 56px 16px 0;
+      }
+
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+
+      /* Show Footer */
+      .footer {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        background: var(--color-footer-bg);
+        padding: 40px 20px 80px;
+        flex-shrink: 0;
+      }
+
+      .footer-text {
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 16px;
+        letter-spacing: -0.5px;
+        color: var(--color-text-tertiary);
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile GNB -->
+  <header class="gnb-mobile">
+    <span class="gnb-mobile-title">설문조사</span>
+    <button class="gnb-close" aria-label="닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="6" y1="6" x2="18" y2="18"/>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- PC GNB -->
+  <header class="gnb-pc">
+    <div class="gnb-pc-inner">
+      <div class="gnb-pc-logo">
+        <img src="jobkorea_logo.svg" alt="JOBKOREA" style="height: 22px; width: auto;">
+        <span>설문조사</span>
+      </div>
+      <nav class="gnb-pc-nav">
+        <a href="#">홈</a>
+        <a href="#">고객센터</a>
+        <a href="#">설문조사</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Wrapper -->
+  <div class="page-wrapper">
+    <!-- Contents -->
+    <div class="contents">
+      <!-- Text -->
+      <div class="text-section">
+        <div class="title-group">
+          <p class="survey-date">2026.03.05 - 2026.03.25</p>
+          <h1 class="survey-title">은퇴 후 어떤 알바<br>하고 싶나요? 🤔</h1>
+        </div>
+        <p class="survey-desc">
+          귀하는 직장생활 은퇴 후 아르바이트를 할 계획이 있으신가요? 그렇다면 어떤 종류의 알바를 해보고 싶으신지 설문에 자유롭게 참여해 주세요. 설문 참여자 중 추첨을 통해 <strong>스타벅스 아메리카노 기프티콘</strong>을 드립니다.
+        </p>
+      </div>
+
+      <!-- Gift -->
+      <div class="gift-section">
+        <div class="gift-image">
+          <img src="img.png" alt="스타벅스 아메리카노">
+        </div>
+        <div class="gift-info">
+          <div class="info-row">
+            <div class="info-label">
+              <img class="info-bullet" src="dot_2_2.svg" alt="">
+              <span>설문 문항</span>
+            </div>
+            <span class="info-value">11개</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">
+              <img class="info-bullet" src="dot_2_2.svg" alt="">
+              <span>소요 시간</span>
+            </div>
+            <span class="info-value">약 2분 소요</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">
+              <img class="info-bullet" src="dot_2_2.svg" alt="">
+              <span>설문 대상</span>
+            </div>
+            <span class="info-value">남녀 직장인</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">
+              <img class="info-bullet" src="dot_2_2.svg" alt="">
+              <span>조사 기관</span>
+            </div>
+            <img src="worxphere_logo.svg" alt="worxphere" style="height: 13px; width: auto;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PC Inline Button -->
+    <div class="button-inline">
+      <button class="btn-primary">설문 참여하기</button>
+    </div>
+  </div>
+
+  <!-- Mobile Fixed Button -->
+  <div class="button-fixed">
+    <button class="btn-primary">설문 참여하기</button>
+  </div>
+
+  <!-- Footer (PC only) -->
+  <footer class="footer">
+    <p class="footer-text">© JOBKOREA LLC. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>

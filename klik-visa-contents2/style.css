@@ -1,0 +1,435 @@
+/* ==========================================
+   KLiK 비자 콘텐츠 메인 - 현행 운영 페이지 스타일
+   URL: https://www.klik.co.kr/ko/visa-contents
+   추출일: 2026-04-03
+   ========================================== */
+
+/* ── 기본 리셋 & 폰트 ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+  max-width: 480px;
+  margin: 0 auto;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 색상 토큰 ── */
+:root {
+  --gray900: #222222;
+  --gray800: #444444;
+  --gray700: #6A6A6A;
+  --gray500: #9E9E9E;
+  --gray300: #D1D1D1;
+  --gray200: #E8E8E8;
+  --gray100: #F4F4F4;
+  --gray50:  #F7F7F7;
+  --white: #FFFFFF;
+  --violet600: #481AFF;
+  --violet100: #F3F0FF;
+  --green600: #00875A;
+  --green100: #E3FCEF;
+  --pink600: #E91E63;
+  --pink100: #FCE4EC;
+  --blue600: #2196F3;
+  --blue100: #E3F2FD;
+}
+
+/* ══════════════════════════════════════════
+   DefaultLayout 헤더
+   ══════════════════════════════════════════ */
+.DefaultLayout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 200;
+}
+
+.DefaultLayout__backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.DefaultLayout__headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.DefaultLayout__iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════
+   VisaClient 페이지 컨테이너
+   ══════════════════════════════════════════ */
+.VisaClient__container {
+  padding: 8px 20px 40px;
+}
+
+/* ── 페이지 타이틀 ── */
+.VisaClient__pageTitleWrap {
+  margin-bottom: 24px;
+}
+
+/* [수정] regular/bold 혼용 — 기본 regular, strong만 bold */
+.VisaClient__pageTitle {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--gray900);
+}
+
+.VisaClient__pageTitle strong {
+  font-weight: 700;
+}
+
+/* ══════════════════════════════════════════
+   카테고리 필터
+   [수정] 아이콘+레이블 세로 배치, 균등 분배 레이아웃으로 전면 개편
+   ══════════════════════════════════════════ */
+.VisaClient__categoryFilter {
+  position: sticky;
+  top: 52px;
+  z-index: 100;
+  background-color: var(--white);
+  margin: 0 -20px 20px;
+  padding: 4px 20px 0;
+  display: flex;
+  gap: 8px;
+}
+
+/* Button variant="filter" — 64x64 고정, 아이콘 + 레이블 세로 배치 */
+/* [수정] 버튼 사이즈 64x64px 고정, gap 8px, off 상태 bg #EEEEF1/60%, 텍스트 #908BA0 */
+.Button--filter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  border: none;
+  background-color: rgba(238, 238, 241, 0.6);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* [수정] 아이콘 24x24px */
+.Button--filter__icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* [수정] 레이블 텍스트 12px / 600으로 조정 */
+.Button--filter__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #908BA0;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+/* [수정] active 상태 — bg #F2F2FF, 텍스트 #674DFF */
+.Button--filter--active {
+  background-color: #F2F2FF;
+}
+
+.Button--filter--active .Button--filter__label {
+  color: #674DFF;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════
+   [수정] 추천 비자 섹션 — 피그마 디자인 반영
+   - 흰 배경 + 연보라 border
+   - 타이틀: 바이올렛 볼드
+   - 카드: 연보라 배경 + 좌측 바이올렛 보더
+   ══════════════════════════════════════════ */
+.RecommendSection {
+  margin: 0 0 12px;
+}
+
+.RecommendSection__inner {
+  background-color: var(--white);
+  border: 1px solid #D2D2FF;
+  border-radius: 10px;
+  padding: 20px 0;
+  overflow: hidden;
+  box-shadow: 0 4px 20px 0 #F2F2FF;
+}
+
+.RecommendSection__header {
+  padding: 0 20px;
+  margin-bottom: 14px;
+}
+
+.RecommendSection__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #674DFF;
+  line-height: 1.4;
+  margin: 0 0 4px;
+}
+
+.RecommendSection__route {
+  font-size: 12px;
+  font-weight: 400;
+  color: #908BA0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 롤링 트랙 */
+.RecommendSection__track {
+  overflow: hidden;
+  padding-left: 20px;
+}
+
+/* [수정] 카드 단위 가로 슬라이드, 카드당 3초 정지 후 이동 */
+.RecommendSection__slider {
+  display: flex;
+  gap: 8px;
+  animation: recommendScroll 11.4s infinite;
+  width: max-content;
+}
+
+.RecommendSection__slider:hover {
+  animation-play-state: paused;
+}
+
+/* 추천 카드 */
+.RecommendSection__card {
+  flex-shrink: 0;
+  width: 180px;
+  height: 112px;
+  background-color: #F2F2FF;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.RecommendSection__cardCode {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--violet600);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.RecommendSection__cardName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray900);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.RecommendSection__cardDesc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--gray700);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 무한 슬라이드 — 카드당 3초 정지 + 0.8초 이동, 총 11.4초 주기 */
+@keyframes recommendScroll {
+  0%     { transform: translateX(0); }
+  7%     { transform: translateX(-188px); }
+  33.33% { transform: translateX(-188px); }
+  40.33% { transform: translateX(-376px); }
+  66.66% { transform: translateX(-376px); }
+  73.66% { transform: translateX(-564px); }
+  100%   { transform: translateX(-564px); }
+}
+
+/* ══════════════════════════════════════════
+   [수정] 비자 점수 계산기 배너 신규
+   Figma: display:flex; padding:16px 20px; align-items:center; gap:16px;
+   border-radius:10px; border:1px solid #D2D2FF; bg:#FFF; box-shadow:0 4px 20px 0 #F2F2FF;
+   ══════════════════════════════════════════ */
+.CalculatorBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background-color: var(--white);
+  border: 1px solid #D2D2FF;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px 0 #F2F2FF;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.CalculatorBanner__text {
+  flex: 1;
+}
+
+.CalculatorBanner__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #674DFF;
+  line-height: 1.4;
+  margin: 0 0 4px;
+}
+
+.CalculatorBanner__desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #908BA0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.CalculatorBanner__icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   비자 카드 리스트
+   ══════════════════════════════════════════ */
+.VisaClient__visaList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── 비자 카드 ── */
+.VisaClient__visaCard {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06), 0 0 1px 0 rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.VisaClient__visaCard:active {
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* ── 카드 헤더 (코드 + 칩) ── */
+.VisaClient__visaCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+/* 비자 코드 */
+.VisaClient__visaCode {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--violet600);
+}
+
+/* 비자 이름 */
+.VisaClient__visaName {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--gray900);
+}
+
+/* 비자 설명 */
+.VisaClient__visaDesc {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.54;
+  color: var(--gray700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ══════════════════════════════════════════
+   Chip (카테고리 태그)
+   ══════════════════════════════════════════ */
+.Chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* 취업 */
+.Chip--employment {
+  color: var(--violet600);
+  border-color: var(--violet600);
+  background-color: transparent;
+}
+
+/* 학업 */
+.Chip--study {
+  color: var(--green600);
+  border-color: var(--green600);
+  background-color: transparent;
+}
+
+/* 거주 */
+.Chip--residence {
+  color: var(--pink600);
+  border-color: var(--pink600);
+  background-color: transparent;
+}
+
+/* 여행 */
+.Chip--travel {
+  color: var(--blue600);
+  border-color: var(--blue600);
+  background-color: transparent;
+}
+
+/* 기타 */
+.Chip--etc {
+  color: var(--gray700);
+  border-color: var(--gray300);
+  background-color: transparent;
+}

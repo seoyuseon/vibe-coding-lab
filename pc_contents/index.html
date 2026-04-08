@@ -37,6 +37,31 @@
       --color-blue-50: #003CFF;
       --color-red-50: #FF0000;
       --color-red-55: #FF501B;
+
+      /* JAMS 2.0 Semantic Color Tokens */
+      --jams-text-primary: var(--color-grey-11);
+      --jams-text-secondary: var(--color-grey-40);
+      --jams-text-tertiary: var(--color-grey-53);
+      --jams-text-disabled: var(--color-grey-62);
+      --jams-primary: var(--color-azure-50);
+      --jams-primary-alt: var(--color-azure-54);
+      --jams-bg-primary: var(--color-white);
+      --jams-bg-secondary: var(--color-grey-96);
+      --jams-bg-tertiary: var(--color-grey-97);
+      --jams-border-primary: var(--color-grey-91);
+      --jams-border-secondary: var(--color-grey-90);
+
+      /* Badge Colors */
+      --jams-badge-hot-bg: #FFF0F0;
+      --jams-badge-hot-text: #FF4D4F;
+      --jams-badge-new-bg: #F0F5FF;
+      --jams-badge-new-text: var(--color-azure-50);
+      --jams-badge-rank-bg: rgba(0, 0, 0, 0.6);
+
+      /* Shadow Colors */
+      --jams-shadow-color: rgba(0, 0, 0, 0.08);
+      --jams-shadow-color-light: rgba(0, 0, 0, 0.06);
+      --jams-focus-ring-color: rgba(0, 87, 255, 0.1);
     }
 
     * {
@@ -321,13 +346,13 @@
     }
 
     .featured-card-badge.hot {
-      background: #FFF0F0;
-      color: #FF4D4F;
+      background: var(--jams-badge-hot-bg);
+      color: var(--jams-badge-hot-text);
     }
 
     .featured-card-badge.new {
-      background: #F0F5FF;
-      color: var(--color-azure-50);
+      background: var(--jams-badge-new-bg);
+      color: var(--jams-badge-new-text);
     }
 
     .featured-card-title {
@@ -369,8 +394,8 @@
       left: 12px;
       width: 28px;
       height: 28px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
+      background: var(--jams-badge-rank-bg);
+      color: var(--color-white);
       font-size: 13px;
       font-weight: 700;
       border-radius: 8px;
@@ -487,7 +512,7 @@
     .toolbar-search:focus-within {
       background: var(--color-white);
       border-color: var(--color-azure-50);
-      box-shadow: 0 0 0 3px rgba(0, 87, 255, 0.1);
+      box-shadow: 0 0 0 3px var(--jams-focus-ring-color);
     }
 
     .toolbar-search svg {

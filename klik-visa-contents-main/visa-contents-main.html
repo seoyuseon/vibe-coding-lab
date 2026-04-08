@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비자 콘텐츠 메인 - 디자인 검수</title>
+  <link rel="stylesheet" href="visa-contents-main.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ==========================================
+     📌 컴포넌트 매핑 가이드
+     ==========================================
+     이 HTML의 class명은 Next.js 컴포넌트/스타일 파일과 1:1 매핑됩니다.
+
+     [페이지 레벨] client.tsx + index.css.ts
+       .VisaClient                → client.tsx 전체 wrapper
+       .VisaClient__container     → styles.container
+       .VisaClient__pageTitleWrap → styles.pageTitleWrap
+       .VisaClient__pageTitle     → styles.pageTitle
+       .VisaClient__categoryFilter→ styles.categoryFilter (sticky 필터 바)
+       .Button--filter            → Button 컴포넌트 variant="filter"
+       .VisaClient__visaList      → styles.visaList
+       .VisaClient__visaCard      → styles.visaCard
+       .VisaClient__visaCardHeader→ styles.visaCardHeader
+
+     [LanguageToggle] _component/LanguageToggle/
+       .LanguageToggle            → index.css.ts > toggleWrap
+       .LanguageToggle__button    → toggleButton
+       .LanguageToggle__button--active → toggleButtonActive
+
+     [VisaJourneyCards] _component/VisaJourneyCards/
+       .VisaJourneyCards          → index.css.ts > section
+       .VisaJourneyCards__title   → sectionTitle
+       .VisaJourneyCards__container → container
+       .VisaJourneyCards__card    → card
+       .VisaJourneyCards__card--active → cardActive
+       .VisaJourneyCards__emoji   → emoji
+       .VisaJourneyCards__label   → label
+       .VisaJourneyCards__recommendPanel → recommendPanel
+       .VisaJourneyCards__recommendHeader → recommendHeader
+       .VisaJourneyCards__recommendTitle → recommendTitle
+       .VisaJourneyCards__miniCardList → miniCardList
+       .VisaJourneyCards__miniCard → miniCard
+       .VisaJourneyCards__miniCardCode → miniCardCode
+       .VisaJourneyCards__miniCardInfo → miniCardInfo
+       .VisaJourneyCards__miniCardName → miniCardName
+       .VisaJourneyCards__miniCardHeadline → miniCardHeadline
+       .VisaJourneyCards__miniCardArrow → miniCardArrow
+       .VisaJourneyCards__nextStep → nextStep
+
+     [VisaCalculatorBanner] _component/VisaCalculatorBanner/
+       .VisaCalculatorBanner      → index.css.ts > banner
+       .VisaCalculatorBanner__subTitle → subTitle
+       .VisaCalculatorBanner__heading → heading
+       .VisaCalculatorBanner__desc → desc
+       .VisaCalculatorBanner__button → button
+
+     [VisaFilterIndicator] _component/VisaFilterIndicator/
+       .VisaFilterIndicator       → 인라인 스타일 (컨테이너)
+       .VisaFilterIndicator__chip → Chip 컴포넌트
+       .VisaFilterIndicator__clear → 클리어 버튼
+     ========================================== -->
+
+<div class="VisaClient">
+  <!-- DefaultLayout 영역 (헤더 시뮬레이션) -->
+  <!-- [디자인 검수] LanguageToggle → 헤더 우측(shareBtn 왼쪽)으로 이동. 기존 VisaClient__langToggleWrap 제거 -->
+  <header class="DefaultLayout__header">
+    <button class="DefaultLayout__backBtn">←</button>
+    <span class="DefaultLayout__headerTitle">비자 정보</span>
+    <div class="DefaultLayout__headerRight">
+      <div class="LanguageToggle">
+        <button class="LanguageToggle__button LanguageToggle__button--active">KO</button>
+        <button class="LanguageToggle__button">EN</button>
+      </div>
+      <button class="DefaultLayout__shareBtn">🔗</button>
+    </div>
+  </header>
+
+  <div class="VisaClient__container" id="visaListTop">
+
+    <!-- [디자인 검수] 페이지 타이틀 통합 — 기존 pageTitleWrap + VisaJourneyCards__title 두 영역이 중복되어 하나로 합침. 서브타이틀 제거 -->
+    <div class="VisaClient__pageTitleWrap">
+      <h1 class="VisaClient__pageTitle Typography--H3-bold">나에게 맞는 한국 비자는?</h1>
+    </div>
+
+    <!-- [디자인 검수] VisaJourneyCards 전면 리디자인 — 기존 이모지+텍스트 박스 → 칩 선택형 UI로 변경. 추천 패널도 카드 스타일 개선 -->
+    <div class="VisaJourneyCards">
+      <!-- [디자인 검수] VisaJourneyCards__container → KLiK DSG [ToggleTabFilter] 스타일 적용. 서브타이틀(question) 제거 -->
+      <div class="VisaJourneyCards__container">
+        <button class="VisaJourneyCards__tab VisaJourneyCards__tab--active">유학 중</button>
+        <button class="VisaJourneyCards__tab">취업 준비</button>
+        <button class="VisaJourneyCards__tab">정착 목표</button>
+      </div>
+
+      <!-- [디자인 검수] 추천 패널 — 헤더 간결화, miniCard에 좌측 컬러바 추가, nextStep을 별도 가이드 카드로 분리 -->
+      <div class="VisaJourneyCards__recommendPanel">
+        <p class="VisaJourneyCards__recommendTitle">💼 취업 준비에 필요한 비자</p>
+
+        <div class="VisaJourneyCards__miniCardList">
+          <button class="VisaJourneyCards__miniCard">
+            <div class="VisaJourneyCards__miniCardLeft">
+              <span class="VisaJourneyCards__miniCardCode">D-10</span>
+              <span class="VisaJourneyCards__miniCardName">구직비자</span>
+            </div>
+            <span class="VisaJourneyCards__miniCardArrow">›</span>
+          </button>
+          <button class="VisaJourneyCards__miniCard">
+            <div class="VisaJourneyCards__miniCardLeft">
+              <span class="VisaJourneyCards__miniCardCode">E-7</span>
+              <span class="VisaJourneyCards__miniCardName">특정활동비자</span>
+            </div>
+            <span class="VisaJourneyCards__miniCardArrow">›</span>
+          </button>
+          <button class="VisaJourneyCards__miniCard">
+            <div class="VisaJourneyCards__miniCardLeft">
+              <span class="VisaJourneyCards__miniCardCode">D-8</span>
+              <span class="VisaJourneyCards__miniCardName">기업투자비자</span>
+            </div>
+            <span class="VisaJourneyCards__miniCardArrow">›</span>
+          </button>
+        </div>
+
+        <div class="VisaJourneyCards__guideCard">
+          <span class="VisaJourneyCards__guideIcon">🎯</span>
+          <p class="VisaJourneyCards__guideText">취업 후 정착 경로: E-7 → F-2-7 → F-5</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- [디자인 검수] VisaCalculatorBanner 간결화 — subTitle·desc 텍스트 제거, 헤딩+버튼만 남김 -->
+    <div class="VisaCalculatorBanner">
+      <div class="VisaCalculatorBanner__content">
+        <span class="VisaCalculatorBanner__icon">🧮</span>
+        <p class="VisaCalculatorBanner__heading">F-2-7 점수 계산하기</p>
+      </div>
+      <button class="VisaCalculatorBanner__button">내 점수 확인 →</button>
+    </div>
+
+    <!-- [디자인 검수] 섹션 구분선 추가 — 상단(타이틀+여정+배너)과 하단(필터+리스트) 영역 분리 -->
+    <hr class="VisaClient__divider">
+
+    <!-- 카테고리 필터 (Button variant="filter") -->
+    <div class="VisaClient__categoryFilter">
+      <button class="Button--filter Button--filter--active">전체</button>
+      <button class="Button--filter">취업</button>
+      <button class="Button--filter">유학</button>
+      <button class="Button--filter">거주</button>
+      <button class="Button--filter">여행</button>
+      <button class="Button--filter">기타</button>
+    </div>
+
+    <!-- 여정 필터 인디케이터 (선택 시 노출) -->
+    <div class="VisaFilterIndicator">
+      <span class="VisaFilterIndicator__chip">💼 3개의 비자</span>
+      <button class="VisaFilterIndicator__clear">초기화 ✕</button>
+    </div>
+
+    <!-- 비자 목록 -->
+    <div class="VisaClient__visaList">
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">D-10</span>
+          <span class="Chip Chip--violet600">취업</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">구직비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">졸업 후 한국에서 일자리를 찾고 싶다면? D-10 구직비자로 최대 2년간 체류하며 취업 준비를 할 수 있어요.</p>
+      </div>
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">E-7</span>
+          <span class="Chip Chip--violet600">취업</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">특정활동비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">전문 직종에서 한국 기업에 취업하려면? E-7 비자는 IT·엔지니어링·통번역 등 전문직 취업을 위한 비자예요.</p>
+      </div>
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">D-8</span>
+          <span class="Chip Chip--violet600">취업</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">기업투자비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">한국에서 창업하거나 투자를 하고 싶다면? D-8 비자로 사업을 시작할 수 있어요.</p>
+      </div>
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">D-2</span>
+          <span class="Chip Chip--green">유학</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">유학비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">한국 대학교에서 학위 과정(학사·석사·박사)을 이수하기 위한 체류자격이에요.</p>
+      </div>
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">F-2-7</span>
+          <span class="Chip Chip--pink">거주</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">점수제 거주비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">소득·학력·한국어 능력 등 항목별 점수 합산으로 취득하는 장기 체류 비자예요.</p>
+      </div>
+
+      <div class="VisaClient__visaCard">
+        <div class="VisaClient__visaCardHeader">
+          <span class="Typography--B1-bold Typography--violet600">F-5</span>
+          <span class="Chip Chip--pink">거주</span>
+        </div>
+        <div class="Typography--B1-bold Typography--gray900">영주비자</div>
+        <p class="Typography--D1 Typography--gray700 text-ellipsis-3">한국에 영구적으로 거주할 수 있는 최종 체류자격이에요.</p>
+      </div>
+
+    </div>
+
+  </div><!-- /.VisaClient__container -->
+</div><!-- /.VisaClient -->
+
+</body>
+</html>

@@ -1,0 +1,491 @@
+/* ==========================================
+   비자 콘텐츠 메인 - 디자인 검수용 CSS
+   ==========================================
+   class명은 BEM 방식으로 Next.js 컴포넌트와 1:1 매핑
+   주석으로 원본 파일 경로 표기
+   ========================================== */
+
+/* ── 기본 리셋 & 폰트 ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: #FFFFFF;
+  color: #222222;
+  max-width: 480px;
+  margin: 0 auto;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── 색상 토큰 (colors.css.ts 기반) ── */
+:root {
+  --gray900: #222222;
+  --gray800: #444444;
+  --gray700: #6A6A6A;
+  --gray500: #9E9E9E;
+  --gray300: #D1D1D1;
+  --gray200: #E8E8E8;
+  --gray100: #F4F4F4;
+  --gray50:  #F7F7F7;
+  --violet600: #481AFF;
+  --white: #FFFFFF;
+  --violet-card-bg: #F3F0FF;
+  --violet-card-border: #7C6FE0;
+  --violet-dark: #3C3489;
+  --violet-mid: #534AB7;
+  --pink: #FF4081;
+  --blue: #2196F3;
+  --green: #4CAF50;
+}
+
+/* ── Typography 유틸 (Typography 컴포넌트 매핑) ── */
+.Typography--H3-bold   { font-size: 20px; font-weight: 700; line-height: 1.4; }
+.Typography--H3-regular{ font-size: 20px; font-weight: 400; line-height: 1.4; }
+.Typography--B1-bold   { font-size: 16px; font-weight: 700; line-height: 1.5; }
+.Typography--B2        { font-size: 14px; font-weight: 500; line-height: 1.5; }
+.Typography--D1        { font-size: 13px; font-weight: 400; line-height: 1.5; }
+
+.Typography--gray900   { color: var(--gray900); }
+.Typography--gray700   { color: var(--gray700); }
+.Typography--violet600 { color: var(--violet600); }
+
+.text-ellipsis-3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ── Chip 컴포넌트 ── */
+.Chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid;
+}
+.Chip--violet600 { color: var(--violet600); border-color: var(--violet600); background: transparent; }
+.Chip--green     { color: var(--green);     border-color: var(--green);     background: transparent; }
+.Chip--pink      { color: var(--pink);      border-color: var(--pink);      background: transparent; }
+.Chip--blue      { color: var(--blue);      border-color: var(--blue);      background: transparent; }
+.Chip--gray700   { color: var(--gray700);   border-color: var(--gray700);   background: transparent; }
+
+/* ══════════════════════════════════════════
+   DefaultLayout (헤더 시뮬레이션)
+   ══════════════════════════════════════════ */
+.DefaultLayout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--gray100);
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 200;
+}
+.DefaultLayout__backBtn,
+.DefaultLayout__shareBtn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+.DefaultLayout__headerTitle {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* [디자인 검수] headerRight 신규 — LanguageToggle을 헤더 우측(shareBtn 왼쪽)으로 이동하기 위한 래퍼 */
+.DefaultLayout__headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ══════════════════════════════════════════
+   VisaClient (client.tsx + index.css.ts)
+   src/app/[locale]/visa-contents/
+   ══════════════════════════════════════════ */
+
+/* styles.container */
+.VisaClient__container {
+  padding: 4px 20px 20px;
+}
+@media (min-width: 769px) {
+  .VisaClient__container {
+    padding: 40px;
+  }
+}
+
+/* [디자인 검수] VisaClient__langToggleWrap 제거 — LanguageToggle이 헤더로 이동됨 */
+
+/* styles.pageTitleWrap */
+/* [디자인 검수] 타이틀 통합 — 기존 2줄 flex 구조에서 단일 타이틀로 변경. gap, icon-earth 제거 */
+.VisaClient__pageTitleWrap {
+  margin-bottom: 4px;
+}
+
+/* styles.pageTitle */
+.VisaClient__pageTitle {
+  /* [디자인 검수] h1으로 변경, flex→block. 기존 icon-earth·Typography--H3-regular 제거됨 */
+}
+
+/* [디자인 검수] 섹션 구분선 — 상단(타이틀+여정+배너)과 하단(필터+리스트) 영역 분리 */
+.VisaClient__divider {
+  border: none;
+  border-top: 1px solid var(--gray100);
+  margin: 20px -20px 0;
+}
+@media (min-width: 769px) {
+  .VisaClient__divider {
+    margin: 24px -40px 0;
+  }
+}
+
+/* styles.categoryFilter */
+.VisaClient__categoryFilter {
+  position: sticky;
+  top: 55px;
+  z-index: 100;
+  background-color: var(--white);
+  margin: 14px -20px 8px;
+  padding: 0 20px 12px;
+  display: flex;
+  gap: 6px;
+  overflow-y: auto;
+  white-space: nowrap;
+}
+.VisaClient__categoryFilter::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 769px) {
+  .VisaClient__categoryFilter {
+    top: 65px;
+    margin: 14px -40px 8px;
+    padding: 10px 40px 12px;
+  }
+}
+
+/* Button variant="filter" (공통 컴포넌트) */
+.Button--filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray700);
+  background-color: var(--white);
+  border: 1px solid var(--gray200);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+/* Button variant="filter" activeVariant="noLine" */
+.Button--filter--active {
+  color: var(--white);
+  background-color: var(--violet600);
+  border-color: var(--violet600);
+}
+
+/* styles.visaList */
+.VisaClient__visaList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* styles.visaCard */
+.VisaClient__visaCard {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* styles.visaCardHeader */
+.VisaClient__visaCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════
+   LanguageToggle
+   _component/LanguageToggle/index.css.ts
+   ══════════════════════════════════════════ */
+
+/* toggleWrap */
+.LanguageToggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: var(--gray100);
+  border-radius: 20px;
+  padding: 2px;
+}
+
+/* toggleButton */
+.LanguageToggle__button {
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray500);
+  line-height: 20px;
+  transition: all 0.15s ease;
+}
+
+/* toggleButtonActive */
+.LanguageToggle__button--active {
+  background-color: var(--white);
+  color: var(--violet600);
+  font-weight: 700;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.10);
+}
+
+/* ══════════════════════════════════════════
+   VisaJourneyCards
+   _component/VisaJourneyCards/index.css.ts
+   ══════════════════════════════════════════ */
+
+/* section */
+.VisaJourneyCards {
+  margin: 16px 0;
+}
+
+/* [디자인 검수] VisaJourneyCards 전면 리디자인
+   — 기존: 이모지+줄바꿈 텍스트 박스(올드한 카드 UI)
+   — 변경: 질문 프롬프트 + 칩 선택형 UI + 깔끔한 추천 카드
+   — 사유: 사용자가 상태를 선택→답변을 받는 대화형 흐름으로 직관성 개선 */
+
+/* [디자인 검수] KLiK DSG [ToggleTabFilter] 스타일 적용
+   Figma: https://www.figma.com/design/GoZxWtX2HKxTMbuAHGv2QZ/KLiK-DSG?node-id=21944-1417
+   — 기존: 개별 칩 border+gap 방식
+   — 변경: 회색 컨테이너 안에 active 탭이 흰색 pill로 떠오르는 세그먼트 컨트롤 */
+
+/* container — 세그먼트 컨트롤 배경 */
+.VisaJourneyCards__container {
+  display: flex;
+  background-color: var(--gray100);
+  border-radius: 100px;
+  padding: 4px;
+}
+
+/* tab — 개별 탭 */
+.VisaJourneyCards__tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* tab active — 흰색 pill + 그림자 */
+.VisaJourneyCards__tab--active {
+  background-color: var(--white);
+  color: var(--gray900);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* recommendPanel */
+.VisaJourneyCards__recommendPanel {
+  margin-top: 12px;
+  background-color: var(--gray50);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* recommendTitle — 기존 recommendHeader 제거, 타이틀 단독 사용 */
+.VisaJourneyCards__recommendTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray900);
+  margin: 0 0 12px;
+}
+
+/* miniCardList */
+.VisaJourneyCards__miniCardList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* miniCard — 좌측 컬러바 추가, 구조 단순화 (headline 제거) */
+.VisaJourneyCards__miniCard {
+  background-color: var(--white);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  border-left: 3px solid var(--violet600);
+}
+
+.VisaJourneyCards__miniCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* miniCardCode */
+.VisaJourneyCards__miniCardCode {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--violet600);
+}
+
+/* miniCardName */
+.VisaJourneyCards__miniCardName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray900);
+  margin: 0;
+}
+
+/* miniCardArrow */
+.VisaJourneyCards__miniCardArrow {
+  font-size: 16px;
+  color: var(--gray500);
+}
+
+/* [디자인 검수] guideCard 신규 — 기존 nextStep 텍스트를 별도 가이드 카드로 분리 */
+.VisaJourneyCards__guideCard {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: var(--white);
+  border-radius: 10px;
+  border: 1px dashed var(--gray300);
+}
+
+.VisaJourneyCards__guideIcon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.VisaJourneyCards__guideText {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray700);
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════
+   VisaCalculatorBanner
+   _component/VisaCalculatorBanner/index.css.ts
+   ══════════════════════════════════════════ */
+
+/* [디자인 검수] VisaCalculatorBanner 간결화
+   — 기존: subTitle + heading + desc(장문) + button (세로 나열, 텍스트 과다)
+   — 변경: 아이콘+헤딩(가로) + 버튼 (한 줄 구성)
+   — 사유: 텍스트가 너무 많아 시선이 분산됨. CTA 중심으로 압축 */
+
+/* banner */
+.VisaCalculatorBanner {
+  padding: 14px 16px;
+  background-color: #F3F0FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  width: 100%;
+}
+
+/* content — 아이콘+헤딩 가로 묶음 (신규) */
+.VisaCalculatorBanner__content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.VisaCalculatorBanner__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* heading */
+.VisaCalculatorBanner__heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3C3489;
+  margin: 0;
+}
+
+/* button */
+.VisaCalculatorBanner__button {
+  background-color: #7C6FE0;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   VisaFilterIndicator
+   _component/VisaFilterIndicator/index.tsx (인라인 스타일)
+   ══════════════════════════════════════════ */
+
+.VisaFilterIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+.VisaFilterIndicator__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white);
+  background-color: var(--violet600);
+}
+
+.VisaFilterIndicator__clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  color: var(--gray500);
+}
