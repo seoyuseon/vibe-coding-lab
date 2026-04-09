@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>F-2-7 비자 점수 계산기</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ── Tokens ── */
+    :root {
+      --gray900: #222222;
+      --gray800: #444444;
+      --gray700: #6A6A6A;
+      --gray500: #9E9E9E;
+      --gray300: #D1D1D1;
+      --gray200: #E8E8E8;
+      --gray100: #F4F4F4;
+      --gray50:  #F7F7F7;
+      --white:   #FFFFFF;
+      --violet600: #481AFF;
+      --violet500: #6A47FF;
+      --violet100: #F3F0FF;
+      --violet50:  #F8F6FF;
+      --accent:    #674DFF;
+
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-full: 999px;
+
+      --shadow-btn: 0 8px 24px rgba(72, 26, 255, 0.25);
+      --shadow-card: 0 1px 2px rgba(17, 17, 26, 0.04), 0 4px 16px rgba(17, 17, 26, 0.04);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    html {
+      background: linear-gradient(180deg, var(--violet50) 0%, #ffffff 60%);
+    }
+
+    body {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background: transparent;
+      color: var(--gray900);
+      max-width: 480px;
+      margin: 0 auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      position: relative;
+    }
+
+    /* ── Stage ── */
+    .stage {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+    }
+
+    .scene.is-active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* ── Scene 1: Intro ── */
+    .intro-emoji {
+      font-size: 56px;
+      margin-bottom: 20px;
+      animation: floatY 2.4s ease-in-out infinite;
+    }
+
+    .intro-title {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: center;
+      color: var(--gray900);
+      letter-spacing: -0.4px;
+      margin-bottom: 16px;
+      max-width: 320px;
+    }
+
+    .intro-sub {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.6;
+      text-align: center;
+      color: var(--gray500);
+      max-width: 300px;
+    }
+
+    /* ── Scene 2: Ready ── */
+    .ready-dots {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .ready-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--violet600);
+      opacity: 0.3;
+      animation: bounceDot 1.2s ease-in-out infinite;
+    }
+
+    .ready-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .ready-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    .ready-title {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.3;
+      text-align: center;
+      color: var(--gray900);
+      letter-spacing: -0.6px;
+      margin-bottom: 12px;
+    }
+
+    .ready-desc {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gray700);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .start-btn {
+      appearance: none;
+      border: none;
+      background: var(--violet600);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 18px 56px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      box-shadow: var(--shadow-btn);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      letter-spacing: -0.2px;
+    }
+
+    .start-btn:hover {
+      background: var(--violet500);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(72, 26, 255, 0.32);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(72, 26, 255, 0.25);
+    }
+
+    /* ── Scene 3: Quiz ── */
+    .scene-quiz {
+      padding: 0;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+
+    .score-header {
+      flex-shrink: 0;
+      padding: 24px 24px 20px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--gray100);
+      z-index: 10;
+    }
+
+    .score-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .score-label-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .score-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray700);
+      letter-spacing: -0.2px;
+    }
+
+    .score-pass-line {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--violet50);
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      letter-spacing: -0.1px;
+      white-space: nowrap;
+    }
+
+    .score-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .score-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-max {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray500);
+    }
+
+    .score-bar {
+      position: relative;
+      height: 8px;
+      background: var(--gray100);
+      border-radius: var(--radius-full);
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--violet600), var(--accent));
+      border-radius: var(--radius-full);
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .score-bar-marker {
+      position: absolute;
+      left: 50%;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      transform: translateX(-50%);
+      background: var(--gray500);
+      border-radius: 2px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .questions {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    /* hide scrollbar (subtle) */
+    .questions::-webkit-scrollbar {
+      width: 6px;
+    }
+    .questions::-webkit-scrollbar-thumb {
+      background: var(--gray200);
+      border-radius: 6px;
+    }
+    .questions::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* ── Question Card ── */
+    .question-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 24px 22px;
+      box-shadow: var(--shadow-card);
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .question-card.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .question-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .question-number {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--violet100);
+      padding: 5px 11px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.2px;
+    }
+
+    .question-max {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray500);
+    }
+
+    .question-multi {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--violet50);
+      padding: 4px 9px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.1px;
+      margin-left: auto;
+    }
+
+    .question-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray900);
+      letter-spacing: -0.3px;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .option-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-btn {
+      width: 100%;
+      appearance: none;
+      background: var(--white);
+      border: 1.5px solid var(--gray200);
+      border-radius: 12px;
+      padding: 15px 18px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray900);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.15s ease, background 0.15s ease,
+                  color 0.15s ease, transform 0.1s ease;
+      text-align: left;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent);
+      background: var(--violet50);
+    }
+
+    .option-btn:active {
+      transform: scale(0.985);
+    }
+
+    .option-points {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray500);
+      flex-shrink: 0;
+      transition: color 0.15s ease;
+    }
+
+    .option-btn:hover .option-points {
+      color: var(--accent);
+    }
+
+    .option-btn.is-selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    .option-btn.is-selected:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .option-btn.is-selected .option-points {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .option-btn.is-selected:hover .option-points {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* ── Quiz CTA (Last question: 결과 보기) ── */
+    .quiz-cta {
+      flex-shrink: 0;
+      padding: 14px 20px 22px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-top: 1px solid var(--gray100);
+      display: none;
+    }
+
+    .quiz-cta.is-visible {
+      display: block;
+      animation: slideUpIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cta-btn {
+      width: 100%;
+      appearance: none;
+      border: none;
+      background: var(--violet600);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 17px 24px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      box-shadow: var(--shadow-btn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: -0.2px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .cta-btn:hover {
+      background: var(--violet500);
+      box-shadow: 0 12px 28px rgba(72, 26, 255, 0.32);
+    }
+
+    .cta-btn:active {
+      transform: scale(0.985);
+    }
+
+    .cta-btn-arrow {
+      font-size: 18px;
+      line-height: 1;
+      margin-top: -1px;
+    }
+
+    /* ── Scene 4: Result ── */
+    .scene-result {
+      padding: 0;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+
+    .result-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 40px 24px 28px;
+    }
+
+    .result-body::-webkit-scrollbar { width: 6px; }
+    .result-body::-webkit-scrollbar-thumb { background: var(--gray200); border-radius: 6px; }
+    .result-body::-webkit-scrollbar-track { background: transparent; }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .result-emoji {
+      font-size: 56px;
+      display: inline-block;
+      margin-bottom: 14px;
+      animation: floatY 2.4s ease-in-out infinite;
+    }
+
+    .result-status-chip {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--white);
+      background: var(--accent);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      margin-bottom: 16px;
+      letter-spacing: -0.1px;
+    }
+
+    .result-status-chip.is-fail {
+      background: var(--gray500);
+    }
+
+    .result-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--gray900);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .result-total {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .result-total-num {
+      font-size: 64px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-total-max {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray500);
+    }
+
+    .result-desc {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray700);
+      line-height: 1.55;
+    }
+
+    .result-breakdown {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 22px 22px 8px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .breakdown-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray700);
+      margin-bottom: 14px;
+      letter-spacing: -0.2px;
+    }
+
+    .breakdown-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .breakdown-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-top: 1px solid var(--gray100);
+    }
+
+    .breakdown-item:first-child {
+      border-top: none;
+      padding-top: 4px;
+    }
+
+    .breakdown-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .breakdown-item-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray500);
+      letter-spacing: -0.1px;
+    }
+
+    .breakdown-item-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray900);
+      letter-spacing: -0.2px;
+      line-height: 1.5;
+      word-break: keep-all;
+    }
+
+    .breakdown-item-points {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      padding-top: 1px;
+    }
+
+    .breakdown-item-points.is-zero {
+      color: var(--gray500);
+    }
+
+    .result-actions {
+      flex-shrink: 0;
+      padding: 16px 20px 22px;
+      background: var(--white);
+      border-top: 1px solid var(--gray100);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-btn {
+      width: 100%;
+      appearance: none;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 20px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+
+    .action-btn--primary {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .action-btn--primary:hover {
+      background: var(--violet600);
+    }
+
+    .action-btn--secondary {
+      background: var(--violet50);
+      color: var(--accent);
+    }
+
+    .action-btn--secondary:hover {
+      background: var(--violet100);
+    }
+
+    .action-btn--ghost {
+      background: transparent;
+      color: var(--gray700);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 20px;
+    }
+
+    .action-btn--ghost:hover {
+      color: var(--gray900);
+    }
+
+    .result-restart {
+      width: auto;
+      margin: 20px auto 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+    }
+
+    .result-restart-icon {
+      font-size: 15px;
+      line-height: 1;
+      display: inline-block;
+    }
+
+    /* result-body는 result-restart를 가로 가운데 정렬 */
+    .result-body {
+      text-align: center;
+    }
+
+    .result-breakdown {
+      text-align: left;
+    }
+
+    .action-btn:active {
+      transform: scale(0.985);
+    }
+
+    /* ── Animations ── */
+    @keyframes slideUpIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    @keyframes bounceDot {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.3; }
+      40%           { transform: scale(1.2); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intro-emoji,
+      .ready-dots span {
+        animation: none;
+      }
+      .scene,
+      .question-card,
+      .score-bar-fill {
+        transition-duration: 0.2s;
+      }
+    }
+
+    /* ── PC tweak ── */
+    @media (min-width: 600px) {
+      body {
+        box-shadow: 0 0 0 1px rgba(17, 17, 26, 0.04),
+                    0 24px 60px rgba(72, 26, 255, 0.08);
+        background: var(--white);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <!-- Scene 1: Intro (3초 자동 전환) -->
+    <section class="scene" id="scene-intro" aria-hidden="true">
+      <div class="intro-emoji" aria-hidden="true">🧮</div>
+      <h1 class="intro-title">F-2-7 비자 취득에 대한<br>내 점수를 계산해 볼게요!</h1>
+      <p class="intro-sub">실제 점수는 공식 기준을 따르며,<br>참고용으로만 사용해 주세요</p>
+    </section>
+
+    <!-- Scene 2: Ready -->
+    <section class="scene" id="scene-ready" aria-hidden="true">
+      <div class="ready-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <h2 class="ready-title">준비됐나요?</h2>
+      <p class="ready-desc">지금 바로 점수 계산을 시작해 볼게요</p>
+      <button type="button" class="start-btn" id="startBtn">시작하기</button>
+    </section>
+
+    <!-- Scene 3: Quiz -->
+    <section class="scene scene-quiz" id="scene-quiz" aria-hidden="true">
+      <header class="score-header">
+        <div class="score-row">
+          <div class="score-label-group">
+            <span class="score-label">현재 점수</span>
+            <span class="score-pass-line">합격선 80점</span>
+          </div>
+          <div class="score-value">
+            <span class="score-num" id="scoreNum">0</span>
+            <span class="score-max">/ 160점</span>
+          </div>
+        </div>
+        <div class="score-bar" aria-hidden="true">
+          <div class="score-bar-fill" id="scoreBarFill"></div>
+          <div class="score-bar-marker" title="합격선 80점"></div>
+        </div>
+      </header>
+
+      <div class="questions" id="questions"></div>
+
+      <div class="quiz-cta" id="quizCta">
+        <button type="button" class="cta-btn" id="resultBtn">
+          결과 보기
+          <span class="cta-btn-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Scene 4: Result -->
+    <section class="scene scene-result" id="scene-result" aria-hidden="true">
+      <div class="result-body">
+        <div class="result-header">
+          <div class="result-emoji" id="resultEmoji" aria-hidden="true">🎉</div>
+          <div class="result-status-chip" id="resultStatusChip">합격선 통과</div>
+          <h2 class="result-title" id="resultTitle">축하해요!</h2>
+          <div class="result-total">
+            <span class="result-total-num" id="resultTotalNum">0</span>
+            <span class="result-total-max">/ 160점</span>
+          </div>
+          <p class="result-desc" id="resultDesc">F-2-7 비자 신청 기준인 80점 이상을 충족했어요</p>
+        </div>
+
+        <div class="result-breakdown">
+          <h3 class="breakdown-title">점수 내역</h3>
+          <ul class="breakdown-list" id="breakdownList"></ul>
+        </div>
+
+        <button type="button" class="action-btn action-btn--ghost result-restart" id="btnRestart">
+          <span class="result-restart-icon" aria-hidden="true">↻</span>
+          다시하기
+        </button>
+      </div>
+
+      <div class="result-actions">
+        <a href="#" class="action-btn action-btn--primary" id="btnVisaInfo">F-2-7 비자 알아보기</a>
+        <a href="#" class="action-btn action-btn--secondary" id="btnJobs">공고 둘러보기</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      // ── Data ──────────────────────────────────────────
+      const TOTAL = 160;
+      const PASSING = 80;
+
+      const questions = [
+        {
+          id: 'age',
+          number: 1,
+          category: '나이',
+          title: '나이가 어떻게 되시나요?',
+          maxPoints: 20,
+          options: [
+            { label: '18~24세',  points: 15 },
+            { label: '25~29세',  points: 20 },
+            { label: '30~34세',  points: 18 },
+            { label: '35~39세',  points: 12 },
+            { label: '40~44세',  points: 8  },
+            { label: '45~49세',  points: 5  },
+            { label: '50세 이상', points: 0  },
+          ],
+        },
+        {
+          id: 'education',
+          number: 2,
+          category: '학력',
+          title: '최종 학력이 어떻게 되시나요?',
+          maxPoints: 30,
+          options: [
+            { label: '박사',          points: 30 },
+            { label: '석사',          points: 25 },
+            { label: '학사 (이공계)',  points: 22 },
+            { label: '학사 (인문계)',  points: 20 },
+            { label: '전문학사',       points: 15 },
+          ],
+        },
+        {
+          id: 'korean',
+          number: 3,
+          category: '한국어 능력',
+          title: '한국어 능력이 어떻게 되시나요?',
+          maxPoints: 25,
+          options: [
+            { label: 'TOPIK 6급',  points: 25 },
+            { label: 'TOPIK 5급',  points: 20 },
+            { label: 'TOPIK 4급',  points: 15 },
+            { label: 'TOPIK 3급',  points: 10 },
+            { label: 'KIIP 5단계', points: 25 },
+            { label: 'KIIP 4단계', points: 15 },
+            { label: 'KIIP 3단계', points: 10 },
+          ],
+        },
+        {
+          id: 'income',
+          number: 4,
+          category: '연간 소득 (GNI 기준)',
+          title: 'GNI 기준 연간 소득은 어느 정도인가요?',
+          maxPoints: 60,
+          options: [
+            { label: 'GNI의 5배 이상', points: 60 },
+            { label: 'GNI의 4배 이상', points: 50 },
+            { label: 'GNI의 3배 이상', points: 40 },
+            { label: 'GNI의 2배 이상', points: 30 },
+            { label: 'GNI 이상',       points: 15 },
+            { label: 'GNI 미만',       points: 0  },
+          ],
+        },
+        {
+          id: 'bonus',
+          number: 5,
+          category: '가점 항목',
+          title: '해당하는 가점 항목을 모두 선택해 주세요',
+          maxPoints: 25,
+          type: 'multi',
+          optional: true,
+          options: [
+            { label: '국내 학사 졸업',         points: 5  },
+            { label: 'IT 관련 자격증 보유',     points: 5  },
+            { label: '사회통합 프로그램 이수', points: 10 },
+            { label: '미성년 자녀 양육',       points: 5  },
+          ],
+        },
+      ];
+
+      // ── State ─────────────────────────────────────────
+      let currentScore = 0;
+      // 각 질문별 선택 상태: { items: [{label, points}], points: number }
+      const selections = Object.create(null);
+      // 이미 다음 질문을 추가한 질문 id 추적 (재선택 시 중복 추가 방지)
+      const advancedFrom = new Set();
+
+      // ── Scenes ────────────────────────────────────────
+      const scenes = {
+        intro:  document.getElementById('scene-intro'),
+        ready:  document.getElementById('scene-ready'),
+        quiz:   document.getElementById('scene-quiz'),
+        result: document.getElementById('scene-result'),
+      };
+
+      function showScene(key) {
+        Object.entries(scenes).forEach(([name, el]) => {
+          const active = name === key;
+          el.classList.toggle('is-active', active);
+          el.setAttribute('aria-hidden', active ? 'false' : 'true');
+        });
+      }
+
+      // ── Element refs ─────────────────────────────────
+      const scoreNumEl = document.getElementById('scoreNum');
+      const scoreBarFillEl = document.getElementById('scoreBarFill');
+      const questionsEl = document.getElementById('questions');
+      const quizCtaEl = document.getElementById('quizCta');
+
+      function animateScore(target) {
+        const start = currentScore;
+        const end = target;
+        const duration = 700;
+        const startTime = performance.now();
+
+        function tick(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+          const value = Math.round(start + (end - start) * eased);
+          scoreNumEl.textContent = value;
+          scoreBarFillEl.style.width = (value / TOTAL * 100) + '%';
+          if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        currentScore = end;
+      }
+
+      // ── Question rendering ───────────────────────────
+      function renderQuestion(q) {
+        const card = document.createElement('article');
+        card.className = 'question-card';
+        card.dataset.qid = q.id;
+        card.innerHTML = `
+          <div class="question-meta">
+            <span class="question-number">Q${q.number}</span>
+            <span class="question-max">최대 ${q.maxPoints}점</span>
+            ${q.type === 'multi' ? '<span class="question-multi">중복 선택 가능</span>' : ''}
+          </div>
+          <h3 class="question-title">${q.title}</h3>
+          <ul class="option-list">
+            ${q.options.map((opt, i) => `
+              <li>
+                <button type="button" class="option-btn"
+                        data-points="${opt.points}"
+                        data-index="${i}">
+                  <span class="option-label">${opt.label}</span>
+                  <span class="option-points">+${opt.points}</span>
+                </button>
+              </li>
+            `).join('')}
+          </ul>
+        `;
+
+        card.querySelectorAll('.option-btn').forEach((btn) => {
+          btn.addEventListener('click', () => onSelect(card, btn, q));
+        });
+
+        return card;
+      }
+
+      function addQuestion(idx) {
+        if (idx >= questions.length) return;
+        const q = questions[idx];
+        const card = renderQuestion(q);
+        questionsEl.appendChild(card);
+
+        // 두 프레임 후 visible 클래스 → slide-up + fade-in
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.classList.add('is-visible');
+            // 아래에서 새 카드가 보이도록 부드럽게 스크롤
+            questionsEl.scrollTo({
+              top: questionsEl.scrollHeight,
+              behavior: 'smooth',
+            });
+          });
+        });
+      }
+
+      function onSelect(card, btn, q) {
+        if (q.type === 'multi') {
+          return onSelectMulti(card, btn, q);
+        }
+
+        const points = parseInt(btn.dataset.points, 10) || 0;
+        const optIdx = parseInt(btn.dataset.index, 10) || 0;
+        const opt = q.options[optIdx];
+        const prev = selections[q.id];
+
+        // 동일 선택지를 다시 누른 경우 무시
+        if (prev && card.querySelector('.option-btn.is-selected') === btn) {
+          return;
+        }
+
+        // 선택 상태 UI 갱신 (같은 카드 내 다른 선택은 해제)
+        card.querySelectorAll('.option-btn').forEach((b) => {
+          b.classList.toggle('is-selected', b === btn);
+        });
+
+        // 점수 델타 반영
+        const delta = points - (prev ? prev.points : 0);
+        animateScore(currentScore + delta);
+        selections[q.id] = { items: [opt], points: points };
+
+        // 첫 선택 시에만 다음 단계 노출
+        if (!advancedFrom.has(q.id)) {
+          advancedFrom.add(q.id);
+          const nextIdx = questions.indexOf(q) + 1;
+          const nextQ = questions[nextIdx];
+
+          if (!nextQ) {
+            // 마지막 질문 → CTA만 노출
+            setTimeout(showQuizCta, 520);
+          } else if (nextQ.optional) {
+            // 다음 질문이 선택사항 → 다음 질문 카드 + CTA 동시 노출
+            setTimeout(() => {
+              addQuestion(nextIdx);
+              showQuizCta();
+            }, 520);
+          } else {
+            setTimeout(() => addQuestion(nextIdx), 520);
+          }
+        }
+      }
+
+      function onSelectMulti(card, btn, q) {
+        const points = parseInt(btn.dataset.points, 10) || 0;
+        const optIdx = parseInt(btn.dataset.index, 10) || 0;
+        const opt = q.options[optIdx];
+
+        const isNowSelected = btn.classList.toggle('is-selected');
+        const delta = isNowSelected ? points : -points;
+        animateScore(currentScore + delta);
+
+        // selections 상태 갱신
+        const state = selections[q.id] || { items: [], points: 0 };
+        if (isNowSelected) {
+          state.items.push(opt);
+          state.points += points;
+        } else {
+          state.items = state.items.filter((it) => it.label !== opt.label);
+          state.points -= points;
+        }
+        selections[q.id] = state;
+
+        // multi 질문이 optional이면 CTA는 이전 질문 단계에서 이미 노출됨 → 그대로 둠.
+        // optional이 아닌 multi가 마지막일 경우에만 CTA를 토글한다.
+        if (q.optional) return;
+
+        const nextIdx = questions.indexOf(q) + 1;
+        if (nextIdx < questions.length) {
+          if (!advancedFrom.has(q.id)) {
+            advancedFrom.add(q.id);
+            setTimeout(() => addQuestion(nextIdx), 520);
+          }
+        } else {
+          if (state.items.length > 0 && !advancedFrom.has(q.id)) {
+            advancedFrom.add(q.id);
+            setTimeout(showQuizCta, 520);
+          } else if (state.items.length === 0) {
+            hideQuizCta();
+            advancedFrom.delete(q.id);
+          }
+        }
+      }
+
+      function showQuizCta() {
+        quizCtaEl.classList.add('is-visible');
+        // 새로 노출된 CTA 영역까지 자연스럽게 스크롤
+        questionsEl.scrollTo({ top: questionsEl.scrollHeight, behavior: 'smooth' });
+      }
+
+      function hideQuizCta() {
+        quizCtaEl.classList.remove('is-visible');
+      }
+
+      // ── Result ───────────────────────────────────────
+      const resultTotalNumEl = document.getElementById('resultTotalNum');
+      const resultEmojiEl = document.getElementById('resultEmoji');
+      const resultStatusChipEl = document.getElementById('resultStatusChip');
+      const resultTitleEl = document.getElementById('resultTitle');
+      const resultDescEl = document.getElementById('resultDesc');
+      const breakdownListEl = document.getElementById('breakdownList');
+
+      function showResult() {
+        const total = currentScore;
+        const passed = total >= PASSING;
+
+        // 상태 표현
+        resultEmojiEl.textContent = passed ? '🎉' : '💪';
+        resultStatusChipEl.textContent = passed ? '합격선 통과' : '합격선 미달';
+        resultStatusChipEl.classList.toggle('is-fail', !passed);
+        resultTitleEl.textContent = passed ? '축하해요!' : '조금만 더 힘내요';
+
+        if (passed) {
+          const over = total - PASSING;
+          resultDescEl.innerHTML = `F-2-7 비자 신청 기준 80점을<br>${over}점 차이로 충족했어요`;
+        } else {
+          const gap = PASSING - total;
+          resultDescEl.innerHTML = `합격선까지 <strong style="color:var(--accent)">${gap}점</strong> 부족해요<br>가점 항목을 더 채워보세요`;
+        }
+
+        // 총점 카운트업
+        animateNumber(resultTotalNumEl, 0, total, 900);
+
+        // 항목별 점수 요약
+        breakdownListEl.innerHTML = questions.map((q) => {
+          const sel = selections[q.id];
+          const points = sel ? sel.points : 0;
+          const valueText = sel && sel.items.length > 0
+            ? sel.items.map((it) => it.label).join(', ')
+            : '선택 안 함';
+          return `
+            <li class="breakdown-item">
+              <div class="breakdown-item-info">
+                <span class="breakdown-item-label">${q.category}</span>
+                <span class="breakdown-item-value">${valueText}</span>
+              </div>
+              <span class="breakdown-item-points${points === 0 ? ' is-zero' : ''}">
+                ${points > 0 ? '+' : ''}${points}점
+              </span>
+            </li>
+          `;
+        }).join('');
+
+        showScene('result');
+      }
+
+      function animateNumber(el, start, end, duration) {
+        const startTime = performance.now();
+        function tick(now) {
+          const t = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = Math.round(start + (end - start) * eased);
+          if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      // ── Reset ────────────────────────────────────────
+      function resetQuiz() {
+        // 상태 초기화
+        currentScore = 0;
+        Object.keys(selections).forEach((k) => delete selections[k]);
+        advancedFrom.clear();
+
+        // 점수 표시 리셋
+        scoreNumEl.textContent = '0';
+        scoreBarFillEl.style.width = '0%';
+
+        // 질문 영역 리셋
+        questionsEl.innerHTML = '';
+        hideQuizCta();
+
+        // 처음 Scene부터 다시
+        showScene('intro');
+        setTimeout(() => showScene('ready'), 3000);
+      }
+
+      // ── Boot ─────────────────────────────────────────
+      showScene('intro');
+      setTimeout(() => showScene('ready'), 3000);
+
+      document.getElementById('startBtn').addEventListener('click', () => {
+        showScene('quiz');
+        // 첫 질문은 전환 직후 부드럽게
+        setTimeout(() => addQuestion(0), 300);
+      });
+
+      document.getElementById('resultBtn').addEventListener('click', showResult);
+
+      document.getElementById('btnRestart').addEventListener('click', resetQuiz);
+    })();
+  </script>
+</body>
+</html>
