@@ -40,7 +40,7 @@
     }
 
     html {
-      background: linear-gradient(180deg, var(--violet50) 0%, #ffffff 60%);
+      background: var(--white);
     }
 
     body {
@@ -208,7 +208,7 @@
     .score-label-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       min-width: 0;
     }
 
@@ -219,15 +219,69 @@
       letter-spacing: -0.2px;
     }
 
-    .score-pass-line {
-      font-size: 11px;
-      font-weight: 700;
+    .score-help-btn {
+      appearance: none;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--gray500);
+      border-radius: 50%;
+      border: 1.5px solid var(--gray300);
+      transition: border-color 0.15s, color 0.15s;
+      margin-top: 1px;
+    }
+
+    .score-help-btn:hover {
+      border-color: var(--accent);
       color: var(--accent);
-      background: var(--violet50);
-      padding: 3px 9px;
-      border-radius: var(--radius-full);
-      letter-spacing: -0.1px;
+    }
+
+    .score-tooltip {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      transform: scale(0.95);
+      transform-origin: top left;
+      background: var(--gray900);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.55;
+      padding: 10px 14px;
+      border-radius: 10px;
       white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      z-index: 20;
+    }
+
+    .score-tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 9px;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-bottom-color: var(--gray900);
+    }
+
+    .score-help-btn.is-open .score-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      pointer-events: auto;
     }
 
     .score-value {
@@ -264,19 +318,7 @@
       background: linear-gradient(90deg, var(--violet600), var(--accent));
       border-radius: var(--radius-full);
       transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .score-bar-marker {
-      position: absolute;
-      left: 50%;
-      top: -3px;
-      bottom: -3px;
-      width: 2px;
-      transform: translateX(-50%);
-      background: var(--gray500);
-      border-radius: 2px;
-      z-index: 2;
-      pointer-events: none;
+      max-width: 100%;
     }
 
     .questions {
@@ -373,7 +415,7 @@
       width: 100%;
       appearance: none;
       background: var(--white);
-      border: 1.5px solid var(--gray200);
+      border: 1px solid var(--gray200);
       border-radius: 12px;
       padding: 15px 18px;
       font-family: inherit;
@@ -391,8 +433,8 @@
     }
 
     .option-btn:hover {
-      border-color: var(--accent);
-      background: var(--violet50);
+      border-color: var(--gray200);
+      background: var(--gray50);
     }
 
     .option-btn:active {
@@ -408,26 +450,26 @@
     }
 
     .option-btn:hover .option-points {
-      color: var(--accent);
+      color: var(--gray500);
     }
 
     .option-btn.is-selected {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--white);
+      background: #F2F2FF;
+      border-color: #B2AEFF;
+      color: var(--accent);
     }
 
     .option-btn.is-selected:hover {
-      background: var(--accent);
-      border-color: var(--accent);
+      background: #F2F2FF;
+      border-color: #B2AEFF;
     }
 
     .option-btn.is-selected .option-points {
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--accent);
     }
 
     .option-btn.is-selected:hover .option-points {
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--accent);
     }
 
     /* ── Quiz CTA (Last question: 결과 보기) ── */
@@ -786,17 +828,19 @@
       <header class="score-header">
         <div class="score-row">
           <div class="score-label-group">
-            <span class="score-label">현재 점수</span>
-            <span class="score-pass-line">합격선 80점</span>
+            <span class="score-label">내 점수</span>
+            <button type="button" class="score-help-btn" id="scoreHelpBtn" aria-label="점수 안내">
+              ?
+              <span class="score-tooltip">80점 이상이면 비자 합격 가능성이 높아요.<br>총점은 160점 만점이에요.</span>
+            </button>
           </div>
           <div class="score-value">
             <span class="score-num" id="scoreNum">0</span>
-            <span class="score-max">/ 160점</span>
+            <span class="score-max">/ 80</span>
           </div>
         </div>
         <div class="score-bar" aria-hidden="true">
           <div class="score-bar-fill" id="scoreBarFill"></div>
-          <div class="score-bar-marker" title="합격선 80점"></div>
         </div>
       </header>
 
@@ -967,7 +1011,7 @@
           const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
           const value = Math.round(start + (end - start) * eased);
           scoreNumEl.textContent = value;
-          scoreBarFillEl.style.width = (value / TOTAL * 100) + '%';
+          scoreBarFillEl.style.width = Math.min(value / PASSING * 100, 100) + '%';
           if (t < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
@@ -1219,6 +1263,16 @@
       document.getElementById('resultBtn').addEventListener('click', showResult);
 
       document.getElementById('btnRestart').addEventListener('click', resetQuiz);
+
+      // ── [?] Tooltip toggle ─────────────────────────
+      const helpBtn = document.getElementById('scoreHelpBtn');
+      helpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        helpBtn.classList.toggle('is-open');
+      });
+      document.addEventListener('click', () => {
+        helpBtn.classList.remove('is-open');
+      });
     })();
   </script>
 </body>
