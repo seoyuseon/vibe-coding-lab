@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>콘텐츠 - 잡코리아</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --g900:#222; --g800:#444; --g700:#666; --g600:#888; --g500:#999;
+      --g400:#BBB; --g300:#D1D1D1; --g200:#E8E8E8; --g100:#F4F4F4; --g50:#F7F7F7;
+      --white:#FFF; --black:#000;
+      --orange:#FF6B35; --red:#E8553D;
+      --hdr:56px; --nav:56px; --safe:env(safe-area-inset-bottom,0px);
+      --pad:20px; --gutter:16px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:var(--white);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    button{border:none;background:none;font:inherit;cursor:pointer;color:inherit}
+    img{display:block;max-width:100%}
+
+    /* App Shell — 하단 bg를 QnA 컬러로 채워 흰색 틈 방지 */
+    .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;background:#F0F2FA}
+
+    /* ===== Header (Fixed, transparent over hero) ===== */
+    .hdr{
+      position:fixed;top:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:480px;height:var(--hdr);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--pad);z-index:100;
+      background:rgba(255,255,255,0);
+      backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+      color:var(--white);
+      transition:background-color .25s ease,color .25s ease,backdrop-filter .25s ease,border-color .25s;
+      border-bottom:1px solid transparent;
+    }
+    .hdr.scrolled{
+      background:rgba(255,255,255,.6);
+      backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+      color:var(--g900);
+      border-bottom-color:rgba(0,0,0,.04);
+    }
+    .hdr-title{font-size:18px;font-weight:700;color:inherit}
+    .hdr-icons{display:flex;gap:16px;align-items:center}
+    .hdr-icons button{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:inherit}
+    .hdr-icons button svg{width:24px;height:24px;display:block;color:inherit}
+
+    /* Main */
+    .main{padding-top:0;padding-bottom:calc(var(--nav) + var(--safe));background:var(--white)}
+
+    /* ===== Hero Carousel (extends into header) ===== */
+    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px}
+    .hero-track{display:flex;height:100%;will-change:transform}
+    .hero-track.animate{transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
+    .hero-slide{flex:0 0 100%;width:100%;height:100%;background-size:cover;background-position:center;position:relative;cursor:pointer}
+    /* 딤드 강화: 상단 0.55 → 중간 0.1 → 하단 0.72 */
+    .hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.1) 45%,rgba(0,0,0,.72) 100%);pointer-events:none}
+    .slide-inner{position:absolute;bottom:54px;left:var(--pad);right:var(--pad);z-index:2}
+    .slide-tags{display:flex;gap:6px;margin-bottom:12px}
+    .slide-tags img{height:20px;width:auto}
+    .slide-tag-event{display:inline-flex;align-items:center;height:20px;padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--white);border:1px solid rgba(255,255,255,.55);border-radius:4px;background:rgba(255,255,255,.12);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+    .slide-title{font-size:22px;font-weight:700;color:var(--white);line-height:1.35;word-break:keep-all}
+    /* 도트 인디케이터 - 좌측 정렬 (텍스트와 동일한 라인) */
+    .hero-dots{position:absolute;bottom:24px;left:var(--pad);display:flex;gap:6px;z-index:2}
+    .hero-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);transition:all .3s}
+    .hero-dot.on{width:18px;border-radius:3px;background:var(--white)}
+
+    /* Section — 기본 섹션 간 여백 40px */
+    .sec{padding:40px var(--pad) 0}
+    .sec-label{font-size:13px;font-weight:500;color:var(--g500);margin-bottom:2px}
+    .sec-title{font-size:20px;font-weight:700;line-height:1.35}
+    .sec-hd{margin-bottom:14px}
+
+    /* Popular — 히어로 → 인기게시물 여백 32px, 좌측 16px 여백 */
+    .pop-sec{padding:32px 0 0}
+    .pop-sec .sec-hd{padding:0 var(--pad)}
+    .pop-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 var(--gutter);scroll-padding-left:var(--gutter)}
+    .pop-track::-webkit-scrollbar{display:none}
+    .pop-card{flex:0 0 45%;scroll-snap-align:start;display:block}
+    .pop-thumb{width:100%;aspect-ratio:3/2;border-radius:12px;background-size:cover;background-position:center;margin-bottom:10px}
+    .pop-title{font-size:15px;font-weight:600;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+    /* Insights */
+    .ins-box{background:var(--white);border-radius:16px;border:1px solid var(--g200);overflow:hidden;padding:24px 16px 20px}
+    .ins-tabs{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 16px;padding:0 16px;-ms-overflow-style:none;scrollbar-width:none}
+    .ins-tabs::-webkit-scrollbar{display:none}
+    .tab-pill{flex-shrink:0;padding:10px 12px;font-size:13px;font-weight:600;border-radius:20px;background:#F6F7F8;color:#3E434B;transition:all .2s;white-space:nowrap}
+    .tab-pill.on{background:#292C32;color:#fff}
+    .ins-list{min-height:380px;position:relative;display:flex;flex-direction:column;gap:12px}
+    .ins-list.loading .ins-item{opacity:0;transform:translateY(8px)}
+    .ins-item{display:flex;align-items:center;gap:14px;transition:opacity .25s,transform .25s}
+    .ins-item:nth-child(1){transition-delay:0s}
+    .ins-item:nth-child(2){transition-delay:.04s}
+    .ins-item:nth-child(3){transition-delay:.08s}
+    .ins-item:nth-child(4){transition-delay:.12s}
+    .ins-item:nth-child(5){transition-delay:.16s}
+    .ins-thumb{flex-shrink:0;width:100px;height:68px;border-radius:8px;background-size:cover;background-position:center}
+    .ins-title{font-size:15px;font-weight:500;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .btn-more-wrap{margin-top:16px}
+    .btn-more{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;font-size:14px;font-weight:500;color:var(--g800);background:#F6F7F8;border-radius:10px;transition:background .15s}
+    .btn-more:active{background:var(--g100)}
+    .btn-more svg{width:16px;height:16px;transition:transform .5s}
+    .btn-more.spin svg{transform:rotate(360deg)}
+    .btn-more-cnt{color:var(--g500);font-weight:400}
+
+    /* Lounge */
+    .lounge{overflow:hidden}
+    .mq-row{overflow:hidden;padding:5px 0;-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%)}
+    .mq-track{display:flex;gap:8px;width:max-content;will-change:transform}
+    .mq-row.right .mq-track{animation:mqR 28s linear infinite}
+    .mq-row.left .mq-track{animation:mqL 24s linear infinite}
+    .mq-row.paused .mq-track{animation-play-state:paused}
+    @keyframes mqR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+    @keyframes mqL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px 8px 8px;border:1px solid var(--g200);border-radius:100px;background:var(--white);white-space:nowrap;font-size:14px;font-weight:500}
+    .chip-emoji{width:24px;height:24px;flex-shrink:0}
+
+    /* QnA — 좌측 16px 여백 */
+    .qna-wrap{background:#F0F2FA;padding:32px 0 32px;margin-top:40px}
+    .qna-inner{padding:0 var(--pad)}
+    .qna-label{font-size:13px;font-weight:500;color:var(--g500);margin-bottom:2px}
+    .qna-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .qna-link{display:flex;align-items:center;gap:2px}
+    .qna-link svg{width:20px;height:20px;color:var(--g400)}
+    .qna-scroll{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 var(--gutter);scroll-padding-left:var(--gutter)}
+    .qna-scroll::-webkit-scrollbar{display:none}
+    .qna-track{display:flex;gap:10px;width:max-content}
+    .qcard{flex-shrink:0;width:188px;height:180px;background:var(--white);border-radius:14px;padding:16px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px}
+    .qcard-tags{display:flex;gap:4px;flex-wrap:wrap}
+    .qcard-tag{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;background:#F6F7F8;color:#768091}
+    .qcard-tag.hot{background:#F0F2FA;color:#1B55F6}
+    .qcard-txt{font-size:15px;font-weight:600;line-height:1.45;flex:1;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+    .qcard-views{font-size:12px;color:var(--g500)}
+
+    /* Bottom Nav */
+    .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--g200);display:flex;padding-bottom:var(--safe);z-index:100}
+    .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;font-size:11px;font-weight:500;color:var(--g400);transition:color .15s}
+    .bnav-item.on{color:var(--g900)}
+    .bnav-item svg{width:24px;height:24px;display:block;color:inherit}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header class="hdr" id="hdr">
+    <span class="hdr-title">콘텐츠</span>
+    <div class="hdr-icons">
+      <button aria-label="검색">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.188 16.8533L21.0008 21.666" stroke="currentColor" stroke-width="1.62237" stroke-linecap="round"/>
+          <circle cx="10.7789" cy="11.4451" r="7.30068" stroke="currentColor" stroke-width="1.62237"/>
+        </svg>
+      </button>
+      <button aria-label="알림">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.7932 16.4943C20.2728 15.5981 19.4994 13.0621 19.4994 9.74994C19.4994 7.76082 18.7092 5.85316 17.3027 4.44664C15.8962 3.04012 13.9885 2.24994 11.9994 2.24994C10.0103 2.24994 8.10262 3.04012 6.6961 4.44664C5.28958 5.85316 4.4994 7.76082 4.4994 9.74994C4.4994 13.0631 3.72503 15.5981 3.20471 16.4943C3.07184 16.7222 3.0014 16.981 3.0005 17.2448C2.99959 17.5086 3.06825 17.7679 3.19956 17.9967C3.33086 18.2254 3.52016 18.4155 3.74838 18.5478C3.97659 18.68 4.23564 18.7498 4.4994 18.7499H8.32534C8.49838 19.5967 8.95855 20.3576 9.62803 20.9041C10.2975 21.4506 11.1352 21.7491 11.9994 21.7491C12.8636 21.7491 13.7013 21.4506 14.3708 20.9041C15.0403 20.3576 15.5004 19.5967 15.6735 18.7499H19.4994C19.7631 18.7496 20.022 18.6797 20.2501 18.5474C20.4782 18.4151 20.6674 18.225 20.7985 17.9962C20.9297 17.7675 20.9983 17.5082 20.9974 17.2446C20.9964 16.9809 20.926 16.7221 20.7932 16.4943ZM11.9994 20.2499C11.5342 20.2498 11.0805 20.1055 10.7008 19.8369C10.321 19.5682 10.0338 19.1885 9.87878 18.7499H14.12C13.965 19.1885 13.6778 19.5682 13.298 19.8369C12.9183 20.1055 12.4646 20.2498 11.9994 20.2499ZM4.4994 17.2499C5.22128 16.0087 5.9994 13.1324 5.9994 9.74994C5.9994 8.15864 6.63154 6.63252 7.75676 5.5073C8.88198 4.38208 10.4081 3.74994 11.9994 3.74994C13.5907 3.74994 15.1168 4.38208 16.242 5.5073C17.3673 6.63252 17.9994 8.15864 17.9994 9.74994C17.9994 13.1296 18.7757 16.0059 19.4994 17.2499H4.4994Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <button aria-label="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.9998 18.2496C20.4138 18.2496 20.7495 18.5855 20.7498 18.9996C20.7498 19.4138 20.414 19.7496 19.9998 19.7496H3.99976C3.58571 19.7494 3.24976 19.4137 3.24976 18.9996C3.24997 18.5857 3.58584 18.2498 3.99976 18.2496H19.9998ZM19.9998 11.2496C20.4138 11.2496 20.7495 11.5855 20.7498 11.9996C20.7498 12.4138 20.414 12.7496 19.9998 12.7496H3.99976C3.58571 12.7494 3.24976 12.4137 3.24976 11.9996C3.24997 11.5857 3.58584 11.2498 3.99976 11.2496H19.9998ZM19.9998 4.24957C20.4138 4.24957 20.7495 4.58554 20.7498 4.99957C20.7498 5.41379 20.414 5.74957 19.9998 5.74957H3.99976C3.58571 5.74938 3.24976 5.41367 3.24976 4.99957C3.24997 4.58566 3.58584 4.24977 3.99976 4.24957H19.9998Z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ======= Hero Carousel ======= -->
+    <section class="hero" id="hero">
+      <div class="hero-track" id="heroTrack"></div>
+      <div class="hero-dots" id="heroDots"></div>
+    </section>
+
+    <!-- ======= 인기 게시물 ======= -->
+    <section class="pop-sec">
+      <div class="sec-hd">
+        <p class="sec-label">지금 뜨는</p>
+        <h2 class="sec-title">인기 게시물</h2>
+      </div>
+      <div class="pop-track" id="popTrack"></div>
+    </section>
+
+    <!-- ======= 직무별 인사이트 ======= -->
+    <section class="sec">
+      <div class="sec-hd">
+        <p class="sec-label">모아보는</p>
+        <h2 class="sec-title">직무별 인사이트</h2>
+      </div>
+      <div class="ins-box">
+        <div class="ins-tabs" id="insTabs">
+          <button class="tab-pill on" data-cat="all">전체</button>
+          <button class="tab-pill" data-cat="dev">AI·개발·데이터</button>
+          <button class="tab-pill" data-cat="design">디자인</button>
+          <button class="tab-pill" data-cat="plan">기획·전략</button>
+          <button class="tab-pill" data-cat="mkt">마케팅</button>
+        </div>
+        <div class="ins-list" id="insList"></div>
+        <div class="btn-more-wrap">
+          <button class="btn-more" id="btnMore">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            더보기 <span class="btn-more-cnt" id="moreCnt">0/2</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= 커리어 라운지 ======= -->
+    <section class="sec lounge">
+      <div class="sec-hd">
+        <p class="sec-label">당신의 성장을 응원하는</p>
+        <h2 class="sec-title">커리어 라운지</h2>
+      </div>
+      <div class="mq-row right" id="mqTop"><div class="mq-track">
+        <a class="chip" href="service.html?name=기업리뷰"><img class="chip-emoji" src="svg/emoji-folder.svg" alt="">기업리뷰</a>
+        <a class="chip" href="service.html?name=연봉정보"><img class="chip-emoji" src="svg/emoji-moneybag.svg" alt="">연봉정보</a>
+        <a class="chip" href="service.html?name=합격자소서"><img class="chip-emoji" src="svg/emoji-passassay.svg" alt="">합격자소서</a>
+        <a class="chip" href="service.html?name=MICT"><img class="chip-emoji" src="svg/emoji-mict.svg" alt="">MICT</a>
+        <a class="chip" href="service.html?name=커리어체크"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어체크</a>
+        <a class="chip" href="service.html?name=콘텐츠LAB"><img class="chip-emoji" src="svg/emoji-books.svg" alt="">콘텐츠 LAB</a>
+        <a class="chip" href="service.html?name=기업리뷰"><img class="chip-emoji" src="svg/emoji-folder.svg" alt="">기업리뷰</a>
+        <a class="chip" href="service.html?name=연봉정보"><img class="chip-emoji" src="svg/emoji-moneybag.svg" alt="">연봉정보</a>
+        <a class="chip" href="service.html?name=합격자소서"><img class="chip-emoji" src="svg/emoji-passassay.svg" alt="">합격자소서</a>
+        <a class="chip" href="service.html?name=MICT"><img class="chip-emoji" src="svg/emoji-mict.svg" alt="">MICT</a>
+        <a class="chip" href="service.html?name=커리어체크"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어체크</a>
+        <a class="chip" href="service.html?name=콘텐츠LAB"><img class="chip-emoji" src="svg/emoji-books.svg" alt="">콘텐츠 LAB</a>
+      </div></div>
+      <div class="mq-row left" id="mqBot"><div class="mq-track">
+        <a class="chip" href="service.html?name=연봉계산기"><img class="chip-emoji" src="svg/emoji-incomepaycalc.svg" alt="">연봉계산기</a>
+        <a class="chip" href="service.html?name=퇴직금계산기"><img class="chip-emoji" src="svg/emoji-outpaycalc.svg" alt="">퇴직금계산기</a>
+        <a class="chip" href="service.html?name=기업분석보고서"><img class="chip-emoji" src="svg/emoji-receipt.svg" alt="">기업분석보고서</a>
+        <a class="chip" href="service.html?name=직무인터뷰"><img class="chip-emoji" src="svg/emoji-bubble.svg" alt="">직무인터뷰</a>
+        <a class="chip" href="service.html?name=인적성·면접후기"><img class="chip-emoji" src="svg/emoji-raisinghandwoman.svg" alt="">인적성·면접후기</a>
+        <a class="chip" href="service.html?name=연봉계산기"><img class="chip-emoji" src="svg/emoji-incomepaycalc.svg" alt="">연봉계산기</a>
+        <a class="chip" href="service.html?name=퇴직금계산기"><img class="chip-emoji" src="svg/emoji-outpaycalc.svg" alt="">퇴직금계산기</a>
+        <a class="chip" href="service.html?name=기업분석보고서"><img class="chip-emoji" src="svg/emoji-receipt.svg" alt="">기업분석보고서</a>
+        <a class="chip" href="service.html?name=직무인터뷰"><img class="chip-emoji" src="svg/emoji-bubble.svg" alt="">직무인터뷰</a>
+        <a class="chip" href="service.html?name=인적성·면접후기"><img class="chip-emoji" src="svg/emoji-raisinghandwoman.svg" alt="">인적성·면접후기</a>
+      </div></div>
+    </section>
+
+    <!-- ======= 함께하는 고민해결 ======= -->
+    <div class="qna-wrap">
+      <div class="qna-inner">
+        <p class="qna-label">취업톡톡</p>
+        <div class="qna-hd">
+          <a href="#" class="qna-link">
+            <h2 class="sec-title">함께하는 고민해결</h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="qna-scroll" id="qnaScroll">
+        <div class="qna-track" id="qnaTrack"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bnav">
+    <a href="#" class="bnav-item">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18.3438 9.99026C18.3437 9.92975 18.3132 9.86004 18.2402 9.81057L12.1729 5.70803C12.0712 5.63942 11.9288 5.63942 11.8271 5.70803L5.75977 9.81057C5.68676 9.86004 5.65626 9.92975 5.65625 9.99026V17.669C5.65645 18.011 5.95831 18.3438 6.40039 18.3438H9.01074V13.6748C9.01074 12.7916 9.75333 12.1311 10.5996 12.1309H13.4004C14.2467 12.1311 14.9893 12.7916 14.9893 13.6748V18.3438H17.5996C18.0417 18.3438 18.3435 18.011 18.3438 17.669V9.99026ZM19.6562 17.669C19.6561 18.7972 18.7037 19.6563 17.5996 19.6563H14.333C13.9707 19.6561 13.6768 19.3624 13.6768 19V13.6748C13.6768 13.5778 13.5846 13.4436 13.4004 13.4434H10.5996C10.4154 13.4436 10.3232 13.5778 10.3232 13.6748V19C10.3232 19.3624 10.0293 19.6561 9.66699 19.6563H6.40039C5.29633 19.6563 4.34394 18.7972 4.34375 17.669V9.99026C4.34376 9.47641 4.60543 9.0072 5.02441 8.72366L11.0918 4.62112C11.6377 4.25194 12.3623 4.25194 12.9082 4.62112L18.9756 8.72366C19.3946 9.0072 19.6562 9.47641 19.6562 9.99026V17.669Z" fill="currentColor"/>
+      </svg>
+      <span>홈</span>
+    </a>
+    <a href="#" class="bnav-item">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.7522 12.1449C3.7522 7.56572 7.49755 3.86569 12.1028 3.86562C12.517 3.86562 12.8528 4.20141 12.8528 4.61562C12.8527 5.02973 12.5169 5.36562 12.1028 5.36562C8.31262 5.36569 5.2522 8.40744 5.2522 12.1449C5.25226 15.8823 8.31266 18.9241 12.1028 18.9242C15.893 18.9242 18.9533 15.8824 18.9534 12.1449C18.9534 11.7308 19.2893 11.3951 19.7034 11.3949C20.1176 11.3949 20.4534 11.7307 20.4534 12.1449C20.4533 16.7241 16.708 20.4242 12.1028 20.4242C7.49759 20.4241 3.75226 16.7241 3.7522 12.1449ZM7.55298 12.1449C7.55298 9.64491 9.59643 7.63034 12.1028 7.63027C12.517 7.63027 12.8528 7.96605 12.8528 8.38027C12.8527 8.7944 12.5169 9.13027 12.1028 9.13027C10.4115 9.13034 9.05298 10.4866 9.05298 12.1449C9.05304 13.8032 10.4115 15.1595 12.1028 15.1596C13.7941 15.1596 15.1535 13.8032 15.1536 12.1449C15.1536 11.7307 15.4894 11.3949 15.9036 11.3949C16.3176 11.3951 16.6536 11.7308 16.6536 12.1449C16.6535 14.6449 14.6092 16.6596 12.1028 16.6596C9.59647 16.6595 7.55304 14.6449 7.55298 12.1449ZM17.3665 3.07265C17.5616 2.92709 17.818 2.88459 18.053 2.96328C18.3214 3.05326 18.5163 3.28661 18.5569 3.56679L18.8118 5.33925L20.6077 5.59414C20.8895 5.63418 21.1245 5.82985 21.2141 6.09999C21.3037 6.37042 21.2319 6.66903 21.0295 6.86953L18.0071 9.86367C17.8067 10.0622 17.5112 10.1318 17.2434 10.0434L15.6633 9.52089L12.6311 12.5258C12.3369 12.8172 11.8621 12.8149 11.5706 12.5209C11.279 12.2266 11.2812 11.7519 11.5754 11.4603L14.6028 8.45937L14.0813 6.90859C13.99 6.63741 14.0606 6.33749 14.2639 6.13613L17.2874 3.14101L17.3665 3.07265ZM15.6506 6.87246L16.054 8.0707L17.2776 8.47402L18.9006 6.8666L18.0461 6.74648C17.7162 6.69978 17.4561 6.44058 17.4084 6.11074L17.2844 5.25429L15.6506 6.87246Z" fill="currentColor"/>
+      </svg>
+      <span>JOB 찾기</span>
+    </a>
+    <a href="#" class="bnav-item on">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.58322 7.08334C6.99724 7.08352 7.33316 7.41928 7.33322 7.83334C7.33321 8.24743 6.99729 8.58317 6.58322 8.58334C5.92347 8.5834 5.45997 8.57969 5.09787 8.6517C4.77714 8.7156 4.65618 8.81645 4.57834 8.95346C4.43546 9.20525 4.37326 9.52953 4.44943 10.1302C4.52832 10.752 4.73725 11.551 5.04318 12.7113L5.89377 15.9378C6.1998 17.0985 6.41208 17.8966 6.64963 18.4749C6.87928 19.034 7.09132 19.2796 7.3342 19.4222C7.57545 19.5638 7.88645 19.6269 8.47287 19.5501C9.08192 19.4704 9.86618 19.2588 11.009 18.9476L11.8029 18.7318C12.2024 18.6232 12.614 18.8587 12.7229 19.2582C12.8317 19.6578 12.5962 20.0702 12.1965 20.179L11.4026 20.3949C10.3014 20.6947 9.40127 20.9413 8.6672 21.0374C7.91084 21.1364 7.21805 21.0932 6.57541 20.7162C5.93456 20.3401 5.55384 19.7558 5.26193 19.0453C4.97774 18.3534 4.73894 17.4399 4.44357 16.3197L3.59299 13.0941C3.2976 11.9738 3.05542 11.062 2.96115 10.3187C2.86429 9.55478 2.90653 8.85879 3.27365 8.21225C3.63725 7.57224 4.22061 7.29736 4.8049 7.181C5.34807 7.07292 5.9935 7.08339 6.58322 7.08334Z" fill="currentColor"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.757 3.27475C11.3985 2.90673 12.0893 2.86446 12.8449 2.96127C13.5794 3.05545 14.4809 3.29692 15.5852 3.59116L16.3801 3.80307C17.4843 4.09727 18.3861 4.33582 19.0695 4.61948C19.7726 4.91135 20.3515 5.29244 20.7229 5.93198C21.0942 6.57201 21.1368 7.26208 21.0393 8.01499C20.9445 8.74625 20.7013 9.64291 20.4055 10.7406L19.5529 13.9046C19.2571 15.0024 19.0163 15.9 18.7307 16.5804C18.4734 17.1932 18.1478 17.71 17.6408 18.0765L17.4113 18.2249C16.7699 18.5931 16.079 18.6352 15.3235 18.5384C14.589 18.4443 13.6876 18.2028 12.5832 17.9085L11.7883 17.6966C10.6841 17.4025 9.78236 17.1638 9.09885 16.8802C8.39561 16.5883 7.81695 16.2074 7.44553 15.5677C7.07393 14.9275 7.03152 14.2379 7.12912 13.4847C7.22394 12.7534 7.46711 11.8568 7.76291 10.7591L8.61545 7.59506C8.91129 6.4972 9.15209 5.59966 9.43771 4.91928C9.73195 4.21855 10.115 3.64338 10.757 3.27475ZM12.0754 10.2855C11.6754 10.179 11.2643 10.4169 11.1574 10.8167C11.0508 11.2168 11.2887 11.6279 11.6887 11.7347L13.6779 12.265C14.078 12.3712 14.4893 12.1328 14.5959 11.7328C14.7021 11.3328 14.4636 10.9215 14.0637 10.8148L12.0754 10.2855ZM12.9279 7.12143C12.528 7.01498 12.1169 7.25289 12.01 7.65268C11.9034 8.05276 12.1413 8.46379 12.5412 8.57065L16.5188 9.63022C16.9189 9.73671 17.3301 9.49909 17.4367 9.09897C17.5431 8.69901 17.3053 8.28783 16.9055 8.181L12.9279 7.12143Z" fill="currentColor"/>
+      </svg>
+      <span>콘텐츠</span>
+    </a>
+    <a href="#" class="bnav-item">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.607 13.21C13.5287 13.21 15.4007 13.7221 16.8785 14.6514C18.5417 15.6982 19.5999 17.1901 19.939 18.9658C20.0168 19.3725 19.9118 19.7747 19.6509 20.0693C19.5324 20.2035 19.3835 20.3117 19.2154 20.3848L19.0865 20.4326C18.9552 20.4737 18.8172 20.4939 18.6783 20.4922H4.53569C4.39681 20.4939 4.25871 20.4737 4.12748 20.4326L3.99858 20.3848C3.83051 20.3118 3.68161 20.2044 3.56303 20.0703C3.30187 19.7756 3.197 19.3728 3.27494 18.9658C3.59287 17.301 4.54268 15.8858 6.0308 14.8525L6.33549 14.6514C7.81325 13.7217 9.68525 13.21 11.607 13.21ZM11.607 14.71C10.0427 14.71 8.54825 15.1027 7.36674 15.7812L7.13432 15.9209C5.87577 16.7134 5.10612 17.7711 4.80424 18.9922H18.4097C18.128 17.8523 17.4386 16.855 16.3247 16.083L16.0796 15.9209C14.8647 15.157 13.2754 14.71 11.607 14.71ZM11.8316 3.50488C12.9475 3.55602 13.9531 3.98842 14.6861 4.73535C15.4776 5.5421 15.8632 6.62856 15.772 7.79297L15.7505 8.00879C15.4744 10.2266 13.6593 11.996 11.607 11.9961C9.48837 11.9961 7.61935 10.1102 7.44096 7.79199C7.3566 6.69047 7.68855 5.6654 8.37846 4.88184L8.52104 4.72852C9.29929 3.93656 10.3952 3.5 11.607 3.5L11.8316 3.50488ZM11.607 5C10.7573 5 10.0604 5.30209 9.59135 5.7793C9.12542 6.25351 8.87842 6.90894 8.93705 7.67676L8.97416 7.98145C9.22887 9.47393 10.4628 10.4961 11.607 10.4961C12.826 10.496 14.1472 9.33457 14.2769 7.67578L14.2847 7.39941C14.2709 6.76585 14.0325 6.21095 13.6158 5.78613C13.1394 5.30062 12.4442 5.00002 11.607 5Z" fill="currentColor"/>
+      </svg>
+      <span>MY</span>
+    </a>
+  </nav>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var US = 'https://images.unsplash.com/';
+function img(id, w, h){ return US + id + '?w=' + w + '&h=' + h + '&fit=crop&auto=format&q=75'; }
+
+/* ===== DATA ===== */
+var heroData = [
+  // 1. 무드보드 여성 (로컬 이미지)
+  {id:1,title:'나에게 맞는 복지를 찾는 게\n진짜 이직 전략',tags:['tag1','tag2'],img:'Img/1.png'},
+  // 2. MZ세대 회사 조건 - 모던 오피스
+  {id:2,title:'MZ세대가 원하는\n회사의 조건 5가지',tags:['tag1'],img:img('photo-1497366216548-37526070297c',1600,860)},
+  // 3. EVENT - Hreka 네온 타이포 (로컬 이미지)
+  {id:3,title:'개발자 커리어 컨퍼런스\n무료 참여 신청 오픈',tags:['tagEvent','tag1'],img:'Img/2.png'},
+  // 4. EVENT - 3D 코드 아이콘 (로컬 이미지)
+  {id:4,title:'AI와 일하는 조직,\nHR이 준비할 미래',tags:['tagEvent','tag4'],img:'Img/3.png'},
+  // 5. 면접 팁 - 컨퍼런스룸
+  {id:5,title:'면접관이 진짜 보는 것들,\n현직자가 알려주는 팁',tags:['tag2'],img:img('photo-1431540015161-0bf868a2d407',1600,860)}
+];
+
+var popData = [
+  // 맥도날드 - 황금 아치
+  {id:6,title:'햄버거 맛은 기본, 성장에도 진심인 맥도날드',img:img('photo-1552526881-721ce8509abb',420,280)},
+  // HR 팀장 - 비즈니스 우먼
+  {id:7,title:'HR 팀장들의 솔직한 위기의 순간들',img:img('photo-1573496359142-b8d87734a5a2',420,280)},
+  // 개발자 번아웃 - 지친 사람/노트북
+  {id:8,title:'개발자 번아웃, 어떻게 극복할 수 있을까?',img:img('photo-1499209974431-9dddcece7f88',420,280)},
+  // 스타트업 vs 대기업 - 빌딩/도시
+  {id:9,title:'스타트업 vs 대기업, 나에게 맞는 선택은?',img:img('photo-1486406146926-c627a92ad1ab',420,280)},
+  // 재택근무 - 홈오피스
+  {id:10,title:'재택근무 3년차가 알려주는 생산성 유지법',img:img('photo-1593642632559-0c6d3fc62b89',420,280)},
+  // 자기계발 - 책/공부
+  {id:11,title:'직장인 자기계발, 퇴근 후 1시간의 힘',img:img('photo-1481627834876-b7833e8f5570',420,280)},
+  // 보고서 - 차트/문서
+  {id:12,title:'회사에서 인정받는 보고서 작성의 기술',img:img('photo-1551288049-bebda4e38f71',420,280)},
+  // 연봉협상 - 돈/계산
+  {id:13,title:'연봉 협상에서 절대 하지 말아야 할 실수',img:img('photo-1554224155-6726b3ff858f',420,280)},
+  // 팀워크/협업
+  {id:14,title:'팀워크의 비밀, 협업 잘하는 사람의 차이',img:img('photo-1543269865-cbf427effbad',420,280)},
+  // 신입 - 신입사원/오피스
+  {id:15,title:'사수 없는 신입의 생존법과 성장기',img:img('photo-1556761175-b413da4baf72',420,280)}
+];
+
+// 카테고리별 이미지 — 검증된 Unsplash ID만 사용, 주제 다양성 확보
+var devImgs = [
+  'photo-1517694712202-14dd9538aa97', // 코드 에디터
+  'photo-1504639725590-34d0984388bd', // 서버룸 조명
+  'photo-1555949963-ff9fe0c870eb', // 칩/회로 클로즈업
+  'photo-1558494949-ef010cbdcc31', // 네트워크 케이블
+  'photo-1526374965328-7f61d4dc18c5', // 매트릭스 코드
+  'photo-1550751827-4bd374c3f58b', // 데이터센터
+  'photo-1518770660439-4636190af475', // 회로기판 매크로
+  'photo-1531297484001-80022131f5a1', // 노트북 3대 나란히
+  'photo-1504868584819-f8e8b4b6d7e3', // 모니터 대시보드
+  'photo-1542831371-29b0f74f9713', // 코드 매트릭스
+  'photo-1551650975-87deedd944c3', // 스마트폰 앱 화면
+  'photo-1485827404703-89b55fcc595e', // 로봇 팔
+  'photo-1551288049-bebda4e38f71', // 차트 대시보드
+  'photo-1618477388954-7852f32655ec', // 키보드 조명
+  'photo-1499750310107-5fef28a66643'  // 노트+커피 글쓰기
+];
+var designImgs = [
+  'photo-1558655146-9f40138edfeb', // 색상 팔레트
+  'photo-1545235617-9465d2a55698', // 스케치북 드로잉
+  'photo-1559028012-481c04fa702d', // 디자인 도구 탑뷰
+  'photo-1513364776144-60967b0f800f', // 컬러칩 배열
+  'photo-1552581234-26160f608093', // 화이트보드 브레인스토밍
+  'photo-1561070791-2526d30994b8', // 태블릿 드로잉
+  'photo-1454165804606-c3d57bc86b40', // 포스트잇 전략보드
+  'photo-1497215842964-222b430dc094', // 오피스 인테리어
+  'photo-1542744173-8e7e53415bb0', // 팀 미팅 테이블
+  'photo-1586717791821-3f44a563fa4c', // 와이어프레임 종이
+  'photo-1609921212029-bb5a28e60960', // 아이패드 디자인
+  'photo-1558618666-fcd25c85f82e', // 타이포그래피
+  'photo-1521737711867-e3b97375f902', // 팀 협업
+  'photo-1531403009284-440f080d1e12', // 프로토타입 스케치
+  'photo-1611532736597-de2d4265fba3'  // 피그마 화면
+];
+var planImgs = [
+  'photo-1431540015161-0bf868a2d407', // 컨퍼런스장
+  'photo-1497366216548-37526070297c', // 모던 오피스
+  'photo-1450101499163-c8848c66ca85', // 악수 비즈니스
+  'photo-1542744094-3a31f272c490', // 사업 전략
+  'photo-1556761175-5973dc0f32e7', // 오피스 빌딩 로비
+  'photo-1552664730-d307ca884978', // 회의실 토론
+  'photo-1460925895917-afdab827c52f', // 노트북 차트
+  'photo-1552664199-bb22cdd8aff2', // 전략 보드
+  'photo-1521737604893-d14cc237f11d', // 팀 오피스
+  'photo-1455390582262-044cdead277a', // 글쓰기 노트
+  'photo-1573497019940-1c28c88b4f3e', // 비즈니스 우먼
+  'photo-1517245386807-bb43f82c33c4', // 세미나
+  'photo-1553877522-43269d4ea984', // 화이트보드 기획
+  'photo-1556761175-b413da4baf72', // 오피스 라운지
+  'photo-1521791136064-7986c2920216'  // 넥타이 정장
+];
+var mktImgs = [
+  'photo-1460925895917-afdab827c52f', // 차트 모니터
+  'photo-1432888622747-4eb9a8efeb07', // 카메라 콘텐츠
+  'photo-1551288049-bebda4e38f71', // 대시보드 분석
+  'photo-1611162617474-5b21e879e113', // SNS 아이콘
+  'photo-1556745757-8d76bdb6984b', // CRM 노트북
+  'photo-1523289333742-be1143f6b766', // 브랜드 패키지
+  'photo-1559526324-4b87b5e36e44', // 그래프 상승
+  'photo-1556761175-4b46a572b786', // 회의실 프레젠
+  'photo-1554224155-6726b3ff858f', // 계산기 돈
+  'photo-1611162616305-c69b3fa7fbe0', // 소셜미디어
+  'photo-1596526131083-e8c633c948d2', // 이메일 아이콘
+  'photo-1571677246347-5040036b95cc', // 검색 SEO
+  'photo-1557804506-669a67965ba0', // 오피스 회의
+  'photo-1533750349088-cd871a92f312', // 마케팅 화이트보드
+  'photo-1543286386-713bdd548da4'  // 데이터 차트
+];
+
+function pickImg(pool, idx){ return img(pool[idx % pool.length], 400, 280); }
+
+var insightData = {
+  dev:[
+    {id:101,t:'IT 베테랑이 말하는 승진의 물꼬를 트는 비결'},
+    {id:102,t:'스타트업 CTO가 말하는 기술 면접 핵심'},
+    {id:103,t:'프론트엔드 개발자가 꼭 알아야 할 2025 트렌드'},
+    {id:104,t:'AI 엔지니어로 전직하기 위한 완벽 로드맵'},
+    {id:105,t:'데이터 분석가 취업, 이것만 알면 된다'},
+    {id:106,t:'백엔드 개발자의 성장 전략과 커리어 로드맵'},
+    {id:107,t:'클라우드 엔지니어 전환을 고민한다면'},
+    {id:108,t:'주니어 개발자가 시니어로 성장하는 법'},
+    {id:109,t:'코딩 테스트 합격을 위한 실전 전략'},
+    {id:110,t:'DevOps 엔지니어, 어떤 역량이 필요할까'},
+    {id:111,t:'모바일 앱 개발, Flutter vs React Native'},
+    {id:112,t:'머신러닝 엔지니어의 하루는 어떨까'},
+    {id:113,t:'개발자 이직 시 연봉 협상의 핵심 팁'},
+    {id:114,t:'오픈소스 기여로 커리어 레벨업하기'},
+    {id:115,t:'기술 블로그가 개발자 취업에 미치는 영향'}
+  ].map(function(a,i){a.img=pickImg(devImgs,i);return a}),
+  design:[
+    {id:201,t:'디자이너에서 PM으로, 직무 전환 성공기'},
+    {id:202,t:'UX 디자이너의 포트폴리오 차별화 전략'},
+    {id:203,t:'피그마 마스터: 디자인 시스템 구축법'},
+    {id:204,t:'브랜드 디자이너, 감각을 키우는 방법'},
+    {id:205,t:'디자인 리더가 되기 위한 소프트 스킬'},
+    {id:206,t:'UI 디자인 트렌드 2025 총정리'},
+    {id:207,t:'디자인 비전공자의 UX 직무 전환기'},
+    {id:208,t:'인하우스 vs 에이전시, 디자이너의 선택'},
+    {id:209,t:'디자인 시스템이 팀 생산성에 미치는 영향'},
+    {id:210,t:'사용자 리서치, 디자이너가 알아야 할 것'},
+    {id:211,t:'모션 디자인으로 UX를 한 단계 끌어올리기'},
+    {id:212,t:'디자인 씽킹, 실무에서 어떻게 적용할까'},
+    {id:213,t:'주니어 디자이너의 성장을 위한 멘토링'},
+    {id:214,t:'접근성을 고려한 디자인, 왜 중요한가'},
+    {id:215,t:'디자인 포트폴리오 리뷰에서 빠지지 않는 실수'}
+  ].map(function(a,i){a.img=pickImg(designImgs,i);return a}),
+  plan:[
+    {id:301,t:'잡코리아 커리어 컨퍼런스, 이직 치트키'},
+    {id:302,t:'LG전자 정성후 부장이 전하는 대기업 공략법'},
+    {id:303,t:'신입 기획자가 알아야 할 문서 작성법'},
+    {id:304,t:'사업 기획자의 하루: 현직자 리얼 후기'},
+    {id:305,t:'전략 컨설턴트에서 인하우스 전환의 모든 것'},
+    {id:306,t:'PM과 PO의 차이, 나에게 맞는 역할은'},
+    {id:307,t:'서비스 기획자의 데이터 분석 역량'},
+    {id:308,t:'경영 전략팀에서 일한다는 것'},
+    {id:309,t:'스타트업 기획자가 대기업으로 이직하기'},
+    {id:310,t:'유저 스토리 작성법, 이렇게 하면 된다'},
+    {id:311,t:'기획자의 커뮤니케이션 스킬 향상법'},
+    {id:312,t:'프로젝트 매니저 자격증, 필요할까'},
+    {id:313,t:'애자일 방법론 실무 적용 사례'},
+    {id:314,t:'신사업 기획, 아이디어에서 실행까지'},
+    {id:315,t:'기획자 이직 준비, 무엇을 보여줄 것인가'}
+  ].map(function(a,i){a.img=pickImg(planImgs,i);return a}),
+  mkt:[
+    {id:401,t:'마케터의 성과 측정, 숫자 너머의 이야기'},
+    {id:402,t:'콘텐츠 마케팅, 스토리텔링의 힘'},
+    {id:403,t:'퍼포먼스 마케터의 GA4 활용법'},
+    {id:404,t:'SNS 마케팅 트렌드 2025, 숏폼의 시대'},
+    {id:405,t:'CRM 마케팅으로 고객 충성도 높이기'},
+    {id:406,t:'브랜드 마케터가 알아야 할 최신 트렌드'},
+    {id:407,t:'그로스 해킹, 스타트업 마케터의 무기'},
+    {id:408,t:'B2B 마케팅 전략, 어떻게 다른가'},
+    {id:409,t:'마케팅 예산 없이 성과 내는 방법'},
+    {id:410,t:'인플루언서 마케팅, 효과적인 협업법'},
+    {id:411,t:'이메일 마케팅이 여전히 중요한 이유'},
+    {id:412,t:'SEO 최적화, 마케터가 알아야 할 기본'},
+    {id:413,t:'바이럴 마케팅 성공 사례 분석'},
+    {id:414,t:'마케팅 자동화 도구 비교 가이드'},
+    {id:415,t:'데이터 기반 마케팅 의사결정의 기술'}
+  ].map(function(a,i){a.img=pickImg(mktImgs,i);return a})
+};
+
+var qnaData = [
+  {tags:['인기글','앱개발자'],txt:'3년차 앱개발자 연봉이 어떻게 되는지 궁금합니다.',views:'1.9만회',cat:['hot','appdev']},
+  {tags:['인사담당자','숭실대학교'],txt:'퇴사를 고민하고있는데 일주일 전에 얘기해도 될까요?',views:'3.7만회',cat:['hr','univ']},
+  {tags:['인기글','기획자'],txt:'신입 기획자인데 포트폴리오 어떻게 준비하나요?',views:'2.1만회',cat:['hot']},
+  {tags:['디자이너'],txt:'디자이너 이직할 때 포트폴리오 몇 개가 적당한가요?',views:'1.5만회',cat:[]},
+  {tags:['인기글','인사담당자'],txt:'회사에서 연봉협상 타이밍이 언제가 좋을까요?',views:'4.2만회',cat:['hot','hr']},
+  {tags:['앱개발자'],txt:'프론트엔드 개발자 취업 준비 중인데 React vs Vue 뭘 배워야 하나요?',views:'2.8만회',cat:['appdev']},
+  {tags:['인기글','숭실대학교'],txt:'대학원 진학 vs 취업, 어떤 게 더 나을까요?',views:'3.3만회',cat:['hot','univ']},
+  {tags:['마케터'],txt:'콘텐츠 마케터 1년차인데 앞으로 커리어를 어떻게 쌓아야 할까요?',views:'1.2만회',cat:[]},
+  {tags:['인기글','인사담당자'],txt:'면접에서 퇴사 사유를 물어볼 때 어떻게 답변하는 게 좋나요?',views:'5.1만회',cat:['hot','hr']},
+  {tags:['앱개발자','숭실대학교'],txt:'비전공자인데 부트캠프만으로 개발자 취업이 가능한가요?',views:'6.7만회',cat:['appdev','univ']}
+];
+
+/* ===== HERO (Infinite Loop Carousel) ===== */
+var heroEl = document.getElementById('hero');
+var heroTrack = document.getElementById('heroTrack');
+var heroDots = document.getElementById('heroDots');
+var hLen = heroData.length;
+// 실제 인덱스 = vIdx - 1 (clone 앞 1개 때문)
+// track: [last-clone, 0, 1, 2, ..., n-1, first-clone]
+var vIdx = 1; // 처음에 보여지는 실제 첫 슬라이드의 가상 인덱스
+var hAuto = null, hDrag = false, hStartX = 0, hDeltaX = 0, hAnimating = false;
+
+function buildSlide(s){
+  var d = document.createElement('a');
+  d.className = 'hero-slide';
+  d.href = 'article.html?id=' + s.id;
+  d.style.backgroundImage = 'url(' + s.img + ')';
+  var tagsHtml = s.tags.map(function(t){
+    if(t === 'tagEvent') return '<span class="slide-tag-event">EVENT</span>';
+    return '<img src="svg/'+t+'.svg" alt="">';
+  }).join('');
+  d.innerHTML = '<div class="slide-inner"><div class="slide-tags">' + tagsHtml +
+    '</div><h2 class="slide-title">'+s.title.replace(/\n/g,'<br>')+'</h2></div>';
+  return d;
+}
+// 앞 clone (마지막 슬라이드)
+heroTrack.appendChild(buildSlide(heroData[hLen-1]));
+// 실제 슬라이드
+heroData.forEach(function(s,i){
+  heroTrack.appendChild(buildSlide(s));
+  var dot = document.createElement('span');
+  dot.className = 'hero-dot' + (i===0?' on':'');
+  heroDots.appendChild(dot);
+});
+// 뒤 clone (첫 슬라이드)
+heroTrack.appendChild(buildSlide(heroData[0]));
+var dots = heroDots.children;
+
+// 초기 위치 세팅 (clone 스킵)
+heroTrack.style.transform = 'translateX(-'+(vIdx*100)+'%)';
+
+function realIndex(){ return ((vIdx - 1) % hLen + hLen) % hLen; }
+
+function updateDots(){
+  var real = realIndex();
+  for(var i=0;i<dots.length;i++) dots[i].classList.toggle('on', i===real);
+}
+
+function hGo(next){
+  if(hAnimating) return;
+  hAnimating = true;
+  vIdx = next;
+  heroTrack.classList.add('animate');
+  heroTrack.style.transform = 'translateX(-'+(vIdx*100)+'%)';
+  updateDots();
+}
+
+// transitionend 시 clone 영역이면 애니메이션 없이 점프
+heroTrack.addEventListener('transitionend', function(){
+  hAnimating = false;
+  if(vIdx === 0){
+    // 맨 앞 clone 도달 → 진짜 마지막으로 점프
+    vIdx = hLen;
+    heroTrack.classList.remove('animate');
+    heroTrack.style.transform = 'translateX(-'+(vIdx*100)+'%)';
+  } else if(vIdx === hLen + 1){
+    // 맨 뒤 clone 도달 → 진짜 첫번째로 점프
+    vIdx = 1;
+    heroTrack.classList.remove('animate');
+    heroTrack.style.transform = 'translateX(-'+(vIdx*100)+'%)';
+  }
+});
+
+function hStart(){hStop();hAuto=setInterval(function(){hGo(vIdx+1)},3000)}
+function hStop(){if(hAuto){clearInterval(hAuto);hAuto=null}}
+
+heroEl.addEventListener('touchstart',function(e){
+  hStop();
+  hStartX=e.touches[0].clientX;
+  hDrag=true;
+  heroTrack.classList.remove('animate');
+},{passive:true});
+heroEl.addEventListener('touchmove',function(e){
+  if(!hDrag)return;
+  hDeltaX=e.touches[0].clientX-hStartX;
+  heroTrack.style.transform='translateX(calc(-'+(vIdx*100)+'% + '+hDeltaX+'px))';
+},{passive:true});
+heroEl.addEventListener('touchend',function(){
+  if(!hDrag)return;
+  hDrag=false;
+  heroTrack.classList.add('animate');
+  if(Math.abs(hDeltaX)>40){
+    hGo(hDeltaX>0?vIdx-1:vIdx+1);
+  } else {
+    heroTrack.style.transform='translateX(-'+(vIdx*100)+'%)';
+  }
+  hDeltaX=0;
+  hStart();
+});
+hStart();
+
+/* ===== POPULAR ===== */
+var popTrack = document.getElementById('popTrack');
+var popHtml = '';
+popData.forEach(function(p){
+  popHtml += '<a class="pop-card" href="article.html?id='+p.id+'"><div class="pop-thumb" style="background-image:url('+p.img+')"></div><p class="pop-title">'+p.title+'</p></a>';
+});
+popTrack.innerHTML = popHtml + popHtml;
+var popReset = false;
+popTrack.addEventListener('scroll',function(){
+  if(popReset) return;
+  var half = popTrack.scrollWidth / 2;
+  if(popTrack.scrollLeft >= half - 10){
+    popReset = true;
+    popTrack.scrollLeft -= half;
+    requestAnimationFrame(function(){popReset=false});
+  }
+},{passive:true});
+
+/* ===== INSIGHTS ===== */
+var insTabs = document.getElementById('insTabs');
+var insList = document.getElementById('insList');
+var btnMore = document.getElementById('btnMore');
+var moreCnt = document.getElementById('moreCnt');
+var insCat = 'all';
+var insBatch = 0;
+
+function getAllInsight(){
+  // 카테고리별 라운드로빈으로 섞기 (dev→design→plan→mkt→dev→...)
+  var cats = ['dev','design','plan','mkt'];
+  var all = [];
+  var maxLen = 0;
+  cats.forEach(function(c){ if(insightData[c].length > maxLen) maxLen = insightData[c].length; });
+  for(var i=0; i<maxLen; i++){
+    cats.forEach(function(c){
+      if(i < insightData[c].length) all.push(insightData[c][i]);
+    });
+  }
+  return all;
+}
+function getInsightPool(cat){return cat==='all'?getAllInsight():(insightData[cat]||[])}
+
+function renderInsight(){
+  var pool = getInsightPool(insCat);
+  var start = insBatch * 5;
+  var items = pool.slice(start, start + 5);
+  insList.classList.add('loading');
+  setTimeout(function(){
+    var html = '';
+    items.forEach(function(a){
+      html += '<a class="ins-item" href="article.html?id='+a.id+'"><div class="ins-thumb" style="background-image:url('+a.img+')"></div><p class="ins-title">'+a.t+'</p></a>';
+    });
+    insList.innerHTML = html;
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        insList.classList.remove('loading');
+      });
+    });
+  },150);
+  moreCnt.textContent = insBatch + '/2';
+  var pool2 = getInsightPool(insCat);
+  var maxBatch = Math.floor(pool2.length / 5) - 1;
+  btnMore.style.display = (insBatch >= 2 || insBatch >= maxBatch) ? 'none' : '';
+}
+
+insTabs.addEventListener('click',function(e){
+  var pill = e.target.closest('.tab-pill');
+  if(!pill) return;
+  insTabs.querySelectorAll('.tab-pill').forEach(function(p){p.classList.remove('on')});
+  pill.classList.add('on');
+  insCat = pill.dataset.cat;
+  insBatch = 0;
+  renderInsight();
+});
+
+btnMore.addEventListener('click',function(){
+  btnMore.classList.add('spin');
+  setTimeout(function(){btnMore.classList.remove('spin')},500);
+  insBatch++;
+  renderInsight();
+});
+
+renderInsight();
+
+/* ===== LOUNGE PAUSE ===== */
+['mqTop','mqBot'].forEach(function(id){
+  var row = document.getElementById(id);
+  row.addEventListener('touchstart',function(){row.classList.add('paused')},{passive:true});
+  row.addEventListener('touchend',function(){row.classList.remove('paused')});
+});
+
+/* ===== QNA ===== */
+var qnaTrack = document.getElementById('qnaTrack');
+var qnaScroll = document.getElementById('qnaScroll');
+
+function renderQna(){
+  // 전체 노출, 무한 롤링 위해 2배 복제
+  var items = qnaData.concat(qnaData);
+  var html = '';
+  items.forEach(function(q){
+    html += '<div class="qcard"><div class="qcard-tags">' +
+      q.tags.map(function(t){
+        var isHot = t === '인기글';
+        return '<span class="qcard-tag'+(isHot?' hot':'')+'">'+t+'</span>';
+      }).join('') +
+      '</div><p class="qcard-txt">'+q.txt+'</p><span class="qcard-views">조회수 '+q.views+'</span></div>';
+  });
+  qnaTrack.innerHTML = html;
+}
+
+var qnaReset = false;
+qnaScroll.addEventListener('scroll',function(){
+  if(qnaReset) return;
+  var half = qnaTrack.scrollWidth / 2;
+  if(qnaScroll.scrollLeft >= half - 5){
+    qnaReset = true;
+    qnaScroll.scrollLeft -= half;
+    requestAnimationFrame(function(){qnaReset=false});
+  }
+},{passive:true});
+
+renderQna();
+
+/* ===== HEADER SCROLL TRANSITION ===== */
+var hdr = document.getElementById('hdr');
+function onScroll(){
+  // Trigger at ~40% of hero height (so transition feels natural)
+  var threshold = Math.max(80, heroEl.offsetHeight * 0.4);
+  hdr.classList.toggle('scrolled', window.scrollY > threshold);
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', onScroll, {passive:true});
+onScroll();
+
+})();
+</script>
+</body>
+</html>

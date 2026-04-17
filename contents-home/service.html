@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>서비스 이동 - 잡코리아</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#222;background:#F7F7F7;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;align-items:center;min-height:100dvh;padding:20px}
+    .card{max-width:400px;width:100%;background:#fff;border-radius:20px;padding:48px 28px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+    .emoji{font-size:48px;margin-bottom:20px}
+    .svc-name{font-size:22px;font-weight:700;margin-bottom:8px;line-height:1.4}
+    .svc-name em{font-style:normal;color:#1B55F6}
+    .desc{font-size:16px;color:#666;line-height:1.6;margin-bottom:12px}
+    .question{font-size:15px;color:#444;line-height:1.55;background:#F0F2FA;border-radius:12px;padding:16px 20px;margin-bottom:32px;font-weight:500}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;padding:14px 28px;font-size:15px;font-weight:600;color:#fff;background:#292C32;border-radius:12px;text-decoration:none;transition:background .15s}
+    .btn-back:active{background:#444}
+    .btn-back svg{width:18px;height:18px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">👀</div>
+    <p class="svc-name"><em id="svcName"></em> 서비스로<br>이동하셨군요!</p>
+    <p class="question">어떤 콘텐츠가 나올 거라<br>예상하셨나요?</p>
+    <a href="index.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      콘텐츠 홈으로 돌아가기
+    </a>
+  </div>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var name = params.get('name') || '해당';
+    document.getElementById('svcName').textContent = name;
+    document.title = name + ' - 잡코리아';
+  </script>
+</body>
+</html>
