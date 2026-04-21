@@ -129,8 +129,17 @@
       font-size:13px; color:var(--slate-400);
     }
 
+    /* Scrollable inner container (used on screens with bottom button) */
+    .screen:has(.btn-bottom-wrap) { overflow:hidden; }
+    .screen-scroll {
+      flex:1 1 auto; min-height:0;
+      overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      margin:0 -24px; padding:0 24px 8px;
+    }
+
     /* Options (text + multi + other) */
-    .options { display:flex; flex-direction:column; gap:10px; padding-bottom:calc(120px + var(--safe-b)); }
+    .options { display:flex; flex-direction:column; gap:10px; }
     .option-card {
       padding:14px 16px; border:2px solid var(--slate-200); border-radius:12px;
       font-size:15px; font-weight:500;
@@ -199,7 +208,7 @@
     }
 
     /* Free text (Q10) */
-    .text-wrap { padding-bottom:calc(120px + var(--safe-b)); }
+    .text-wrap { padding-bottom:8px; }
     .text-area {
       width:100%; min-height:160px; padding:14px 16px;
       border:1.5px solid var(--slate-200); border-radius:12px;
@@ -211,11 +220,13 @@
     .text-area::placeholder { color:var(--slate-400); }
     .text-hint { font-size:12px; color:var(--slate-400); margin-top:10px; }
 
-    /* Bottom Fixed Button */
+    /* Bottom Fixed Button — sits at the end of flex column (always visible) */
     .btn-bottom-wrap {
-      position:absolute; bottom:0; left:0; right:0;
+      flex-shrink:0;
+      margin:0 -24px;
       padding:16px 24px calc(16px + var(--safe-b));
-      background:linear-gradient(transparent, var(--white) 24%);
+      background:var(--white);
+      box-shadow:0 -1px 0 var(--slate-100);
     }
     .btn-next {
       width:100%; padding:16px; font-size:16px; font-weight:600;
@@ -325,11 +336,11 @@ document.body.appendChild(badge);
    Questions Config
    ========================================================== */
 var SECTIONS = [
-  { id:'hero',     name:'상단 하이라이트', desc:'큰 배너 영역',       img:'top-highlights.png' },
-  { id:'popular',  name:'인기 게시물',      desc:'지금 뜨는',           img:'popular-contents.png' },
-  { id:'insight',  name:'직무별 인사이트',  desc:'직무 카테고리별',     img:'job-insight.png' },
-  { id:'lounge',   name:'커리어 라운지',    desc:'서비스 바로가기',     img:'career-lounge.png' },
-  { id:'qna',      name:'함께하는 고민해결',desc:'취업톡톡 Q&A',        img:'community-qna.png' }
+  { id:'hero',     name:'상단 하이라이트', desc:'큰 배너 영역',       img:'/contents-home/ut-survey/top-highlights.png' },
+  { id:'popular',  name:'인기 게시물',      desc:'지금 뜨는',           img:'/contents-home/ut-survey/popular-contents.png' },
+  { id:'insight',  name:'직무별 인사이트',  desc:'직무 카테고리별',     img:'/contents-home/ut-survey/job-insight.png' },
+  { id:'lounge',   name:'커리어 라운지',    desc:'서비스 바로가기',     img:'/contents-home/ut-survey/career-lounge.png' },
+  { id:'qna',      name:'함께하는 고민해결',desc:'취업톡톡 Q&A',        img:'/contents-home/ut-survey/community-qna.png' }
 ];
 
 var QUESTIONS = [
@@ -424,7 +435,7 @@ function buildScreen(q, idx) {
     inner += '</div>';
   }
   else if (q.type === 'section') {
-    inner += '<div class="options" data-q="' + q.id + '" data-type="section">';
+    inner += '<div class="screen-scroll"><div class="options" data-q="' + q.id + '" data-type="section">';
     SECTIONS.forEach(function(s){
       inner += '<div class="option-card section-card" data-val="' + s.id + '">';
       inner += '  <div class="section-thumb" style="background-image:url(\''+s.img+'\')"></div>';
@@ -433,11 +444,11 @@ function buildScreen(q, idx) {
       inner += '  <div class="opt-check"></div>';
       inner += '</div>';
     });
-    inner += '</div>';
+    inner += '</div></div>';
     inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
   }
   else if (q.type === 'single-with-other') {
-    inner += '<div class="options" data-q="' + q.id + '" data-type="single-other">';
+    inner += '<div class="screen-scroll"><div class="options" data-q="' + q.id + '" data-type="single-other">';
     q.options.forEach(function(o){
       inner += '<div class="option-card" data-val="' + o.id + '">';
       inner += '  <div style="flex:1"><p class="option-text">'+escHtml(o.label)+'</p>';
@@ -450,11 +461,11 @@ function buildScreen(q, idx) {
         inner += '</div>';
       }
     });
-    inner += '</div>';
+    inner += '</div></div>';
     inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
   }
   else if (q.type === 'multi') {
-    inner += '<div class="options multi" data-q="' + q.id + '" data-type="multi">';
+    inner += '<div class="screen-scroll"><div class="options multi" data-q="' + q.id + '" data-type="multi">';
     q.options.forEach(function(o){
       inner += '<div class="option-card" data-val="' + o.id + '"' + (o.exclusive?' data-exclusive="1"':'') + '>';
       inner += '  <div style="flex:1"><p class="option-text">'+escHtml(o.label)+'</p>';
@@ -462,14 +473,14 @@ function buildScreen(q, idx) {
       inner += '  </div><div class="opt-check"></div>';
       inner += '</div>';
     });
-    inner += '</div>';
+    inner += '</div></div>';
     inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
   }
   else if (q.type === 'text') {
-    inner += '<div class="text-wrap">';
+    inner += '<div class="screen-scroll"><div class="text-wrap">';
     inner += '  <textarea class="text-area" data-q="'+q.id+'" placeholder="'+escHtml(q.placeholder||'')+'"></textarea>';
     if (q.hint) inner += '  <p class="text-hint">'+escHtml(q.hint)+'</p>';
-    inner += '</div>';
+    inner += '</div></div>';
     inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'">제출</button></div>';
   }
 
