@@ -130,7 +130,7 @@
     }
 
     /* Options (text + multi + other) */
-    .options { display:flex; flex-direction:column; gap:10px; padding-bottom:100px; }
+    .options { display:flex; flex-direction:column; gap:10px; padding-bottom:calc(120px + var(--safe-b)); }
     .option-card {
       padding:14px 16px; border:2px solid var(--slate-200); border-radius:12px;
       font-size:15px; font-weight:500;
@@ -174,9 +174,10 @@
     /* Section cards (Q5) */
     .section-card { padding:10px; gap:14px; }
     .section-thumb {
-      width:80px; height:54px; border-radius:8px; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:26px;
+      width:112px; height:72px; border-radius:8px; flex-shrink:0;
+      background-color:var(--slate-100);
+      background-size:cover; background-position:center top;
+      border:1px solid var(--slate-200);
     }
     .section-card .option-text { font-size:15px; font-weight:600; }
 
@@ -198,7 +199,7 @@
     }
 
     /* Free text (Q10) */
-    .text-wrap { padding-bottom:100px; }
+    .text-wrap { padding-bottom:calc(120px + var(--safe-b)); }
     .text-area {
       width:100%; min-height:160px; padding:14px 16px;
       border:1.5px solid var(--slate-200); border-radius:12px;
@@ -266,8 +267,8 @@
       <h1 class="start-title">오늘 본 화면에 대해<br>솔직한 의견을 들려주세요</h1>
       <p class="start-desc">정답은 없으니 편하게 답변해 주세요!</p>
       <div class="name-field">
-        <label class="name-label">참여자 이름 (또는 번호)</label>
-        <input class="name-input" id="nameInput" type="text" placeholder="예: 참여자 1" autocomplete="off">
+        <label class="name-label">참여자 이름</label>
+        <input class="name-input" id="nameInput" type="text" placeholder="이름을 입력해 주세요" autocomplete="off">
       </div>
       <button class="btn-start" id="btnStart" disabled>시작하기</button>
     </div>
@@ -324,11 +325,11 @@ document.body.appendChild(badge);
    Questions Config
    ========================================================== */
 var SECTIONS = [
-  { id:'hero',     name:'상단 하이라이트', desc:'큰 배너 영역',       emoji:'🎠', grad:'linear-gradient(135deg,#1E293B,#334155)' },
-  { id:'popular',  name:'인기 게시물',      desc:'지금 뜨는',           emoji:'🔥', grad:'linear-gradient(135deg,#EA580C,#F97316)' },
-  { id:'insight',  name:'직무별 인사이트',  desc:'직무 카테고리별',     emoji:'💡', grad:'linear-gradient(135deg,#059669,#10B981)' },
-  { id:'lounge',   name:'커리어 라운지',    desc:'서비스 바로가기',     emoji:'🏠', grad:'linear-gradient(135deg,#0891B2,#06B6D4)' },
-  { id:'qna',      name:'함께하는 고민해결',desc:'취업톡톡 Q&A',        emoji:'💬', grad:'linear-gradient(135deg,#4F46E5,#6366F1)' }
+  { id:'hero',     name:'상단 하이라이트', desc:'큰 배너 영역',       img:'top-highlights.png' },
+  { id:'popular',  name:'인기 게시물',      desc:'지금 뜨는',           img:'popular-contents.png' },
+  { id:'insight',  name:'직무별 인사이트',  desc:'직무 카테고리별',     img:'job-insight.png' },
+  { id:'lounge',   name:'커리어 라운지',    desc:'서비스 바로가기',     img:'career-lounge.png' },
+  { id:'qna',      name:'함께하는 고민해결',desc:'취업톡톡 Q&A',        img:'community-qna.png' }
 ];
 
 var QUESTIONS = [
@@ -426,8 +427,8 @@ function buildScreen(q, idx) {
     inner += '<div class="options" data-q="' + q.id + '" data-type="section">';
     SECTIONS.forEach(function(s){
       inner += '<div class="option-card section-card" data-val="' + s.id + '">';
-      inner += '  <div class="section-thumb" style="background:'+s.grad+'">'+s.emoji+'</div>';
-      inner += '  <div style="flex:1"><p class="option-text">'+escHtml(s.name)+'</p>';
+      inner += '  <div class="section-thumb" style="background-image:url(\''+s.img+'\')"></div>';
+      inner += '  <div style="flex:1;min-width:0"><p class="option-text">'+escHtml(s.name)+'</p>';
       inner += '  <p class="option-desc">'+escHtml(s.desc)+'</p></div>';
       inner += '  <div class="opt-check"></div>';
       inner += '</div>';
