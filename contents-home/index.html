@@ -51,14 +51,22 @@
     .hdr-icons button{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:inherit}
     .hdr-icons button svg{width:24px;height:24px;display:block;color:inherit}
 
-    /* Main */
-    .main{padding-top:0;padding-bottom:calc(var(--nav) + var(--safe));background:var(--white)}
+    /* Main — QnA가 하단까지 감싸므로 main 자체엔 padding-bottom 두지 않음 */
+    .main{padding-top:0;padding-bottom:0;background:var(--white)}
 
     /* ===== Hero Carousel (extends into header) ===== */
-    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px}
+    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px;transform-origin:center top;will-change:transform;transition:transform .3s ease-out}
+    .hero.ptr-dragging{transition:none}
+    .hero.ptr-refresh{transition:transform .6s cubic-bezier(.22,1,.36,1)}
     .hero-track{display:flex;height:100%;will-change:transform}
     .hero-track.animate{transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
     .hero-slide{flex:0 0 100%;width:100%;height:100%;background-size:cover;background-position:center;position:relative;cursor:pointer}
+    /* PTR 로딩 인디케이터 */
+    .ptr-loader{position:fixed;top:0;left:50%;transform:translate(-50%,-100%);width:40px;height:40px;background:rgba(255,255,255,.95);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,.15);opacity:0;transition:opacity .2s,transform .2s}
+    .ptr-loader.visible{opacity:1}
+    .ptr-loader svg{width:22px;height:22px;color:var(--g700);transition:transform .2s}
+    .ptr-loader.spinning svg{animation:ptrSpin .8s linear infinite}
+    @keyframes ptrSpin{to{transform:rotate(360deg)}}
     /* 딤드 강화: 상단 0.55 → 중간 0.1 → 하단 0.72 */
     .hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.1) 45%,rgba(0,0,0,.72) 100%);pointer-events:none}
     .slide-inner{position:absolute;bottom:54px;left:var(--pad);right:var(--pad);z-index:2}
@@ -122,7 +130,7 @@
     .chip-emoji{width:24px;height:24px;flex-shrink:0}
 
     /* QnA — 좌측 16px 여백 */
-    .qna-wrap{background:#F0F2FA;padding:32px 0 32px;margin-top:40px}
+    .qna-wrap{background:#F0F2FA;padding:32px 0 calc(var(--nav) + var(--safe) + 32px);margin-top:40px}
     .qna-inner{padding:0 var(--pad)}
     .qna-label{font-size:13px;font-weight:500;color:var(--g500);margin-bottom:2px}
     .qna-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -170,6 +178,11 @@
       </button>
     </div>
   </header>
+
+  <!-- Pull-to-refresh 로더 -->
+  <div class="ptr-loader" id="ptrLoader">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+  </div>
 
   <main class="main">
 
@@ -223,13 +236,13 @@
         <a class="chip" href="service.html?name=연봉정보"><img class="chip-emoji" src="svg/emoji-moneybag.svg" alt="">연봉정보</a>
         <a class="chip" href="service.html?name=합격자소서"><img class="chip-emoji" src="svg/emoji-passassay.svg" alt="">합격자소서</a>
         <a class="chip" href="service.html?name=MICT"><img class="chip-emoji" src="svg/emoji-mict.svg" alt="">MICT</a>
-        <a class="chip" href="service.html?name=커리어체크"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어체크</a>
+        <a class="chip" href="service.html?name=커리어첵첵"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어첵첵</a>
         <a class="chip" href="service.html?name=콘텐츠LAB"><img class="chip-emoji" src="svg/emoji-books.svg" alt="">콘텐츠 LAB</a>
         <a class="chip" href="service.html?name=기업리뷰"><img class="chip-emoji" src="svg/emoji-folder.svg" alt="">기업리뷰</a>
         <a class="chip" href="service.html?name=연봉정보"><img class="chip-emoji" src="svg/emoji-moneybag.svg" alt="">연봉정보</a>
         <a class="chip" href="service.html?name=합격자소서"><img class="chip-emoji" src="svg/emoji-passassay.svg" alt="">합격자소서</a>
         <a class="chip" href="service.html?name=MICT"><img class="chip-emoji" src="svg/emoji-mict.svg" alt="">MICT</a>
-        <a class="chip" href="service.html?name=커리어체크"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어체크</a>
+        <a class="chip" href="service.html?name=커리어첵첵"><img class="chip-emoji" src="svg/emoji-clipboard.svg" alt="">커리어첵첵</a>
         <a class="chip" href="service.html?name=콘텐츠LAB"><img class="chip-emoji" src="svg/emoji-books.svg" alt="">콘텐츠 LAB</a>
       </div></div>
       <div class="mq-row left" id="mqBot"><div class="mq-track">
@@ -482,17 +495,60 @@ var insightData = {
   ].map(function(a,i){a.img=pickImg(mktImgs,i);return a})
 };
 
+// 테마글 — 직무 불문 공통 노출, UT에서 관심도 측정용
+var themeData = [
+  {id:'t1',tags:['인기글','연봉'],txt:'회사에서 연봉협상 타이밍이 언제가 좋을까요?',views:'4.2만회'},
+  {id:'t2',tags:['인기글','연봉'],txt:'저 이정도면 연봉 잘 받고 있는 건가요?',views:'5.8만회'},
+  {id:'t3',tags:['인기글','퇴사'],txt:'퇴사를 고민하고있는데 일주일 전에 얘기해도 될까요?',views:'3.7만회'},
+  {id:'t4',tags:['인기글','면접'],txt:'면접에서 퇴사 사유를 물어볼 때 어떻게 답변하는 게 좋나요?',views:'5.1만회'}
+];
+
+// 직무별 카드 (각 직무 10개)
 var qnaData = [
-  {tags:['인기글','앱개발자'],txt:'3년차 앱개발자 연봉이 어떻게 되는지 궁금합니다.',views:'1.9만회',cat:['hot','appdev']},
-  {tags:['인사담당자','숭실대학교'],txt:'퇴사를 고민하고있는데 일주일 전에 얘기해도 될까요?',views:'3.7만회',cat:['hr','univ']},
-  {tags:['인기글','기획자'],txt:'신입 기획자인데 포트폴리오 어떻게 준비하나요?',views:'2.1만회',cat:['hot']},
-  {tags:['디자이너'],txt:'디자이너 이직할 때 포트폴리오 몇 개가 적당한가요?',views:'1.5만회',cat:[]},
-  {tags:['인기글','인사담당자'],txt:'회사에서 연봉협상 타이밍이 언제가 좋을까요?',views:'4.2만회',cat:['hot','hr']},
-  {tags:['앱개발자'],txt:'프론트엔드 개발자 취업 준비 중인데 React vs Vue 뭘 배워야 하나요?',views:'2.8만회',cat:['appdev']},
-  {tags:['인기글','숭실대학교'],txt:'대학원 진학 vs 취업, 어떤 게 더 나을까요?',views:'3.3만회',cat:['hot','univ']},
-  {tags:['마케터'],txt:'콘텐츠 마케터 1년차인데 앞으로 커리어를 어떻게 쌓아야 할까요?',views:'1.2만회',cat:[]},
-  {tags:['인기글','인사담당자'],txt:'면접에서 퇴사 사유를 물어볼 때 어떻게 답변하는 게 좋나요?',views:'5.1만회',cat:['hot','hr']},
-  {tags:['앱개발자','숭실대학교'],txt:'비전공자인데 부트캠프만으로 개발자 취업이 가능한가요?',views:'6.7만회',cat:['appdev','univ']}
+  // dev — 개발 10
+  {id:'d1',job:'dev',tags:['인기글','앱개발자'],txt:'3년차 앱개발자 연봉이 어떻게 되는지 궁금합니다.',views:'1.9만회'},
+  {id:'d2',job:'dev',tags:['앱개발자'],txt:'프론트엔드 개발자 취업 준비 중인데 React vs Vue 뭘 배워야 하나요?',views:'2.8만회'},
+  {id:'d3',job:'dev',tags:['인기글','백엔드'],txt:'백엔드 개발자 이직 시 어떤 기술 스택이 유리할까요?',views:'3.1만회'},
+  {id:'d4',job:'dev',tags:['AI·ML'],txt:'AI 엔지니어로 전직하려면 어떤 공부부터 시작해야 할까요?',views:'2.3만회'},
+  {id:'d5',job:'dev',tags:['인기글','데이터'],txt:'비전공자인데 부트캠프만으로 개발자 취업이 가능한가요?',views:'6.7만회'},
+  {id:'d6',job:'dev',tags:['DevOps'],txt:'주니어 개발자가 시니어로 성장하려면 뭘 준비해야 할까요?',views:'2.4만회'},
+  {id:'d7',job:'dev',tags:['인기글','클라우드'],txt:'클라우드 엔지니어로 전환하려는데 어떤 자격증이 필요할까요?',views:'2.1만회'},
+  {id:'d8',job:'dev',tags:['앱개발자'],txt:'코딩 테스트 단기간에 합격하려면 어떻게 준비해야 하나요?',views:'3.5만회'},
+  {id:'d9',job:'dev',tags:['인기글','앱개발자'],txt:'오픈소스 기여 경험이 이직에 정말 도움이 되나요?',views:'1.8만회'},
+  {id:'d10',job:'dev',tags:['앱개발자'],txt:'개발자 기술 블로그, 취업에 얼마나 영향이 있을까요?',views:'2.6만회'},
+  // design — 디자인 10
+  {id:'ds1',job:'design',tags:['인기글','디자이너'],txt:'디자이너 이직할 때 포트폴리오 몇 개가 적당한가요?',views:'1.5만회'},
+  {id:'ds2',job:'design',tags:['UX디자이너'],txt:'UX 디자이너 면접에서 자주 나오는 질문이 뭔가요?',views:'2.2만회'},
+  {id:'ds3',job:'design',tags:['인기글','브랜드'],txt:'브랜드 디자이너의 포트폴리오 차별화 전략이 궁금해요.',views:'1.8만회'},
+  {id:'ds4',job:'design',tags:['디자이너'],txt:'피그마 마스터하려면 얼마나 시간이 걸리나요?',views:'1.3만회'},
+  {id:'ds5',job:'design',tags:['인기글','디자이너'],txt:'디자이너에서 PM으로 직무 전환한 분 계신가요?',views:'2.7만회'},
+  {id:'ds6',job:'design',tags:['UI디자이너'],txt:'UI 디자인 트렌드는 어디서 참고하시나요?',views:'1.6만회'},
+  {id:'ds7',job:'design',tags:['인기글','디자이너'],txt:'인하우스 vs 에이전시, 어디가 더 성장에 유리할까요?',views:'2.9만회'},
+  {id:'ds8',job:'design',tags:['UX디자이너'],txt:'모션 디자인을 더하면 UX가 얼마나 개선되나요?',views:'1.4만회'},
+  {id:'ds9',job:'design',tags:['인기글','디자이너'],txt:'접근성을 고려한 디자인, 실무에서 어떻게 적용하시나요?',views:'1.9만회'},
+  {id:'ds10',job:'design',tags:['디자이너'],txt:'주니어 디자이너인데 멘토 없이 성장하는 방법이 있을까요?',views:'2.1만회'},
+  // plan — 기획·전략 10
+  {id:'p1',job:'plan',tags:['인기글','기획자'],txt:'신입 기획자인데 포트폴리오 어떻게 준비하나요?',views:'2.1만회'},
+  {id:'p2',job:'plan',tags:['PM'],txt:'PM과 PO 중에 어떤 직무가 더 성장 가능성이 높을까요?',views:'3.4만회'},
+  {id:'p3',job:'plan',tags:['인기글','서비스기획'],txt:'서비스 기획자로 이직하려면 어떤 경험이 필요할까요?',views:'2.6만회'},
+  {id:'p4',job:'plan',tags:['기획자','숭실대학교'],txt:'대학원 진학 vs 취업, 기획자 커리어엔 어떤 게 나을까요?',views:'3.3만회'},
+  {id:'p5',job:'plan',tags:['인기글','전략기획'],txt:'전략 컨설팅에서 인하우스로 이직한 경험 공유해주세요.',views:'2.9만회'},
+  {id:'p6',job:'plan',tags:['기획자'],txt:'애자일 방법론을 실제로 팀에 적용해본 사례가 있나요?',views:'1.7만회'},
+  {id:'p7',job:'plan',tags:['인기글','기획자'],txt:'신사업 기획, 아이디어에서 실행까지 어떤 과정으로 가나요?',views:'2.4만회'},
+  {id:'p8',job:'plan',tags:['PM'],txt:'기획자의 커뮤니케이션 스킬, 어떻게 향상시키나요?',views:'1.5만회'},
+  {id:'p9',job:'plan',tags:['인기글','PM'],txt:'프로젝트 매니저 자격증(PMP), 실무에서 정말 필요한가요?',views:'2.0만회'},
+  {id:'p10',job:'plan',tags:['서비스기획'],txt:'유저 스토리를 잘 쓰는 노하우가 궁금합니다.',views:'1.3만회'},
+  // mkt — 마케팅 10
+  {id:'m1',job:'mkt',tags:['인기글','마케터'],txt:'콘텐츠 마케터 1년차인데 앞으로 커리어 어떻게 쌓아야 할까요?',views:'1.2만회'},
+  {id:'m2',job:'mkt',tags:['퍼포먼스'],txt:'퍼포먼스 마케터 GA4 실무에서 어떻게 활용하나요?',views:'2.8만회'},
+  {id:'m3',job:'mkt',tags:['인기글','브랜드마케터'],txt:'브랜드 마케팅에서 스토리텔링이 왜 중요한가요?',views:'1.9만회'},
+  {id:'m4',job:'mkt',tags:['마케터'],txt:'SNS 마케팅 트렌드는 어디서 참고하시나요?',views:'1.5만회'},
+  {id:'m5',job:'mkt',tags:['인기글','그로스'],txt:'그로스 해킹 성공 사례 공유 부탁드려요!',views:'2.3만회'},
+  {id:'m6',job:'mkt',tags:['CRM'],txt:'CRM 마케팅으로 고객 충성도 올린 실제 케이스가 궁금해요.',views:'1.7만회'},
+  {id:'m7',job:'mkt',tags:['인기글','B2B'],txt:'B2B 마케팅 전략, B2C랑 어떻게 다른가요?',views:'2.2만회'},
+  {id:'m8',job:'mkt',tags:['마케터'],txt:'이메일 마케팅, 요즘도 효과 있나요?',views:'1.4만회'},
+  {id:'m9',job:'mkt',tags:['인기글','SEO'],txt:'SEO 최적화, 마케터가 꼭 알아야 할 기본이 뭔가요?',views:'2.5만회'},
+  {id:'m10',job:'mkt',tags:['마케터'],txt:'인플루언서 마케팅, 효과적인 협업 방법이 궁금해요.',views:'1.8만회'}
 ];
 
 /* ===== HERO (Infinite Loop Carousel) ===== */
@@ -666,6 +722,9 @@ insTabs.addEventListener('click',function(e){
   insCat = pill.dataset.cat;
   insBatch = 0;
   renderInsight();
+  // QnA 섹션도 동일 직무로 리프레시 (이력서 기반 추천 로직 대체)
+  renderQna(insCat);
+  qnaScroll.scrollLeft = 0;
 });
 
 btnMore.addEventListener('click',function(){
@@ -688,17 +747,45 @@ renderInsight();
 var qnaTrack = document.getElementById('qnaTrack');
 var qnaScroll = document.getElementById('qnaScroll');
 
-function renderQna(){
-  // 전체 노출, 무한 롤링 위해 2배 복제
-  var items = qnaData.concat(qnaData);
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function renderQna(jobFilter){
+  // 직무글 필터링 (전체 탭은 전 직무 합친 뒤 셔플)
+  var jobs;
+  if(!jobFilter || jobFilter === 'all'){
+    jobs = shuffle(qnaData);
+  } else {
+    jobs = qnaData.filter(function(q){return q.job === jobFilter});
+    if(jobs.length === 0) jobs = qnaData.slice();
+  }
+  // 테마글↔직무글 교차 배치 (UT 관심도 테스트를 위해 앞쪽에 번갈아 노출)
+  // 결과: theme[0], job[0], theme[1], job[1], ..., theme[N], job[N], 이후 남은 직무글
+  var interleaved = [];
+  var maxPair = themeData.length;
+  for(var i=0; i<maxPair; i++){
+    if(i < themeData.length) interleaved.push(themeData[i]);
+    if(i < jobs.length) interleaved.push(jobs[i]);
+  }
+  for(var j=maxPair; j<jobs.length; j++){
+    interleaved.push(jobs[j]);
+  }
+  // 무한 롤링용 2배 복제
+  var items = interleaved.concat(interleaved);
   var html = '';
   items.forEach(function(q){
-    html += '<div class="qcard"><div class="qcard-tags">' +
+    html += '<a class="qcard" href="qna.html?id='+q.id+'"><div class="qcard-tags">' +
       q.tags.map(function(t){
         var isHot = t === '인기글';
         return '<span class="qcard-tag'+(isHot?' hot':'')+'">'+t+'</span>';
       }).join('') +
-      '</div><p class="qcard-txt">'+q.txt+'</p><span class="qcard-views">조회수 '+q.views+'</span></div>';
+      '</div><p class="qcard-txt">'+q.txt+'</p><span class="qcard-views">조회수 '+q.views+'</span></a>';
   });
   qnaTrack.innerHTML = html;
 }
@@ -726,6 +813,102 @@ function onScroll(){
 window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll, {passive:true});
 onScroll();
+
+/* ===== Pull-to-Refresh ===== */
+var ptrLoader = document.getElementById('ptrLoader');
+var ptrStartY = 0;
+var ptrDelta = 0;
+var ptrActive = false;
+var ptrRefreshing = false;
+var PTR_THRESHOLD = 80;
+var PTR_MAX_SCALE = 1.25;
+
+function triggerRefresh(){
+  if(ptrRefreshing) return;
+  ptrRefreshing = true;
+  ptrLoader.classList.add('spinning');
+  // Hero 이미지 확대 고정
+  heroEl.classList.remove('ptr-dragging');
+  heroEl.classList.add('ptr-refresh');
+  heroEl.style.transform = 'scale('+PTR_MAX_SCALE+')';
+  // 콘텐츠 새로고침: 인사이트는 전체탭으로, QnA 재셔플, 히어로는 현재 슬라이드 유지
+  setTimeout(function(){
+    // 탭 전체로 복귀
+    insTabs.querySelectorAll('.tab-pill').forEach(function(p){p.classList.remove('on')});
+    insTabs.querySelector('.tab-pill[data-cat="all"]').classList.add('on');
+    insCat = 'all';
+    insBatch = 0;
+    renderInsight();
+    renderQna('all');
+    qnaScroll.scrollLeft = 0;
+    // 원복
+    heroEl.style.transform = '';
+    ptrLoader.classList.remove('visible','spinning');
+    ptrLoader.style.transform = 'translate(-50%,-100%)';
+    setTimeout(function(){
+      heroEl.classList.remove('ptr-refresh');
+      ptrRefreshing = false;
+    }, 600);
+  }, 700);
+}
+
+function ptrReset(){
+  heroEl.classList.remove('ptr-dragging');
+  heroEl.style.transform = '';
+  ptrLoader.classList.remove('visible');
+  ptrLoader.style.transform = 'translate(-50%,-100%)';
+}
+
+window.addEventListener('touchstart', function(e){
+  if(ptrRefreshing) return;
+  if(window.scrollY <= 0){
+    ptrStartY = e.touches[0].clientY;
+    ptrActive = true;
+    ptrDelta = 0;
+  }
+}, {passive:true});
+
+window.addEventListener('touchmove', function(e){
+  if(!ptrActive || ptrRefreshing) return;
+  if(window.scrollY > 0){
+    ptrActive = false;
+    ptrReset();
+    return;
+  }
+  var deltaY = e.touches[0].clientY - ptrStartY;
+  if(deltaY <= 0){
+    ptrReset();
+    return;
+  }
+  ptrDelta = deltaY;
+  // 저항감 있는 drag: 실제 이동은 deltaY의 루트값
+  var damped = Math.sqrt(deltaY) * 6;
+  var scale = Math.min(1 + damped/800, PTR_MAX_SCALE);
+  heroEl.classList.add('ptr-dragging');
+  heroEl.style.transform = 'scale('+scale+')';
+  // 로더 노출
+  var loaderY = Math.min(damped - 30, 20);
+  ptrLoader.style.transform = 'translate(-50%,'+loaderY+'px)';
+  ptrLoader.classList.add('visible');
+  // 임계값 도달 시 아이콘 각도 변화
+  if(damped >= PTR_THRESHOLD){
+    ptrLoader.querySelector('svg').style.transform = 'rotate(180deg)';
+  } else {
+    ptrLoader.querySelector('svg').style.transform = 'rotate(0deg)';
+  }
+}, {passive:true});
+
+window.addEventListener('touchend', function(){
+  if(!ptrActive || ptrRefreshing) return;
+  ptrActive = false;
+  var damped = Math.sqrt(ptrDelta) * 6;
+  if(damped >= PTR_THRESHOLD){
+    triggerRefresh();
+  } else {
+    ptrReset();
+  }
+  ptrDelta = 0;
+});
 
 })();
 </script>
