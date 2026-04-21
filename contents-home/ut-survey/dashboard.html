@@ -8,9 +8,9 @@
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
   <style>
     :root {
-      --blue: #3B82F6;
-      --blue-dark: #2563EB;
-      --blue-light: #EFF6FF;
+      --blue: #1B55F6;
+      --blue-dark: #1748D1;
+      --blue-light: #E8EEFE;
       --slate-900: #0F172A;
       --slate-700: #334155;
       --slate-600: #475569;
@@ -37,6 +37,8 @@
     /* Header */
     .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
     .dash-title { font-size:24px; font-weight:700; }
+    .dash-subtitle { font-size:13px; color:var(--slate-400); margin-top:4px; }
+    .dash-title-wrap { display:flex; flex-direction:column; }
     .dash-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .response-count {
       padding:6px 14px; font-size:14px; font-weight:600;
@@ -193,7 +195,7 @@
     .ppl-pill:hover { background:var(--slate-200); }
     .ppl-pill.active {
       background:var(--blue); color:var(--white);
-      box-shadow:0 2px 8px rgba(59,130,246,0.3);
+      box-shadow:0 2px 8px rgba(27,85,246,0.3);
     }
     .ppl-pill-num {
       font-size:11px; opacity:0.7; margin-right:4px;
@@ -310,7 +312,10 @@
 <div class="wrap">
 
   <div class="dash-header">
-    <h1 class="dash-title">콘텐츠홈 UT 대시보드</h1>
+    <div class="dash-title-wrap">
+      <h1 class="dash-title">콘텐츠홈 UT 대시보드</h1>
+      <p class="dash-subtitle">문의: 서유선(프로덕트 디자인팀)</p>
+    </div>
     <div class="dash-meta">
       <span class="response-count" id="respCount">0명 응답</span>
       <span class="mode-badge" id="modeBadge">-</span>

@@ -9,9 +9,9 @@
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
   <style>
     :root {
-      --blue: #3B82F6;
-      --blue-dark: #2563EB;
-      --blue-light: #EFF6FF;
+      --blue: #1B55F6;
+      --blue-dark: #1748D1;
+      --blue-light: #E8EEFE;
       --slate-900: #0F172A;
       --slate-600: #475569;
       --slate-400: #94A3B8;
@@ -102,12 +102,12 @@
       border-radius:20px; margin-bottom:14px;
     }
     .q-text {
-      font-size:21px; font-weight:700; line-height:1.45;
+      font-size:23px; font-weight:700; line-height:1.4;
       word-break:keep-all; white-space:pre-line;
     }
 
     /* Likert Scale */
-    .likert { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding-bottom:60px; }
+    .likert { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding-bottom:60px; margin-bottom:40px; }
     .likert-row { display:flex; gap:10px; }
     .likert-btn {
       width:54px; height:54px; border-radius:50%;
@@ -121,7 +121,7 @@
     .likert-btn.selected {
       background:var(--blue); border-color:var(--blue);
       color:var(--white); transform:scale(1.12);
-      box-shadow:0 4px 14px rgba(59,130,246,0.35);
+      box-shadow:0 4px 14px rgba(27,85,246,0.35);
     }
     .likert-labels {
       display:flex; justify-content:space-between;
@@ -150,7 +150,7 @@
     .option-card:active { transform:scale(0.99); }
     .option-card.selected {
       border-color:var(--blue); background:var(--blue-light);
-      box-shadow:0 2px 10px rgba(59,130,246,0.12);
+      box-shadow:0 2px 10px rgba(27,85,246,0.12);
     }
     .option-text { flex:1; line-height:1.4; word-break:keep-all; }
     .option-desc { font-size:12px; color:var(--slate-400); margin-top:2px; font-weight:400; }
@@ -536,8 +536,9 @@ function goTo(step) {
   else if (step > TOTAL) progress = 100;
   progressFill.style.width = progress + '%';
 
-  // Scroll question screens to top
+  // Scroll question screens to top (both the screen itself and any inner scrollable)
   next.scrollTop = 0;
+  next.querySelectorAll('.screen-scroll').forEach(function(el){ el.scrollTop = 0; });
 }
 
 /* ==========================================================
