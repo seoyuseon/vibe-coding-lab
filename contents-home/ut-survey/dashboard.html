@@ -37,33 +37,40 @@
     /* Header */
     .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
     .dash-title { font-size:24px; font-weight:700; }
+    .dash-title-row { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
     .dash-subtitle { font-size:13px; color:var(--slate-400); margin-top:4px; }
     .dash-title-wrap { display:flex; flex-direction:column; }
     .dash-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .response-count {
-      padding:6px 14px; font-size:14px; font-weight:600;
-      background:var(--blue-light); color:var(--blue-dark); border-radius:20px;
+      padding:3px 10px; font-size:12px; font-weight:600;
+      background:var(--slate-100); color:var(--slate-500); border-radius:20px;
     }
-    .mode-badge { padding:4px 10px; font-size:11px; font-weight:600; border-radius:20px; }
+    .mode-badge { padding:3px 9px; font-size:11px; font-weight:600; border-radius:20px; letter-spacing:0.02em; }
     .mode-badge.local { background:#FEF3C7; color:#92400E; }
-    .mode-badge.cloud { background:#D1FAE5; color:#065F46; }
-    .btn-refresh, .btn-export {
-      padding:8px 16px; font-size:13px; font-weight:600;
-      border-radius:8px; transition:all 0.15s;
-    }
-    .btn-refresh {
+    .mode-badge.cloud { background:var(--slate-100); color:var(--slate-500); }
+    .btn-icon {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 12px; font-size:13px; font-weight:500;
       color:var(--slate-600); background:var(--white);
-      border:1px solid var(--slate-200);
+      border:1px solid var(--slate-200); border-radius:7px;
+      transition:all 0.15s; cursor:pointer;
     }
-    .btn-refresh:hover { background:var(--slate-50); border-color:var(--slate-300); }
-    .btn-export { color:var(--white); background:var(--blue); }
-    .btn-export:hover { background:var(--blue-dark); }
+    .btn-icon:hover {
+      color:var(--slate-900); border-color:var(--slate-300);
+      background:var(--slate-50);
+    }
+    .btn-icon svg { width:14px; height:14px; flex-shrink:0; transition:transform 0.5s ease; }
+    .btn-icon.spinning svg { animation:spin 0.6s cubic-bezier(.4,0,.2,1); }
+    @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     .btn-danger {
-      padding:8px 14px; font-size:13px; font-weight:600;
-      color:#DC2626; background:#FEE2E2;
-      border-radius:8px; transition:all 0.15s;
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 12px; font-size:13px; font-weight:500;
+      color:#DC2626; background:var(--white);
+      border:1px solid #FECACA; border-radius:7px;
+      transition:all 0.15s; cursor:pointer;
     }
-    .btn-danger:hover { background:#FECACA; }
+    .btn-danger:hover { background:#FEF2F2; border-color:#FCA5A5; }
+    .btn-danger svg { width:14px; height:14px; flex-shrink:0; }
     .btn-danger-sm {
       padding:5px 12px; font-size:12px; font-weight:600;
       color:#DC2626; background:transparent;
@@ -313,15 +320,25 @@
 
   <div class="dash-header">
     <div class="dash-title-wrap">
-      <h1 class="dash-title">콘텐츠홈 UT 대시보드</h1>
+      <div class="dash-title-row">
+        <h1 class="dash-title">콘텐츠홈 UT 대시보드</h1>
+        <span class="response-count" id="respCount">0명 응답</span>
+      </div>
       <p class="dash-subtitle">문의: 서유선(프로덕트 디자인팀)</p>
     </div>
     <div class="dash-meta">
-      <span class="response-count" id="respCount">0명 응답</span>
       <span class="mode-badge" id="modeBadge">-</span>
-      <button class="btn-refresh" id="btnRefresh">새로고침</button>
-      <button class="btn-export" id="btnExport">CSV 내보내기</button>
-      <button class="btn-danger" id="btnDeleteAll">전체 삭제</button>
+      <button class="btn-icon" id="btnRefresh" aria-label="새로고침" title="새로고침">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      </button>
+      <button class="btn-icon" id="btnExport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        내보내기
+      </button>
+      <button class="btn-danger" id="btnDeleteAll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
+        전체 삭제
+      </button>
     </div>
   </div>
 
@@ -925,8 +942,8 @@ function escHtml(s) {
    ========================================================== */
 btnRefresh.addEventListener('click', function(){
   if (!useFirebase) { allResponses = loadLocal(); render(); }
-  btnRefresh.textContent = '갱신됨';
-  setTimeout(function(){ btnRefresh.textContent = '새로고침'; }, 1000);
+  btnRefresh.classList.add('spinning');
+  setTimeout(function(){ btnRefresh.classList.remove('spinning'); }, 600);
 });
 
 /* ==========================================================
