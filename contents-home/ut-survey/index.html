@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>콘텐츠홈 UT 설문</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-light: #EFF6FF;
+      --slate-900: #0F172A;
+      --slate-600: #475569;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+      --emerald: #10B981;
+      --white: #FFFFFF;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { -webkit-text-size-adjust:100%; height:100%; }
+    body {
+      font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+      color:var(--slate-900); background:var(--white);
+      -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+      height:100%; overflow:hidden;
+    }
+    button { border:none; background:none; font:inherit; cursor:pointer; color:inherit; }
+    input, textarea { font:inherit; }
+
+    /* App Shell */
+    .app {
+      max-width:480px; margin:0 auto; height:100dvh;
+      display:flex; flex-direction:column; position:relative; overflow:hidden;
+    }
+
+    /* Progress Bar */
+    .progress { height:3px; background:var(--slate-100); flex-shrink:0; }
+    .progress-fill {
+      height:100%; background:var(--blue); border-radius:0 2px 2px 0;
+      transition: width 0.4s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* Screen Container */
+    .screens { flex:1; position:relative; overflow:hidden; }
+    .screen {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      padding:0 24px;
+      transform:translateX(100%); opacity:0;
+      transition: transform 0.45s cubic-bezier(.4,0,.2,1), opacity 0.45s ease;
+      overflow-y:auto; -webkit-overflow-scrolling:touch;
+    }
+    .screen.active { transform:translateX(0); opacity:1; }
+    .screen.exit { transform:translateX(-20%); opacity:0; }
+
+    /* Start Screen */
+    .start-icon {
+      width:80px; height:80px; margin:72px auto 24px;
+      background:var(--blue-light); border-radius:24px;
+      display:flex; align-items:center; justify-content:center; font-size:36px;
+    }
+    .start-title { font-size:24px; font-weight:700; text-align:center; line-height:1.35; }
+    .start-desc {
+      font-size:15px; color:var(--slate-600); text-align:center;
+      margin-top:8px; line-height:1.5;
+    }
+    .name-field { margin-top:36px; display:flex; flex-direction:column; gap:8px; }
+    .name-label { font-size:13px; font-weight:600; color:var(--slate-600); }
+    .name-input {
+      width:100%; padding:14px 16px; font-size:16px;
+      border:1.5px solid var(--slate-200); border-radius:12px;
+      outline:none; transition: border-color 0.2s; background:var(--white);
+    }
+    .name-input:focus { border-color:var(--blue); }
+    .name-input::placeholder { color:var(--slate-400); }
+    .btn-start {
+      margin-top:20px; width:100%; padding:16px;
+      font-size:16px; font-weight:600; color:var(--white);
+      background:var(--blue); border-radius:12px;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+    }
+    .btn-start:active { transform:scale(0.98); }
+    .btn-start:disabled { background:var(--slate-300); opacity:0.5; cursor:default; }
+
+    /* Question Header */
+    .q-header { padding-top:40px; margin-bottom:32px; }
+    .q-category {
+      font-size:12px; font-weight:600; color:var(--blue);
+      letter-spacing:0.02em; margin-bottom:8px;
+    }
+    .q-badge {
+      display:inline-flex; align-items:center;
+      padding:4px 12px; font-size:13px; font-weight:700;
+      color:var(--blue); background:var(--blue-light);
+      border-radius:20px; margin-bottom:14px;
+    }
+    .q-text {
+      font-size:21px; font-weight:700; line-height:1.45;
+      word-break:keep-all; white-space:pre-line;
+    }
+
+    /* Likert Scale */
+    .likert { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding-bottom:60px; }
+    .likert-row { display:flex; gap:10px; }
+    .likert-btn {
+      width:54px; height:54px; border-radius:50%;
+      border:2px solid var(--slate-200);
+      font-size:18px; font-weight:700; color:var(--slate-600);
+      display:flex; align-items:center; justify-content:center;
+      transition: all 0.2s cubic-bezier(.4,0,.2,1);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .likert-btn:active { transform:scale(0.92); }
+    .likert-btn.selected {
+      background:var(--blue); border-color:var(--blue);
+      color:var(--white); transform:scale(1.12);
+      box-shadow:0 4px 14px rgba(59,130,246,0.35);
+    }
+    .likert-labels {
+      display:flex; justify-content:space-between;
+      width:100%; max-width:300px;
+      font-size:13px; color:var(--slate-400);
+    }
+
+    /* Options (text + multi + other) */
+    .options { display:flex; flex-direction:column; gap:10px; padding-bottom:100px; }
+    .option-card {
+      padding:14px 16px; border:2px solid var(--slate-200); border-radius:12px;
+      font-size:15px; font-weight:500;
+      display:flex; align-items:center; gap:12px; cursor:pointer;
+      transition:all 0.2s; background:var(--white);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .option-card:active { transform:scale(0.99); }
+    .option-card.selected {
+      border-color:var(--blue); background:var(--blue-light);
+      box-shadow:0 2px 10px rgba(59,130,246,0.12);
+    }
+    .option-text { flex:1; line-height:1.4; word-break:keep-all; }
+    .option-desc { font-size:12px; color:var(--slate-400); margin-top:2px; font-weight:400; }
+    .option-card.selected .option-desc { color:var(--blue-dark); }
+    .opt-check {
+      width:22px; height:22px; border-radius:50%; flex-shrink:0;
+      border:2px solid var(--slate-200);
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s;
+    }
+    .option-card.selected .opt-check {
+      background:var(--blue); border-color:var(--blue);
+    }
+    .opt-check::after {
+      content:''; width:8px; height:8px; border-radius:50%;
+      background:var(--white); opacity:0; transition:opacity 0.2s;
+    }
+    .option-card.selected .opt-check::after { opacity:1; }
+
+    /* Multi-select (checkbox) */
+    .options.multi .opt-check { border-radius:5px; }
+    .options.multi .opt-check::after {
+      content:''; width:10px; height:5px;
+      border-left:2px solid var(--white); border-bottom:2px solid var(--white);
+      background:transparent; border-radius:0;
+      transform:rotate(-45deg); margin-top:-2px; opacity:0;
+    }
+    .options.multi .option-card.selected .opt-check::after { opacity:1; }
+
+    /* Section cards (Q5) */
+    .section-card { padding:10px; gap:14px; }
+    .section-thumb {
+      width:80px; height:54px; border-radius:8px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:26px;
+    }
+    .section-card .option-text { font-size:15px; font-weight:600; }
+
+    /* Other text input */
+    .other-wrap {
+      margin-top:-2px; margin-bottom:0;
+      max-height:0; opacity:0; overflow:hidden;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin 0.25s;
+    }
+    .other-wrap.open {
+      max-height:180px; opacity:1; margin-top:8px; margin-bottom:4px;
+    }
+    .other-input {
+      width:100%; padding:12px 14px;
+      border:1.5px solid var(--blue); border-radius:10px;
+      font-size:14px; outline:none; resize:none;
+      font-family:inherit; line-height:1.5;
+      background:var(--white);
+    }
+
+    /* Free text (Q10) */
+    .text-wrap { padding-bottom:100px; }
+    .text-area {
+      width:100%; min-height:160px; padding:14px 16px;
+      border:1.5px solid var(--slate-200); border-radius:12px;
+      font-size:15px; outline:none; resize:none;
+      font-family:inherit; line-height:1.6;
+      transition: border-color 0.2s;
+    }
+    .text-area:focus { border-color:var(--blue); }
+    .text-area::placeholder { color:var(--slate-400); }
+    .text-hint { font-size:12px; color:var(--slate-400); margin-top:10px; }
+
+    /* Bottom Fixed Button */
+    .btn-bottom-wrap {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:16px 24px calc(16px + var(--safe-b));
+      background:linear-gradient(transparent, var(--white) 24%);
+    }
+    .btn-next {
+      width:100%; padding:16px; font-size:16px; font-weight:600;
+      color:var(--white); background:var(--blue); border-radius:12px;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+    }
+    .btn-next:active { transform:scale(0.98); }
+    .btn-next:disabled { background:var(--slate-300); opacity:0.5; cursor:default; }
+
+    /* Complete Screen */
+    .complete { align-items:center; justify-content:center; padding-bottom:80px; }
+    .check-circle {
+      width:88px; height:88px; border-radius:50%;
+      background:var(--emerald); display:flex;
+      align-items:center; justify-content:center;
+      animation:popIn 0.5s cubic-bezier(.17,.67,.35,1.2);
+    }
+    .check-circle svg { width:44px; height:44px; color:var(--white); }
+    @keyframes popIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .complete-title { font-size:24px; font-weight:700; margin-top:24px; }
+    .complete-desc { font-size:15px; color:var(--slate-600); margin-top:8px; text-align:center; line-height:1.5; }
+    .btn-reset {
+      margin-top:40px; padding:14px 32px;
+      font-size:15px; font-weight:600;
+      color:var(--blue); background:var(--blue-light);
+      border-radius:12px; transition: background 0.15s;
+    }
+    .btn-reset:active { background:#DBEAFE; }
+
+    /* Storage mode badge */
+    .mode-badge {
+      position:fixed; top:12px; right:12px; z-index:999;
+      padding:4px 10px; font-size:11px; font-weight:600;
+      border-radius:20px; opacity:0.7;
+    }
+    .mode-badge.local { background:#FEF3C7; color:#92400E; }
+    .mode-badge.cloud { background:#D1FAE5; color:#065F46; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="screens" id="screens">
+
+    <!-- Screen 0: Start -->
+    <div class="screen active" data-step="0">
+      <div class="start-icon">📋</div>
+      <h1 class="start-title">오늘 본 화면에 대해<br>솔직한 의견을 들려주세요</h1>
+      <p class="start-desc">정답은 없으니 편하게 답변해 주세요!</p>
+      <div class="name-field">
+        <label class="name-label">참여자 이름 (또는 번호)</label>
+        <input class="name-input" id="nameInput" type="text" placeholder="예: 참여자 1" autocomplete="off">
+      </div>
+      <button class="btn-start" id="btnStart" disabled>시작하기</button>
+    </div>
+
+    <!-- Question screens are dynamically generated -->
+
+    <!-- Complete screen (will be appended last) -->
+  </div>
+</div>
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+/* ==========================================================
+   Firebase 설정
+   ----------------------------------------------------------
+   1. https://console.firebase.google.com → 프로젝트 생성
+   2. 프로젝트 설정 → 웹 앱 추가 → config 복사
+   3. Firestore Database → 데이터베이스 만들기 → 테스트 모드
+   ========================================================== */
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+var COLLECTION = 'ut-responses';
+var db = null;
+var useFirebase = false;
+
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    useFirebase = true;
+  } catch(e) { console.warn('Firebase 초기화 실패:', e); }
+}
+
+// Mode badge
+var badge = document.createElement('div');
+badge.className = 'mode-badge ' + (useFirebase ? 'cloud' : 'local');
+badge.textContent = useFirebase ? 'Cloud' : 'Local';
+document.body.appendChild(badge);
+
+/* ==========================================================
+   Questions Config
+   ========================================================== */
+var SECTIONS = [
+  { id:'hero',     name:'상단 하이라이트', desc:'큰 배너 영역',       emoji:'🎠', grad:'linear-gradient(135deg,#1E293B,#334155)' },
+  { id:'popular',  name:'인기 게시물',      desc:'지금 뜨는',           emoji:'🔥', grad:'linear-gradient(135deg,#EA580C,#F97316)' },
+  { id:'insight',  name:'직무별 인사이트',  desc:'직무 카테고리별',     emoji:'💡', grad:'linear-gradient(135deg,#059669,#10B981)' },
+  { id:'lounge',   name:'커리어 라운지',    desc:'서비스 바로가기',     emoji:'🏠', grad:'linear-gradient(135deg,#0891B2,#06B6D4)' },
+  { id:'qna',      name:'함께하는 고민해결',desc:'취업톡톡 Q&A',        emoji:'💬', grad:'linear-gradient(135deg,#4F46E5,#6366F1)' }
+];
+
+var QUESTIONS = [
+  { id:'q1_browse',      cat:'첫인상',            type:'likert',
+    text:'화면을 처음 봤을 때,\n"더 둘러보고 싶다"는 생각이 들었다' },
+
+  { id:'q2_useful',      cat:'콘텐츠 소비 전환',  type:'likert',
+    text:'여기 있는 콘텐츠가\n나에게 유용할 것 같다' },
+
+  { id:'q3_click',       cat:'콘텐츠 소비 전환',  type:'likert',
+    text:'실제로 클릭해서 읽어보고 싶은\n콘텐츠가 있었다' },
+
+  { id:'q4_thumb',       cat:'콘텐츠 소비 전환',  type:'likert',
+    text:'콘텐츠 제목과 썸네일만으로\n내용이 기대되었다' },
+
+  { id:'q5_favorite',    cat:'섹션별 선호도',     type:'section',
+    text:'오늘 본 영역 중\n가장 관심이 갔던 영역은?' },
+
+  { id:'q6_recommend',   cat:'섹션별 선호도',     type:'single-with-other',
+    text:'콘텐츠를 추천받는다면,\n어떤 방식이 더 끌리나요?',
+    options:[
+      { id:'popular',  label:'인기 기반', desc:'많은 사람이 보고 있는 콘텐츠' },
+      { id:'job',      label:'직무 기반', desc:'내 직무에 맞는 콘텐츠' },
+      { id:'both',     label:'둘 다 비슷하게 좋다' },
+      { id:'other',    label:'기타', desc:'원하는 방식을 자유롭게 적어주세요' }
+    ]
+  },
+
+  { id:'q7_dislike',     cat:'섹션별 선호도',     type:'multi',
+    text:'반대로, 별로 관심이 가지\n않았던 영역은? (복수 선택)',
+    options:[
+      { id:'hero',    label:'상단 하이라이트' },
+      { id:'popular', label:'인기 게시물' },
+      { id:'insight', label:'직무별 인사이트' },
+      { id:'lounge',  label:'커리어 라운지' },
+      { id:'qna',     label:'함께하는 고민해결' },
+      { id:'none',    label:'없음', desc:'다 괜찮았다', exclusive:true }
+    ]
+  },
+
+  { id:'q8_revisit',     cat:'재방문 의향',       type:'likert',
+    text:'이 콘텐츠를 보기 위해\n잡코리아에 다시 들어올 것 같다' },
+
+  { id:'q9_nonjob',      cat:'재방문 의향',       type:'likert',
+    text:'채용 공고를 보지 않는 날에도,\n이 콘텐츠가 있다면 잡코리아를 열어볼 것 같다' },
+
+  { id:'q10_wish',       cat:'재방문 의향',       type:'text',
+    text:'이 화면에 어떤 콘텐츠가\n더 있었으면 하는지 적어주세요',
+    hint:'선택 사항입니다. 건너뛰고 제출해도 됩니다.',
+    placeholder:'예: 직무별 멘토 인터뷰, 연차별 커리어 조언…' }
+];
+
+var TOTAL = QUESTIONS.length;
+
+/* ==========================================================
+   State
+   ========================================================== */
+var currentStep = 0; // 0=start, 1..TOTAL=questions, TOTAL+1=complete
+var answers = {};
+var participantName = '';
+
+QUESTIONS.forEach(function(q){
+  if (q.type === 'multi') answers[q.id] = [];
+  else if (q.type === 'single-with-other') answers[q.id] = { choice:null, other:'' };
+  else answers[q.id] = null;
+});
+
+/* ==========================================================
+   Build Question Screens
+   ========================================================== */
+var screensEl = document.getElementById('screens');
+
+function buildScreen(q, idx) {
+  var stepNum = idx + 1;
+  var screen = document.createElement('div');
+  screen.className = 'screen';
+  screen.dataset.step = stepNum;
+
+  var inner = '';
+  inner += '<div class="q-header">';
+  inner += '  <p class="q-category">' + escHtml(q.cat) + '</p>';
+  inner += '  <span class="q-badge">Q' + stepNum + ' · ' + stepNum + '/' + TOTAL + '</span>';
+  inner += '  <h2 class="q-text">' + escHtml(q.text) + '</h2>';
+  inner += '</div>';
+
+  if (q.type === 'likert') {
+    inner += '<div class="likert">';
+    inner += '  <div class="likert-row" data-q="' + q.id + '">';
+    for (var i = 1; i <= 5; i++) inner += '<button class="likert-btn" data-val="'+i+'">'+i+'</button>';
+    inner += '  </div>';
+    inner += '  <div class="likert-labels"><span>전혀 아니다</span><span>매우 그렇다</span></div>';
+    inner += '</div>';
+  }
+  else if (q.type === 'section') {
+    inner += '<div class="options" data-q="' + q.id + '" data-type="section">';
+    SECTIONS.forEach(function(s){
+      inner += '<div class="option-card section-card" data-val="' + s.id + '">';
+      inner += '  <div class="section-thumb" style="background:'+s.grad+'">'+s.emoji+'</div>';
+      inner += '  <div style="flex:1"><p class="option-text">'+escHtml(s.name)+'</p>';
+      inner += '  <p class="option-desc">'+escHtml(s.desc)+'</p></div>';
+      inner += '  <div class="opt-check"></div>';
+      inner += '</div>';
+    });
+    inner += '</div>';
+    inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
+  }
+  else if (q.type === 'single-with-other') {
+    inner += '<div class="options" data-q="' + q.id + '" data-type="single-other">';
+    q.options.forEach(function(o){
+      inner += '<div class="option-card" data-val="' + o.id + '">';
+      inner += '  <div style="flex:1"><p class="option-text">'+escHtml(o.label)+'</p>';
+      if (o.desc) inner += '<p class="option-desc">'+escHtml(o.desc)+'</p>';
+      inner += '  </div><div class="opt-check"></div>';
+      inner += '</div>';
+      if (o.id === 'other') {
+        inner += '<div class="other-wrap" data-other="'+q.id+'">';
+        inner += '  <textarea class="other-input" rows="3" placeholder="자유롭게 적어주세요"></textarea>';
+        inner += '</div>';
+      }
+    });
+    inner += '</div>';
+    inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
+  }
+  else if (q.type === 'multi') {
+    inner += '<div class="options multi" data-q="' + q.id + '" data-type="multi">';
+    q.options.forEach(function(o){
+      inner += '<div class="option-card" data-val="' + o.id + '"' + (o.exclusive?' data-exclusive="1"':'') + '>';
+      inner += '  <div style="flex:1"><p class="option-text">'+escHtml(o.label)+'</p>';
+      if (o.desc) inner += '<p class="option-desc">'+escHtml(o.desc)+'</p>';
+      inner += '  </div><div class="opt-check"></div>';
+      inner += '</div>';
+    });
+    inner += '</div>';
+    inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'" disabled>다음</button></div>';
+  }
+  else if (q.type === 'text') {
+    inner += '<div class="text-wrap">';
+    inner += '  <textarea class="text-area" data-q="'+q.id+'" placeholder="'+escHtml(q.placeholder||'')+'"></textarea>';
+    if (q.hint) inner += '  <p class="text-hint">'+escHtml(q.hint)+'</p>';
+    inner += '</div>';
+    inner += '<div class="btn-bottom-wrap"><button class="btn-next" data-next="'+q.id+'">제출</button></div>';
+  }
+
+  screen.innerHTML = inner;
+  return screen;
+}
+
+QUESTIONS.forEach(function(q, i){ screensEl.appendChild(buildScreen(q, i)); });
+
+// Complete screen
+var completeScreen = document.createElement('div');
+completeScreen.className = 'screen complete';
+completeScreen.dataset.step = TOTAL + 1;
+completeScreen.innerHTML =
+  '<div class="check-circle">' +
+  '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+  '</div>' +
+  '<h2 class="complete-title">감사합니다!</h2>' +
+  '<p class="complete-desc">소중한 의견이 제출되었습니다.<br>응답은 개선에 활용됩니다.</p>' +
+  '<button class="btn-reset" id="btnReset">완료하기</button>';
+screensEl.appendChild(completeScreen);
+
+var screens = screensEl.querySelectorAll('.screen');
+
+/* ==========================================================
+   Helpers
+   ========================================================== */
+function escHtml(s) {
+  var div = document.createElement('div');
+  div.textContent = s == null ? '' : s;
+  return div.innerHTML;
+}
+
+/* ==========================================================
+   Navigation
+   ========================================================== */
+var transitioning = false;
+var progressFill = document.getElementById('progressFill');
+
+function goTo(step) {
+  if (transitioning || step === currentStep) return;
+  transitioning = true;
+  var prev = screens[currentStep];
+  var next = screens[step];
+  prev.classList.add('exit');
+  prev.classList.remove('active');
+  requestAnimationFrame(function(){ next.classList.add('active'); });
+  setTimeout(function(){ prev.classList.remove('exit'); transitioning = false; }, 500);
+  currentStep = step;
+
+  var progress = 0;
+  if (step >= 1 && step <= TOTAL) progress = (step / TOTAL) * 100;
+  else if (step > TOTAL) progress = 100;
+  progressFill.style.width = progress + '%';
+
+  // Scroll question screens to top
+  next.scrollTop = 0;
+}
+
+/* ==========================================================
+   Start Screen
+   ========================================================== */
+var nameInput = document.getElementById('nameInput');
+var btnStart = document.getElementById('btnStart');
+nameInput.addEventListener('input', function(){
+  btnStart.disabled = !nameInput.value.trim();
+});
+nameInput.addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && nameInput.value.trim()) btnStart.click();
+});
+btnStart.addEventListener('click', function(){
+  participantName = nameInput.value.trim();
+  if (!participantName) return;
+  nameInput.blur();
+  goTo(1);
+});
+
+/* ==========================================================
+   Likert Handler
+   ========================================================== */
+screensEl.addEventListener('click', function(e){
+  var likertBtn = e.target.closest('.likert-btn');
+  if (likertBtn) {
+    var row = likertBtn.parentElement;
+    var qId = row.dataset.q;
+    var val = parseInt(likertBtn.dataset.val, 10);
+    row.querySelectorAll('.likert-btn').forEach(function(b){ b.classList.remove('selected'); });
+    likertBtn.classList.add('selected');
+    answers[qId] = val;
+    setTimeout(advance, 500);
+    return;
+  }
+});
+
+/* ==========================================================
+   Options Handler (section / single-other / multi)
+   ========================================================== */
+screensEl.addEventListener('click', function(e){
+  var card = e.target.closest('.option-card');
+  if (!card) return;
+  var opts = card.parentElement;
+  var qId = opts.dataset.q;
+  var type = opts.dataset.type;
+  var val = card.dataset.val;
+
+  if (type === 'section') {
+    opts.querySelectorAll('.option-card').forEach(function(c){ c.classList.remove('selected'); });
+    card.classList.add('selected');
+    answers[qId] = val;
+    setNextEnabled(qId, true);
+  }
+  else if (type === 'single-other') {
+    opts.querySelectorAll('.option-card').forEach(function(c){ c.classList.remove('selected'); });
+    card.classList.add('selected');
+    answers[qId].choice = val;
+    // Toggle other textarea
+    var otherWrap = opts.querySelector('[data-other="'+qId+'"]');
+    if (otherWrap) {
+      if (val === 'other') {
+        otherWrap.classList.add('open');
+        setTimeout(function(){ otherWrap.querySelector('textarea').focus(); }, 250);
+        // Next enabled only if text has content
+        setNextEnabled(qId, !!(answers[qId].other && answers[qId].other.trim()));
+      } else {
+        otherWrap.classList.remove('open');
+        answers[qId].other = '';
+        otherWrap.querySelector('textarea').value = '';
+        setNextEnabled(qId, true);
+      }
+    } else {
+      setNextEnabled(qId, true);
+    }
+  }
+  else if (type === 'multi') {
+    var exclusive = card.dataset.exclusive === '1';
+    var isSelected = card.classList.contains('selected');
+
+    if (exclusive) {
+      // Tapping exclusive → clear others, toggle self
+      opts.querySelectorAll('.option-card').forEach(function(c){ c.classList.remove('selected'); });
+      if (!isSelected) card.classList.add('selected');
+    } else {
+      // Tapping non-exclusive → clear exclusive, toggle self
+      opts.querySelectorAll('.option-card[data-exclusive="1"]').forEach(function(c){ c.classList.remove('selected'); });
+      card.classList.toggle('selected');
+    }
+
+    // Update answers
+    var selected = [];
+    opts.querySelectorAll('.option-card.selected').forEach(function(c){ selected.push(c.dataset.val); });
+    answers[qId] = selected;
+    setNextEnabled(qId, selected.length > 0);
+  }
+});
+
+/* ==========================================================
+   Other Input Handler
+   ========================================================== */
+screensEl.addEventListener('input', function(e){
+  // "기타" textarea
+  if (e.target.classList.contains('other-input')) {
+    var otherWrap = e.target.closest('[data-other]');
+    var qId = otherWrap.dataset.other;
+    answers[qId].other = e.target.value;
+    if (answers[qId].choice === 'other') {
+      setNextEnabled(qId, !!e.target.value.trim());
+    }
+    return;
+  }
+  // Free text (Q10)
+  if (e.target.classList.contains('text-area')) {
+    var qId2 = e.target.dataset.q;
+    answers[qId2] = e.target.value;
+  }
+});
+
+/* ==========================================================
+   Next Button
+   ========================================================== */
+function setNextEnabled(qId, enabled) {
+  var btn = screensEl.querySelector('button[data-next="'+qId+'"]');
+  if (btn) btn.disabled = !enabled;
+}
+
+screensEl.addEventListener('click', function(e){
+  var btnNext = e.target.closest('.btn-next');
+  if (!btnNext || btnNext.disabled) return;
+  advance();
+});
+
+function advance() {
+  if (currentStep >= TOTAL) {
+    submitAndComplete();
+  } else {
+    goTo(currentStep + 1);
+  }
+}
+
+/* ==========================================================
+   Submit
+   ========================================================== */
+function submitAndComplete() {
+  var data = {
+    name: participantName,
+    timestamp: new Date().toISOString()
+  };
+  // Flatten answers
+  QUESTIONS.forEach(function(q){
+    if (q.type === 'single-with-other') {
+      data[q.id] = answers[q.id].choice;
+      data[q.id + '_other'] = answers[q.id].other || '';
+    } else {
+      data[q.id] = answers[q.id];
+    }
+  });
+
+  // localStorage 저장
+  var stored = JSON.parse(localStorage.getItem(COLLECTION) || '[]');
+  stored.push(data);
+  localStorage.setItem(COLLECTION, JSON.stringify(stored));
+
+  // Firebase 저장
+  if (useFirebase && db) {
+    var payload = {};
+    Object.keys(data).forEach(function(k){ if (k !== 'timestamp') payload[k] = data[k]; });
+    payload.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+    db.collection(COLLECTION).add(payload).catch(function(err){
+      console.error('Firestore 저장 실패:', err);
+    });
+  }
+
+  goTo(TOTAL + 1);
+}
+
+/* ==========================================================
+   Reset for next participant
+   ========================================================== */
+completeScreen.querySelector('#btnReset').addEventListener('click', function(){
+  // Reset answers
+  QUESTIONS.forEach(function(q){
+    if (q.type === 'multi') answers[q.id] = [];
+    else if (q.type === 'single-with-other') answers[q.id] = { choice:null, other:'' };
+    else answers[q.id] = null;
+  });
+  participantName = '';
+  nameInput.value = '';
+  btnStart.disabled = true;
+
+  // Clear UI states
+  screensEl.querySelectorAll('.likert-btn.selected, .option-card.selected').forEach(function(el){
+    el.classList.remove('selected');
+  });
+  screensEl.querySelectorAll('.btn-next').forEach(function(b){ b.disabled = true; });
+  screensEl.querySelectorAll('.other-wrap.open').forEach(function(el){ el.classList.remove('open'); });
+  screensEl.querySelectorAll('.other-input, .text-area').forEach(function(el){ el.value = ''; });
+  // Q10 제출 버튼은 비활성화하지 않음(선택 사항)
+  var q10Next = screensEl.querySelector('button[data-next="q10_wish"]');
+  if (q10Next) q10Next.disabled = false;
+
+  // Go to start
+  screens[currentStep].classList.remove('active');
+  currentStep = 0;
+  screens[0].classList.add('active');
+  progressFill.style.width = '0%';
+});
+
+})();
+</script>
+</body>
+</html>

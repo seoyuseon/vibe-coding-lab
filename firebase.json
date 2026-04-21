@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "**/README.md",
+      "**/*.md",
+      "**/package*.json"
+    ],
+    "rewrites": [
+      {
+        "source": "/ut",
+        "destination": "/contents-home/ut-survey/index.html"
+      },
+      {
+        "source": "/dashboard",
+        "destination": "/contents-home/ut-survey/dashboard.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js|css)",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      }
+    ]
+  }
+}

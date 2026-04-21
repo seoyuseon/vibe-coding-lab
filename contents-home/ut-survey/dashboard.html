@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UT 대시보드 - 콘텐츠홈</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-light: #EFF6FF;
+      --slate-900: #0F172A;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --rose: #F43F5E;
+      --white: #FFFFFF;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+      color:var(--slate-900); background:var(--slate-50);
+      -webkit-font-smoothing:antialiased; line-height:1.5;
+    }
+    button { border:none; background:none; font:inherit; cursor:pointer; color:inherit; }
+
+    .wrap { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
+
+    /* Header */
+    .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+    .dash-title { font-size:24px; font-weight:700; }
+    .dash-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .response-count {
+      padding:6px 14px; font-size:14px; font-weight:600;
+      background:var(--blue-light); color:var(--blue-dark); border-radius:20px;
+    }
+    .mode-badge { padding:4px 10px; font-size:11px; font-weight:600; border-radius:20px; }
+    .mode-badge.local { background:#FEF3C7; color:#92400E; }
+    .mode-badge.cloud { background:#D1FAE5; color:#065F46; }
+    .btn-refresh, .btn-export {
+      padding:8px 16px; font-size:13px; font-weight:600;
+      border-radius:8px; transition:all 0.15s;
+    }
+    .btn-refresh {
+      color:var(--slate-600); background:var(--white);
+      border:1px solid var(--slate-200);
+    }
+    .btn-refresh:hover { background:var(--slate-50); border-color:var(--slate-300); }
+    .btn-export { color:var(--white); background:var(--blue); }
+    .btn-export:hover { background:var(--blue-dark); }
+
+    /* Category section */
+    .cat-section { margin-bottom:28px; }
+    .cat-title {
+      font-size:13px; font-weight:700; letter-spacing:0.02em;
+      color:var(--blue-dark); margin-bottom:12px; text-transform:uppercase;
+      display:flex; align-items:center; gap:8px;
+    }
+    .cat-title::before {
+      content:''; width:4px; height:16px;
+      background:var(--blue); border-radius:2px;
+    }
+
+    /* Cards */
+    .cards-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .cards-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    .cards-1 { display:grid; grid-template-columns:1fr; gap:16px; }
+    @media (max-width:800px){
+      .cards-3 { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:600px){
+      .cards-3, .cards-2 { grid-template-columns:1fr; }
+    }
+
+    .card {
+      background:var(--white); border-radius:14px; padding:20px;
+      border:1px solid var(--slate-200);
+    }
+    .card-label {
+      font-size:12px; font-weight:500; color:var(--slate-400);
+      margin-bottom:2px; letter-spacing:0.01em;
+    }
+    .card-q-text {
+      font-size:13px; font-weight:600; color:var(--slate-700);
+      margin-bottom:12px; line-height:1.45; min-height:36px;
+    }
+    .card-score {
+      font-size:36px; font-weight:800; line-height:1.1;
+      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .card-sub { font-size:12px; color:var(--slate-400); margin-top:2px; }
+
+    /* Score Distribution */
+    .dist { margin-top:14px; }
+    .dist-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+    .dist-label { width:16px; font-size:11px; font-weight:600; color:var(--slate-600); text-align:center; }
+    .dist-bar-bg { flex:1; height:14px; background:var(--slate-100); border-radius:3px; overflow:hidden; }
+    .dist-bar {
+      height:100%; border-radius:3px;
+      transition:width 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .dist-cnt { width:22px; font-size:11px; color:var(--slate-400); text-align:right; }
+
+    /* Section Ranking (Q5) + Method Bar (Q6) + Dislike Bar (Q7) */
+    .rank-item {
+      display:flex; align-items:center; gap:12px;
+      padding:10px 0; border-bottom:1px solid var(--slate-100);
+    }
+    .rank-item:last-child { border-bottom:none; }
+    .rank-num {
+      width:22px; height:22px; border-radius:50%;
+      font-size:11px; font-weight:700; color:var(--white);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .rank-num.r1 { background:var(--blue); }
+    .rank-num.r2 { background:#60A5FA; }
+    .rank-num.r3 { background:#93C5FD; }
+    .rank-num.r4, .rank-num.r5, .rank-num.r6 { background:var(--slate-300); }
+    .rank-name { flex:1; font-size:13.5px; font-weight:500; word-break:keep-all; }
+    .rank-bar-bg { width:110px; height:7px; background:var(--slate-100); border-radius:4px; overflow:hidden; }
+    .rank-bar { height:100%; background:var(--blue); border-radius:4px; transition:width 0.6s cubic-bezier(.4,0,.2,1); }
+    .rank-bar.rose { background:var(--rose); }
+    .rank-bar.amber { background:var(--amber); }
+    .rank-cnt { width:36px; font-size:12px; font-weight:600; color:var(--slate-600); text-align:right; }
+
+    /* Text responses (Q6 기타, Q10) */
+    .text-list { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .text-item {
+      padding:12px 14px; background:var(--slate-50);
+      border-radius:10px; border-left:3px solid var(--blue);
+      font-size:14px; color:var(--slate-700); line-height:1.55;
+      word-break:keep-all;
+    }
+    .text-item .meta { font-size:11px; color:var(--slate-400); margin-top:4px; display:block; }
+    .text-empty {
+      padding:16px; text-align:center; color:var(--slate-400);
+      font-size:13px; background:var(--slate-50); border-radius:10px;
+    }
+
+    /* Participant Detail */
+    .detail-card {
+      background:var(--white); border-radius:14px; padding:20px;
+      border:1px solid var(--slate-200);
+    }
+    .ppl-pills-wrap {
+      margin:-4px -4px 0; padding-bottom:16px;
+      border-bottom:1px solid var(--slate-100);
+    }
+    .ppl-pills {
+      display:flex; gap:6px; overflow-x:auto;
+      padding:4px; -ms-overflow-style:none; scrollbar-width:thin;
+    }
+    .ppl-pills::-webkit-scrollbar { height:6px; }
+    .ppl-pills::-webkit-scrollbar-thumb { background:var(--slate-200); border-radius:3px; }
+    .ppl-pill {
+      flex-shrink:0; padding:7px 14px;
+      font-size:13px; font-weight:600;
+      color:var(--slate-600); background:var(--slate-100);
+      border-radius:20px; cursor:pointer;
+      transition:all 0.15s; white-space:nowrap;
+    }
+    .ppl-pill:hover { background:var(--slate-200); }
+    .ppl-pill.active {
+      background:var(--blue); color:var(--white);
+      box-shadow:0 2px 8px rgba(59,130,246,0.3);
+    }
+    .ppl-pill-num {
+      font-size:11px; opacity:0.7; margin-right:4px;
+    }
+    .ppl-detail { padding-top:20px; }
+    .detail-header {
+      display:flex; align-items:baseline; gap:12px;
+      margin-bottom:4px; flex-wrap:wrap;
+    }
+    .detail-name { font-size:18px; font-weight:700; color:var(--slate-900); }
+    .detail-time { font-size:12px; color:var(--slate-400); }
+    .detail-cat {
+      font-size:11px; font-weight:700;
+      color:var(--blue-dark); letter-spacing:0.03em;
+      margin:20px 0 4px; text-transform:uppercase;
+    }
+    .detail-q {
+      padding:10px 0 10px; display:flex; gap:12px;
+      align-items:flex-start;
+      border-bottom:1px dashed var(--slate-100);
+    }
+    .detail-q:last-child { border-bottom:none; }
+    .detail-q-num {
+      flex-shrink:0; width:28px;
+      font-size:12px; font-weight:700; color:var(--slate-400);
+      padding-top:2px;
+    }
+    .detail-q-body { flex:1; min-width:0; }
+    .detail-q-text {
+      font-size:13px; color:var(--slate-600);
+      margin-bottom:6px; line-height:1.5; word-break:keep-all;
+    }
+    .detail-q-ans {
+      font-size:14.5px; font-weight:600; color:var(--slate-900);
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    }
+    .detail-q-ans .likert-label { font-size:13px; color:var(--slate-600); font-weight:500; }
+    .detail-q-ans .empty { color:var(--slate-300); font-weight:400; }
+    .detail-q-ans .text-box {
+      display:block; width:100%;
+      padding:10px 12px; background:var(--slate-50);
+      border-radius:8px; border-left:3px solid var(--blue);
+      font-size:14px; font-weight:400; line-height:1.55;
+      color:var(--slate-700); word-break:keep-all; margin-top:4px;
+    }
+
+    /* Table */
+    .table-card {
+      background:var(--white); border-radius:14px; padding:20px;
+      border:1px solid var(--slate-200); overflow-x:auto;
+    }
+    .table-title { font-size:15px; font-weight:700; margin-bottom:12px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; min-width:900px; }
+    thead th {
+      text-align:left; padding:8px 10px;
+      font-size:11px; font-weight:600; color:var(--slate-400);
+      border-bottom:2px solid var(--slate-200);
+      white-space:nowrap;
+    }
+    tbody td {
+      padding:10px; border-bottom:1px solid var(--slate-100);
+      white-space:nowrap; vertical-align:middle;
+    }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover { background:var(--slate-50); }
+    .score-cell {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:26px; height:26px; border-radius:5px;
+      font-size:12px; font-weight:700;
+    }
+    .score-1,.score-2 { background:#FEE2E2; color:#DC2626; }
+    .score-3 { background:#FEF3C7; color:#D97706; }
+    .score-4,.score-5 { background:#D1FAE5; color:#059669; }
+    .section-pill, .method-pill {
+      display:inline-flex; padding:3px 8px;
+      font-size:11px; font-weight:600;
+      border-radius:5px; background:var(--slate-100); color:var(--slate-600);
+    }
+    .dislike-chips { display:flex; flex-wrap:wrap; gap:4px; }
+    .dislike-chip {
+      display:inline-flex; padding:2px 6px;
+      font-size:10px; font-weight:600;
+      border-radius:4px; background:#FEE2E2; color:#DC2626;
+      white-space:nowrap;
+    }
+    .dislike-chip.none { background:#D1FAE5; color:#059669; }
+    .time-cell { color:var(--slate-400); font-size:12px; }
+
+    /* Empty state */
+    .empty-state { text-align:center; padding:80px 20px; color:var(--slate-400); }
+    .empty-icon { font-size:48px; margin-bottom:16px; }
+    .empty-title { font-size:18px; font-weight:600; color:var(--slate-600); margin-bottom:4px; }
+    .empty-desc { font-size:14px; }
+
+    /* Setup guide */
+    .setup-guide {
+      background:var(--white); border-radius:14px; padding:20px;
+      border:1px solid var(--slate-200); margin-bottom:24px;
+    }
+    .setup-title { font-size:15px; font-weight:700; margin-bottom:10px; }
+    .setup-steps { font-size:13.5px; color:var(--slate-600); line-height:1.8; }
+    .setup-steps code {
+      padding:2px 6px; background:var(--slate-100);
+      border-radius:4px; font-size:12.5px;
+    }
+    .setup-close {
+      float:right; padding:4px 8px; font-size:12px;
+      color:var(--slate-400); border-radius:4px;
+    }
+    .setup-close:hover { background:var(--slate-100); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="dash-header">
+    <h1 class="dash-title">콘텐츠홈 UT 대시보드</h1>
+    <div class="dash-meta">
+      <span class="response-count" id="respCount">0명 응답</span>
+      <span class="mode-badge" id="modeBadge">-</span>
+      <button class="btn-refresh" id="btnRefresh">새로고침</button>
+      <button class="btn-export" id="btnExport">CSV 내보내기</button>
+    </div>
+  </div>
+
+  <div class="setup-guide" id="setupGuide" style="display:none">
+    <button class="setup-close" id="setupClose">닫기</button>
+    <h3 class="setup-title">현재 Local 모드로 실행 중</h3>
+    <div class="setup-steps">
+      같은 기기/브라우저의 설문 데이터만 표시됩니다.<br>
+      여러 기기에서 데이터를 모으려면 Firebase를 설정하세요:<br><br>
+      1. <code>console.firebase.google.com</code> → 프로젝트 생성<br>
+      2. 프로젝트 설정 → 웹 앱 추가 → config 복사<br>
+      3. Firestore Database → 데이터베이스 만들기 → <strong>테스트 모드</strong><br>
+      4. <code>index.html</code>과 <code>dashboard.html</code>의 firebaseConfig 값 교체
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p class="empty-title">아직 응답이 없습니다</p>
+    <p class="empty-desc">설문 링크를 참여자에게 공유하고 결과를 확인하세요</p>
+  </div>
+
+  <div id="dashContent" style="display:none">
+
+    <!-- [첫인상] -->
+    <div class="cat-section">
+      <div class="cat-title">첫인상</div>
+      <div class="cards-1">
+        <div class="card" data-likert="q1_browse">
+          <p class="card-label">Q1</p>
+          <p class="card-q-text">더 둘러보고 싶다는 생각이 들었다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [콘텐츠 소비 전환] -->
+    <div class="cat-section">
+      <div class="cat-title">콘텐츠 소비 전환</div>
+      <div class="cards-3">
+        <div class="card" data-likert="q2_useful">
+          <p class="card-label">Q2</p>
+          <p class="card-q-text">콘텐츠가 나에게 유용할 것 같다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+        <div class="card" data-likert="q3_click">
+          <p class="card-label">Q3</p>
+          <p class="card-q-text">클릭해서 읽어보고 싶은 콘텐츠가 있었다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+        <div class="card" data-likert="q4_thumb">
+          <p class="card-label">Q4</p>
+          <p class="card-q-text">제목/썸네일만으로 내용이 기대되었다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [섹션별 선호도] -->
+    <div class="cat-section">
+      <div class="cat-title">섹션별 선호도</div>
+      <div class="cards-2">
+        <div class="card">
+          <p class="card-label">Q5</p>
+          <p class="card-q-text">가장 관심이 갔던 영역</p>
+          <div class="rank-list" id="q5Rank"></div>
+        </div>
+        <div class="card">
+          <p class="card-label">Q7</p>
+          <p class="card-q-text">관심이 가지 않았던 영역 (복수)</p>
+          <div class="rank-list" id="q7Rank"></div>
+        </div>
+      </div>
+      <div class="cards-1" style="margin-top:16px">
+        <div class="card">
+          <p class="card-label">Q6</p>
+          <p class="card-q-text">선호하는 콘텐츠 추천 방식</p>
+          <div class="rank-list" id="q6Rank"></div>
+          <p class="card-label" style="margin-top:16px;">기타 의견</p>
+          <div class="text-list" id="q6OtherList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [재방문 의향] -->
+    <div class="cat-section">
+      <div class="cat-title">재방문 의향</div>
+      <div class="cards-2">
+        <div class="card" data-likert="q8_revisit">
+          <p class="card-label">Q8</p>
+          <p class="card-q-text">콘텐츠를 보기 위해 잡코리아에 다시 들어올 것 같다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+        <div class="card" data-likert="q9_nonjob">
+          <p class="card-label">Q9</p>
+          <p class="card-q-text">채용공고를 안 보는 날에도 열어볼 것 같다</p>
+          <p class="card-score" data-avg>-</p>
+          <p class="card-sub">5점 만점 평균</p>
+          <div class="dist" data-dist></div>
+        </div>
+      </div>
+      <div class="cards-1" style="margin-top:16px">
+        <div class="card">
+          <p class="card-label">Q10</p>
+          <p class="card-q-text">추가되었으면 하는 콘텐츠 (자유 서술)</p>
+          <div class="text-list" id="q10List"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [참여자별 상세 응답] -->
+    <div class="cat-section">
+      <div class="cat-title">참여자별 상세 응답</div>
+      <div class="detail-card">
+        <div class="ppl-pills-wrap">
+          <div class="ppl-pills" id="pplPills"></div>
+        </div>
+        <div class="ppl-detail" id="pplDetail"></div>
+      </div>
+    </div>
+
+    <!-- Response Table -->
+    <div class="cat-section">
+      <div class="cat-title">개별 응답</div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>참여자</th>
+              <th>Q1</th>
+              <th>Q2</th>
+              <th>Q3</th>
+              <th>Q4</th>
+              <th>Q5 관심</th>
+              <th>Q6 추천</th>
+              <th>Q7 비선호</th>
+              <th>Q8</th>
+              <th>Q9</th>
+              <th>Q10 의견</th>
+              <th>시간</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+/* ==========================================================
+   Firebase 설정 — index.html과 동일 config 사용
+   ========================================================== */
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+var COLLECTION = 'ut-responses';
+var db = null;
+var useFirebase = false;
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+  try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); useFirebase = true; }
+  catch(e) { console.warn('Firebase 초기화 실패:', e); }
+}
+
+/* ==========================================================
+   Maps
+   ========================================================== */
+var SECTION_MAP = {
+  hero:'상단 하이라이트', popular:'인기 게시물', insight:'직무별 인사이트',
+  lounge:'커리어 라운지', qna:'함께하는 고민해결'
+};
+var SECTION_EMOJI = {
+  hero:'🎠', popular:'🔥', insight:'💡', lounge:'🏠', qna:'💬'
+};
+var METHOD_MAP = {
+  popular:'인기 기반', job:'직무 기반', both:'둘 다 비슷', other:'기타'
+};
+
+var LIKERT_IDS = ['q1_browse','q2_useful','q3_click','q4_thumb','q8_revisit','q9_nonjob'];
+
+/* ==========================================================
+   Elements
+   ========================================================== */
+var modeBadge = document.getElementById('modeBadge');
+var setupGuide = document.getElementById('setupGuide');
+var setupClose = document.getElementById('setupClose');
+var emptyState = document.getElementById('emptyState');
+var dashContent = document.getElementById('dashContent');
+var respCount = document.getElementById('respCount');
+var tableBody = document.getElementById('tableBody');
+var btnRefresh = document.getElementById('btnRefresh');
+var btnExport = document.getElementById('btnExport');
+
+modeBadge.className = 'mode-badge ' + (useFirebase ? 'cloud' : 'local');
+modeBadge.textContent = useFirebase ? 'Cloud' : 'Local';
+if (!useFirebase) setupGuide.style.display = 'block';
+setupClose.addEventListener('click', function(){ setupGuide.style.display = 'none'; });
+
+/* ==========================================================
+   Data Loading
+   ========================================================== */
+var allResponses = [];
+
+function loadLocal() { return JSON.parse(localStorage.getItem(COLLECTION) || '[]'); }
+
+function loadData() {
+  if (useFirebase && db) {
+    db.collection(COLLECTION).orderBy('timestamp','asc').onSnapshot(function(snap){
+      allResponses = [];
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var obj = {};
+        Object.keys(d).forEach(function(k){
+          if (k === 'timestamp' && d[k] && d[k].toDate) obj[k] = d[k].toDate().toISOString();
+          else obj[k] = d[k];
+        });
+        allResponses.push(obj);
+      });
+      render();
+    }, function(err){
+      console.error('Firestore 리스너 오류:', err);
+      allResponses = loadLocal(); render();
+    });
+  } else {
+    allResponses = loadLocal();
+    render();
+  }
+}
+
+/* ==========================================================
+   Render
+   ========================================================== */
+function render() {
+  var n = allResponses.length;
+  if (n === 0) {
+    emptyState.style.display = 'block';
+    dashContent.style.display = 'none';
+    respCount.textContent = '0명 응답';
+    return;
+  }
+  emptyState.style.display = 'none';
+  dashContent.style.display = 'block';
+  respCount.textContent = n + '명 응답';
+
+  // Likert cards
+  LIKERT_IDS.forEach(function(id){
+    var card = document.querySelector('.card[data-likert="'+id+'"]');
+    if (!card) return;
+    var avgEl = card.querySelector('[data-avg]');
+    var distEl = card.querySelector('[data-dist]');
+    renderScoreCard(allResponses, id, avgEl, distEl);
+  });
+
+  // Q5 선호 섹션 (section IDs)
+  renderRankList('q5Rank', allResponses, 'q5_favorite', SECTION_MAP, 'single');
+  // Q7 비선호 섹션 (multi)
+  var q7Map = Object.assign({}, SECTION_MAP, { none:'없음 (다 괜찮았다)' });
+  renderRankList('q7Rank', allResponses, 'q7_dislike', q7Map, 'multi', 'rose');
+  // Q6 추천 방식
+  renderRankList('q6Rank', allResponses, 'q6_recommend', METHOD_MAP, 'single', 'amber');
+
+  // Q6 기타 의견
+  renderTextList('q6OtherList', allResponses, 'q6_recommend_other', 'q6_recommend');
+  // Q10 자유 서술
+  renderTextList('q10List', allResponses, 'q10_wish');
+
+  // 참여자별 상세
+  renderParticipantDetail(allResponses);
+
+  // Table
+  renderTable(allResponses);
+}
+
+/* ==========================================================
+   참여자별 상세 응답
+   ========================================================== */
+var selectedPplIdx = -1; // -1 = 아직 선택 안 됨
+
+var LIKERT_LABELS = ['전혀 아니다','아니다','보통','그렇다','매우 그렇다'];
+
+var DETAIL_QUESTIONS = [
+  { cat:'첫인상',
+    items:[
+      { num:'Q1', key:'q1_browse', type:'likert',
+        text:'화면을 처음 봤을 때, "더 둘러보고 싶다"는 생각이 들었다' }
+    ]},
+  { cat:'콘텐츠 소비 전환',
+    items:[
+      { num:'Q2', key:'q2_useful', type:'likert',
+        text:'여기 있는 콘텐츠가 나에게 유용할 것 같다' },
+      { num:'Q3', key:'q3_click', type:'likert',
+        text:'실제로 클릭해서 읽어보고 싶은 콘텐츠가 있었다' },
+      { num:'Q4', key:'q4_thumb', type:'likert',
+        text:'콘텐츠 제목과 썸네일만으로 내용이 기대되었다' }
+    ]},
+  { cat:'섹션별 선호도',
+    items:[
+      { num:'Q5', key:'q5_favorite', type:'section',
+        text:'가장 관심이 갔던 영역' },
+      { num:'Q6', key:'q6_recommend', type:'method',
+        text:'선호하는 콘텐츠 추천 방식' },
+      { num:'Q7', key:'q7_dislike', type:'multi',
+        text:'관심이 가지 않았던 영역 (복수 선택)' }
+    ]},
+  { cat:'재방문 의향',
+    items:[
+      { num:'Q8', key:'q8_revisit', type:'likert',
+        text:'이 콘텐츠를 보기 위해 잡코리아에 다시 들어올 것 같다' },
+      { num:'Q9', key:'q9_nonjob', type:'likert',
+        text:'채용 공고를 보지 않는 날에도, 이 콘텐츠가 있다면 잡코리아를 열어볼 것 같다' },
+      { num:'Q10', key:'q10_wish', type:'text',
+        text:'이 화면에 어떤 콘텐츠가 더 있었으면 하는지' }
+    ]}
+];
+
+function renderParticipantDetail(data) {
+  var pillsEl = document.getElementById('pplPills');
+  var detailEl = document.getElementById('pplDetail');
+
+  // 최신순으로 노출 (index는 원본 데이터 기준)
+  var ordered = data.map(function(d, i){ return { d:d, i:i }; }).reverse();
+
+  // Pills
+  var pillsHtml = '';
+  ordered.forEach(function(o){
+    var num = o.i + 1;
+    var active = (o.i === selectedPplIdx) ? ' active' : '';
+    pillsHtml += '<button class="ppl-pill'+active+'" data-idx="'+o.i+'">' +
+      '<span class="ppl-pill-num">#'+num+'</span>' + escHtml(o.d.name) + '</button>';
+  });
+  pillsEl.innerHTML = pillsHtml;
+
+  // 기본 선택: 가장 최근(마지막 index)
+  if (selectedPplIdx < 0 || selectedPplIdx >= data.length) {
+    selectedPplIdx = data.length - 1;
+    pillsEl.querySelectorAll('.ppl-pill').forEach(function(p){
+      p.classList.toggle('active', parseInt(p.dataset.idx,10) === selectedPplIdx);
+    });
+  }
+
+  // Detail
+  var d = data[selectedPplIdx];
+  if (!d) { detailEl.innerHTML = ''; return; }
+
+  var time = d.timestamp ? formatTime(d.timestamp) : '-';
+  var html = '<div class="detail-header">' +
+    '<span class="detail-name">'+escHtml(d.name)+'</span>' +
+    '<span class="detail-time">'+time+' 제출 · 응답 #'+(selectedPplIdx+1)+'</span>' +
+    '</div>';
+
+  DETAIL_QUESTIONS.forEach(function(group){
+    html += '<p class="detail-cat">'+escHtml(group.cat)+'</p>';
+    group.items.forEach(function(q){
+      html += '<div class="detail-q">' +
+        '<span class="detail-q-num">'+q.num+'</span>' +
+        '<div class="detail-q-body">' +
+          '<p class="detail-q-text">'+escHtml(q.text)+'</p>' +
+          '<div class="detail-q-ans">'+renderDetailAnswer(d, q)+'</div>' +
+        '</div></div>';
+    });
+  });
+
+  detailEl.innerHTML = html;
+}
+
+function renderDetailAnswer(d, q) {
+  var v = d[q.key];
+  if (q.type === 'likert') {
+    if (!v) return '<span class="empty">응답 없음</span>';
+    return '<span class="score-cell score-'+v+'">'+v+'</span>' +
+           '<span class="likert-label">'+LIKERT_LABELS[v-1]+'</span>';
+  }
+  if (q.type === 'section') {
+    if (!v) return '<span class="empty">응답 없음</span>';
+    return (SECTION_EMOJI[v]||'') + ' ' + escHtml(SECTION_MAP[v]||v);
+  }
+  if (q.type === 'method') {
+    if (!v) return '<span class="empty">응답 없음</span>';
+    var label = METHOD_MAP[v] || v;
+    var out = escHtml(label);
+    if (v === 'other' && d.q6_recommend_other) {
+      out += '<span class="text-box">'+escHtml(d.q6_recommend_other)+'</span>';
+    }
+    return out;
+  }
+  if (q.type === 'multi') {
+    if (!Array.isArray(v) || !v.length) return '<span class="empty">응답 없음</span>';
+    var chips = '<div class="dislike-chips">';
+    v.forEach(function(id){
+      var isNone = id === 'none';
+      chips += '<span class="dislike-chip'+(isNone?' none':'')+'">' +
+        escHtml(isNone?'없음':(SECTION_MAP[id]||id)) + '</span>';
+    });
+    chips += '</div>';
+    return chips;
+  }
+  if (q.type === 'text') {
+    if (!v || !String(v).trim()) return '<span class="empty">(응답 없음)</span>';
+    return '<span class="text-box">'+escHtml(v)+'</span>';
+  }
+  return '<span class="empty">-</span>';
+}
+
+// Pill 클릭 핸들러
+document.getElementById('pplPills').addEventListener('click', function(e){
+  var pill = e.target.closest('.ppl-pill');
+  if (!pill) return;
+  selectedPplIdx = parseInt(pill.dataset.idx, 10);
+  renderParticipantDetail(allResponses);
+});
+
+function renderScoreCard(data, key, avgEl, distEl) {
+  var counts = [0,0,0,0,0];
+  var sum = 0, cnt = 0;
+  data.forEach(function(d){
+    var v = d[key];
+    if (v >= 1 && v <= 5) { counts[v-1]++; sum += v; cnt++; }
+  });
+  var avg = cnt > 0 ? sum / cnt : 0;
+  avgEl.textContent = avg > 0 ? avg.toFixed(1) : '-';
+
+  var maxCount = Math.max.apply(null, counts) || 1;
+  var colors = ['#FCA5A5','#FDBA74','#FDE68A','#86EFAC','#6EE7B7'];
+  var html = '';
+  for (var i = 4; i >= 0; i--) {
+    var pct = (counts[i] / maxCount) * 100;
+    html += '<div class="dist-row">' +
+      '<span class="dist-label">'+(i+1)+'</span>' +
+      '<div class="dist-bar-bg"><div class="dist-bar" style="width:'+pct+'%;background:'+colors[i]+'"></div></div>' +
+      '<span class="dist-cnt">'+counts[i]+'</span></div>';
+  }
+  distEl.innerHTML = html;
+}
+
+function renderRankList(targetId, data, key, labelMap, mode, colorClass) {
+  var counts = {};
+  Object.keys(labelMap).forEach(function(k){ counts[k] = 0; });
+
+  data.forEach(function(d){
+    var v = d[key];
+    if (mode === 'multi') {
+      if (Array.isArray(v)) v.forEach(function(id){ if (counts[id] !== undefined) counts[id]++; });
+    } else {
+      if (v && counts[v] !== undefined) counts[v]++;
+    }
+  });
+
+  var keys = Object.keys(labelMap).sort(function(a,b){ return counts[b] - counts[a]; });
+  var maxCnt = counts[keys[0]] || 1;
+
+  var html = '';
+  keys.forEach(function(k, idx){
+    var pct = (counts[k] / maxCnt) * 100;
+    var emoji = SECTION_EMOJI[k] ? SECTION_EMOJI[k] + ' ' : '';
+    var barClass = (colorClass && counts[k] > 0) ? colorClass : '';
+    html += '<div class="rank-item">' +
+      '<span class="rank-num r'+(idx+1)+'">'+(idx+1)+'</span>' +
+      '<span class="rank-name">'+emoji+escHtml(labelMap[k])+'</span>' +
+      '<div class="rank-bar-bg"><div class="rank-bar '+barClass+'" style="width:'+pct+'%"></div></div>' +
+      '<span class="rank-cnt">'+counts[k]+'명</span></div>';
+  });
+  document.getElementById(targetId).innerHTML = html;
+}
+
+function renderTextList(targetId, data, key, filterKey) {
+  var items = [];
+  data.forEach(function(d){
+    var text = d[key];
+    if (text && String(text).trim()) {
+      // Q6 기타 의견은 choice가 'other'일 때만
+      if (filterKey && d[filterKey] !== 'other') return;
+      items.push({ name: d.name, text: String(text).trim() });
+    }
+  });
+
+  var target = document.getElementById(targetId);
+  if (items.length === 0) {
+    target.innerHTML = '<div class="text-empty">아직 서술형 응답이 없습니다</div>';
+    return;
+  }
+  var html = '';
+  items.reverse().forEach(function(it){
+    html += '<div class="text-item">'+escHtml(it.text)+
+      '<span class="meta">— '+escHtml(it.name)+'</span></div>';
+  });
+  target.innerHTML = html;
+}
+
+function renderTable(data) {
+  var html = '';
+  var reversed = data.slice().reverse();
+  reversed.forEach(function(d, idx){
+    var num = data.length - idx;
+    var ts = d.timestamp ? formatTime(d.timestamp) : '-';
+
+    // Q5 favorite section
+    var q5 = d.q5_favorite ? SECTION_MAP[d.q5_favorite] || d.q5_favorite : '-';
+    // Q6 method
+    var q6 = d.q6_recommend ? (METHOD_MAP[d.q6_recommend] || d.q6_recommend) : '-';
+    if (d.q6_recommend === 'other' && d.q6_recommend_other) {
+      q6 += ' <span style="color:var(--slate-400);font-size:11px">("' + escHtml(String(d.q6_recommend_other).slice(0,20)) + (String(d.q6_recommend_other).length>20?'…':'') + '")</span>';
+    }
+    // Q7 multi
+    var q7html = '-';
+    if (Array.isArray(d.q7_dislike) && d.q7_dislike.length) {
+      q7html = '<div class="dislike-chips">';
+      d.q7_dislike.forEach(function(id){
+        var isNone = id === 'none';
+        q7html += '<span class="dislike-chip'+(isNone?' none':'')+'">'+escHtml(isNone?'없음':(SECTION_MAP[id]||id))+'</span>';
+      });
+      q7html += '</div>';
+    }
+    // Q10 text (short)
+    var q10 = d.q10_wish ? String(d.q10_wish) : '';
+    var q10display = q10 ? escHtml(q10.slice(0,30)) + (q10.length>30?'…':'') : '<span style="color:var(--slate-300)">-</span>';
+
+    html += '<tr>' +
+      '<td>'+num+'</td>' +
+      '<td><strong>'+escHtml(d.name)+'</strong></td>' +
+      '<td>'+scoreCell(d.q1_browse)+'</td>' +
+      '<td>'+scoreCell(d.q2_useful)+'</td>' +
+      '<td>'+scoreCell(d.q3_click)+'</td>' +
+      '<td>'+scoreCell(d.q4_thumb)+'</td>' +
+      '<td><span class="section-pill">'+escHtml(q5)+'</span></td>' +
+      '<td><span class="method-pill">'+q6+'</span></td>' +
+      '<td>'+q7html+'</td>' +
+      '<td>'+scoreCell(d.q8_revisit)+'</td>' +
+      '<td>'+scoreCell(d.q9_nonjob)+'</td>' +
+      '<td title="'+escHtml(q10)+'">'+q10display+'</td>' +
+      '<td class="time-cell">'+ts+'</td></tr>';
+  });
+  tableBody.innerHTML = html;
+}
+
+function scoreCell(v) {
+  if (!v) return '<span style="color:var(--slate-300)">-</span>';
+  return '<span class="score-cell score-'+v+'">'+v+'</span>';
+}
+
+function formatTime(iso) {
+  try {
+    var d = new Date(iso);
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    var hh = String(d.getHours()).padStart(2,'0');
+    var mi = String(d.getMinutes()).padStart(2,'0');
+    return mm+'/'+dd+' '+hh+':'+mi;
+  } catch(e) { return '-'; }
+}
+
+function escHtml(s) {
+  var div = document.createElement('div');
+  div.textContent = s == null ? '' : s;
+  return div.innerHTML;
+}
+
+/* ==========================================================
+   Refresh / Export
+   ========================================================== */
+btnRefresh.addEventListener('click', function(){
+  if (!useFirebase) { allResponses = loadLocal(); render(); }
+  btnRefresh.textContent = '갱신됨';
+  setTimeout(function(){ btnRefresh.textContent = '새로고침'; }, 1000);
+});
+
+btnExport.addEventListener('click', function(){
+  if (allResponses.length === 0) return;
+  var headers = ['참여자','Q1_첫인상','Q2_유용성예상','Q3_클릭의향','Q4_제목썸네일',
+    'Q5_관심섹션','Q6_추천방식','Q6_기타의견','Q7_비선호섹션',
+    'Q8_재방문','Q9_비채용일방문','Q10_자유의견','시간'];
+  var csv = '\uFEFF' + headers.join(',') + '\n';
+  allResponses.forEach(function(d){
+    var row = [
+      csvEsc(d.name),
+      d.q1_browse||'', d.q2_useful||'', d.q3_click||'', d.q4_thumb||'',
+      csvEsc(SECTION_MAP[d.q5_favorite]||d.q5_favorite||''),
+      csvEsc(METHOD_MAP[d.q6_recommend]||d.q6_recommend||''),
+      csvEsc(d.q6_recommend_other||''),
+      csvEsc(Array.isArray(d.q7_dislike) ? d.q7_dislike.map(function(id){ return id==='none'?'없음':(SECTION_MAP[id]||id); }).join(' | ') : ''),
+      d.q8_revisit||'', d.q9_nonjob||'',
+      csvEsc(d.q10_wish||''),
+      csvEsc(d.timestamp||'')
+    ];
+    csv += row.join(',') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'ut-results-' + new Date().toISOString().slice(0,10) + '.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+});
+function csvEsc(s) { return '"' + String(s||'').replace(/"/g,'""') + '"'; }
+
+/* ==========================================================
+   Init
+   ========================================================== */
+loadData();
+if (!useFirebase) {
+  setInterval(function(){ allResponses = loadLocal(); render(); }, 3000);
+}
+
+})();
+</script>
+</body>
+</html>
