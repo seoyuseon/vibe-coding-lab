@@ -55,18 +55,10 @@
     .main{padding-top:0;padding-bottom:0;background:var(--white)}
 
     /* ===== Hero Carousel (extends into header) ===== */
-    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px;transform-origin:center top;will-change:transform;transition:transform .3s ease-out}
-    .hero.ptr-dragging{transition:none}
-    .hero.ptr-refresh{transition:transform .6s cubic-bezier(.22,1,.36,1)}
+    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px}
     .hero-track{display:flex;height:100%;will-change:transform}
     .hero-track.animate{transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
     .hero-slide{flex:0 0 100%;width:100%;height:100%;background-size:cover;background-position:center;position:relative;cursor:pointer}
-    /* PTR 로딩 인디케이터 */
-    .ptr-loader{position:fixed;top:0;left:50%;transform:translate(-50%,-100%);width:40px;height:40px;background:rgba(255,255,255,.95);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:150;box-shadow:0 2px 8px rgba(0,0,0,.15);opacity:0;transition:opacity .2s,transform .2s}
-    .ptr-loader.visible{opacity:1}
-    .ptr-loader svg{width:22px;height:22px;color:var(--g700);transition:transform .2s}
-    .ptr-loader.spinning svg{animation:ptrSpin .8s linear infinite}
-    @keyframes ptrSpin{to{transform:rotate(360deg)}}
     /* 딤드 강화: 상단 0.55 → 중간 0.1 → 하단 0.72 */
     .hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.1) 45%,rgba(0,0,0,.72) 100%);pointer-events:none}
     .slide-inner{position:absolute;bottom:54px;left:var(--pad);right:var(--pad);z-index:2}
@@ -178,11 +170,6 @@
       </button>
     </div>
   </header>
-
-  <!-- Pull-to-refresh 로더 -->
-  <div class="ptr-loader" id="ptrLoader">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-  </div>
 
   <main class="main">
 
@@ -813,102 +800,6 @@ function onScroll(){
 window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll, {passive:true});
 onScroll();
-
-/* ===== Pull-to-Refresh ===== */
-var ptrLoader = document.getElementById('ptrLoader');
-var ptrStartY = 0;
-var ptrDelta = 0;
-var ptrActive = false;
-var ptrRefreshing = false;
-var PTR_THRESHOLD = 80;
-var PTR_MAX_SCALE = 1.25;
-
-function triggerRefresh(){
-  if(ptrRefreshing) return;
-  ptrRefreshing = true;
-  ptrLoader.classList.add('spinning');
-  // Hero 이미지 확대 고정
-  heroEl.classList.remove('ptr-dragging');
-  heroEl.classList.add('ptr-refresh');
-  heroEl.style.transform = 'scale('+PTR_MAX_SCALE+')';
-  // 콘텐츠 새로고침: 인사이트는 전체탭으로, QnA 재셔플, 히어로는 현재 슬라이드 유지
-  setTimeout(function(){
-    // 탭 전체로 복귀
-    insTabs.querySelectorAll('.tab-pill').forEach(function(p){p.classList.remove('on')});
-    insTabs.querySelector('.tab-pill[data-cat="all"]').classList.add('on');
-    insCat = 'all';
-    insBatch = 0;
-    renderInsight();
-    renderQna('all');
-    qnaScroll.scrollLeft = 0;
-    // 원복
-    heroEl.style.transform = '';
-    ptrLoader.classList.remove('visible','spinning');
-    ptrLoader.style.transform = 'translate(-50%,-100%)';
-    setTimeout(function(){
-      heroEl.classList.remove('ptr-refresh');
-      ptrRefreshing = false;
-    }, 600);
-  }, 700);
-}
-
-function ptrReset(){
-  heroEl.classList.remove('ptr-dragging');
-  heroEl.style.transform = '';
-  ptrLoader.classList.remove('visible');
-  ptrLoader.style.transform = 'translate(-50%,-100%)';
-}
-
-window.addEventListener('touchstart', function(e){
-  if(ptrRefreshing) return;
-  if(window.scrollY <= 0){
-    ptrStartY = e.touches[0].clientY;
-    ptrActive = true;
-    ptrDelta = 0;
-  }
-}, {passive:true});
-
-window.addEventListener('touchmove', function(e){
-  if(!ptrActive || ptrRefreshing) return;
-  if(window.scrollY > 0){
-    ptrActive = false;
-    ptrReset();
-    return;
-  }
-  var deltaY = e.touches[0].clientY - ptrStartY;
-  if(deltaY <= 0){
-    ptrReset();
-    return;
-  }
-  ptrDelta = deltaY;
-  // 저항감 있는 drag: 실제 이동은 deltaY의 루트값
-  var damped = Math.sqrt(deltaY) * 6;
-  var scale = Math.min(1 + damped/800, PTR_MAX_SCALE);
-  heroEl.classList.add('ptr-dragging');
-  heroEl.style.transform = 'scale('+scale+')';
-  // 로더 노출
-  var loaderY = Math.min(damped - 30, 20);
-  ptrLoader.style.transform = 'translate(-50%,'+loaderY+'px)';
-  ptrLoader.classList.add('visible');
-  // 임계값 도달 시 아이콘 각도 변화
-  if(damped >= PTR_THRESHOLD){
-    ptrLoader.querySelector('svg').style.transform = 'rotate(180deg)';
-  } else {
-    ptrLoader.querySelector('svg').style.transform = 'rotate(0deg)';
-  }
-}, {passive:true});
-
-window.addEventListener('touchend', function(){
-  if(!ptrActive || ptrRefreshing) return;
-  ptrActive = false;
-  var damped = Math.sqrt(ptrDelta) * 6;
-  if(damped >= PTR_THRESHOLD){
-    triggerRefresh();
-  } else {
-    ptrReset();
-  }
-  ptrDelta = 0;
-});
 
 })();
 </script>
