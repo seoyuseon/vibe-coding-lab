@@ -100,7 +100,7 @@
     .ins-item:nth-child(3){transition-delay:.08s}
     .ins-item:nth-child(4){transition-delay:.12s}
     .ins-item:nth-child(5){transition-delay:.16s}
-    .ins-thumb{flex-shrink:0;width:100px;height:68px;border-radius:8px;background-size:cover;background-position:center}
+    .ins-thumb{flex-shrink:0;width:100px;height:68px;border-radius:8px;background-size:cover;background-position:center;background-color:var(--g100)}
     .ins-title{font-size:15px;font-weight:500;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .btn-more-wrap{margin-top:16px}
     .btn-more{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;font-size:14px;font-weight:500;color:var(--g800);background:#F6F7F8;border-radius:10px;transition:background .15s}
@@ -111,13 +111,8 @@
 
     /* Lounge */
     .lounge{overflow:hidden}
-    .mq-row{overflow:hidden;padding:5px 0;-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%)}
+    .mq-row{overflow:hidden;padding:5px 0;touch-action:pan-y;-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%)}
     .mq-track{display:flex;gap:8px;width:max-content;will-change:transform}
-    .mq-row.right .mq-track{animation:mqR 28s linear infinite}
-    .mq-row.left .mq-track{animation:mqL 24s linear infinite}
-    .mq-row.paused .mq-track{animation-play-state:paused}
-    @keyframes mqR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
-    @keyframes mqL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
     .chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 16px 8px 8px;border:1px solid var(--g200);border-radius:100px;background:var(--white);white-space:nowrap;font-size:14px;font-weight:500}
     .chip-emoji{width:24px;height:24px;flex-shrink:0}
 
@@ -339,74 +334,54 @@ var popData = [
   {id:15,title:'사수 없는 신입의 생존법과 성장기',img:img('photo-1556761175-b413da4baf72',420,280)}
 ];
 
-// 카테고리별 이미지 — 검증된 Unsplash ID만 사용, 주제 다양성 확보
+// 카테고리별 이미지 — 모두 검증된 안정 Unsplash ID
 var devImgs = [
-  'photo-1517694712202-14dd9538aa97', // 코드 에디터
-  'photo-1504639725590-34d0984388bd', // 서버룸 조명
-  'photo-1555949963-ff9fe0c870eb', // 칩/회로 클로즈업
-  'photo-1558494949-ef010cbdcc31', // 네트워크 케이블
-  'photo-1526374965328-7f61d4dc18c5', // 매트릭스 코드
-  'photo-1550751827-4bd374c3f58b', // 데이터센터
-  'photo-1518770660439-4636190af475', // 회로기판 매크로
-  'photo-1531297484001-80022131f5a1', // 노트북 3대 나란히
-  'photo-1504868584819-f8e8b4b6d7e3', // 모니터 대시보드
-  'photo-1542831371-29b0f74f9713', // 코드 매트릭스
-  'photo-1551650975-87deedd944c3', // 스마트폰 앱 화면
-  'photo-1485827404703-89b55fcc595e', // 로봇 팔
-  'photo-1551288049-bebda4e38f71', // 차트 대시보드
-  'photo-1618477388954-7852f32655ec', // 키보드 조명
-  'photo-1499750310107-5fef28a66643'  // 노트+커피 글쓰기
+  'photo-1517694712202-14dd9538aa97', // MacBook dark code
+  'photo-1461749280684-dccba630e2f6', // code on screen
+  'photo-1498050108023-c5249f4df085', // laptop desk
+  'photo-1555066931-4365d14bab8c',    // code focus
+  'photo-1542831371-29b0f74f9713',    // code matrix
+  'photo-1526374965328-7f61d4dc18c5', // matrix code
+  'photo-1550751827-4bd374c3f58b',    // server room
+  'photo-1518770660439-4636190af475', // circuit board
+  'photo-1531297484001-80022131f5a1', // macbook mountain
+  'photo-1485827404703-89b55fcc595e'  // robot arm
 ];
 var designImgs = [
-  'photo-1558655146-9f40138edfeb', // 색상 팔레트
-  'photo-1545235617-9465d2a55698', // 스케치북 드로잉
-  'photo-1559028012-481c04fa702d', // 디자인 도구 탑뷰
-  'photo-1513364776144-60967b0f800f', // 컬러칩 배열
-  'photo-1552581234-26160f608093', // 화이트보드 브레인스토밍
-  'photo-1561070791-2526d30994b8', // 태블릿 드로잉
-  'photo-1454165804606-c3d57bc86b40', // 포스트잇 전략보드
-  'photo-1497215842964-222b430dc094', // 오피스 인테리어
-  'photo-1542744173-8e7e53415bb0', // 팀 미팅 테이블
-  'photo-1586717791821-3f44a563fa4c', // 와이어프레임 종이
-  'photo-1609921212029-bb5a28e60960', // 아이패드 디자인
-  'photo-1558618666-fcd25c85f82e', // 타이포그래피
-  'photo-1521737711867-e3b97375f902', // 팀 협업
-  'photo-1531403009284-440f080d1e12', // 프로토타입 스케치
-  'photo-1611532736597-de2d4265fba3'  // 피그마 화면
+  'photo-1558655146-9f40138edfeb',    // color palette
+  'photo-1545235617-9465d2a55698',    // sketchbook drawing
+  'photo-1626785774573-4b799315345d', // abstract design
+  'photo-1454165804606-c3d57bc86b40', // post-its strategy
+  'photo-1561070791-2526d30994b8',    // tablet drawing
+  'photo-1542744173-8e7e53415bb0',    // meeting table
+  'photo-1586717791821-3f44a563fa4c', // wireframe sketch
+  'photo-1497366754035-f200968a6e72', // laptop coffee
+  'photo-1552581234-26160f608093',    // whiteboard brainstorm
+  'photo-1517245386807-bb43f82c33c4'  // seminar notes
 ];
 var planImgs = [
-  'photo-1431540015161-0bf868a2d407', // 컨퍼런스장
-  'photo-1497366216548-37526070297c', // 모던 오피스
-  'photo-1450101499163-c8848c66ca85', // 악수 비즈니스
-  'photo-1542744094-3a31f272c490', // 사업 전략
-  'photo-1556761175-5973dc0f32e7', // 오피스 빌딩 로비
-  'photo-1552664730-d307ca884978', // 회의실 토론
-  'photo-1460925895917-afdab827c52f', // 노트북 차트
-  'photo-1552664199-bb22cdd8aff2', // 전략 보드
-  'photo-1521737604893-d14cc237f11d', // 팀 오피스
-  'photo-1455390582262-044cdead277a', // 글쓰기 노트
-  'photo-1573497019940-1c28c88b4f3e', // 비즈니스 우먼
-  'photo-1517245386807-bb43f82c33c4', // 세미나
-  'photo-1553877522-43269d4ea984', // 화이트보드 기획
-  'photo-1556761175-b413da4baf72', // 오피스 라운지
-  'photo-1521791136064-7986c2920216'  // 넥타이 정장
+  'photo-1431540015161-0bf868a2d407', // conference room
+  'photo-1497366216548-37526070297c', // modern office
+  'photo-1497366811353-6870744d04b2', // office desk
+  'photo-1552664199-bb22cdd8aff2',    // strategy board
+  'photo-1552664730-d307ca884978',    // meeting
+  'photo-1522202176988-66273c2fd55f', // collaboration
+  'photo-1553877522-43269d4ea984',    // whiteboard
+  'photo-1486406146926-c627a92ad1ab', // skyscraper
+  'photo-1450101499163-c8848c66ca85', // handshake
+  'photo-1556761175-b413da4baf72'     // office lounge
 ];
 var mktImgs = [
-  'photo-1460925895917-afdab827c52f', // 차트 모니터
-  'photo-1432888622747-4eb9a8efeb07', // 카메라 콘텐츠
-  'photo-1551288049-bebda4e38f71', // 대시보드 분석
-  'photo-1611162617474-5b21e879e113', // SNS 아이콘
-  'photo-1556745757-8d76bdb6984b', // CRM 노트북
-  'photo-1523289333742-be1143f6b766', // 브랜드 패키지
-  'photo-1559526324-4b87b5e36e44', // 그래프 상승
-  'photo-1556761175-4b46a572b786', // 회의실 프레젠
-  'photo-1554224155-6726b3ff858f', // 계산기 돈
-  'photo-1611162616305-c69b3fa7fbe0', // 소셜미디어
-  'photo-1596526131083-e8c633c948d2', // 이메일 아이콘
-  'photo-1571677246347-5040036b95cc', // 검색 SEO
-  'photo-1557804506-669a67965ba0', // 오피스 회의
-  'photo-1533750349088-cd871a92f312', // 마케팅 화이트보드
-  'photo-1543286386-713bdd548da4'  // 데이터 차트
+  'photo-1432888622747-4eb9a8efeb07', // camera lenses
+  'photo-1460925895917-afdab827c52f', // laptop chart
+  'photo-1551288049-bebda4e38f71',    // dashboard
+  'photo-1557804506-669a67965ba0',    // marketing meeting
+  'photo-1533750349088-cd871a92f312', // marketing concept
+  'photo-1523289333742-be1143f6b766', // brand design
+  'photo-1556745757-8d76bdb6984b',    // office workspace
+  'photo-1553484771-371a605b060b',    // print marketing
+  'photo-1543286386-713bdd548da4',    // data charts
+  'photo-1504868584819-f4fe9714da8b'  // trend analytics
 ];
 
 function pickImg(pool, idx){ return img(pool[idx % pool.length], 400, 280); }
@@ -723,12 +698,87 @@ btnMore.addEventListener('click',function(){
 
 renderInsight();
 
-/* ===== LOUNGE PAUSE ===== */
-['mqTop','mqBot'].forEach(function(id){
-  var row = document.getElementById(id);
-  row.addEventListener('touchstart',function(){row.classList.add('paused')},{passive:true});
-  row.addEventListener('touchend',function(){row.classList.remove('paused')});
-});
+/* ===== LOUNGE MARQUEE (자동 롤링 + 터치 수동 제어) ===== */
+function setupMarquee(rowId, direction, durationSec){
+  var row = document.getElementById(rowId);
+  var track = row.querySelector('.mq-track');
+  var pos = 0, halfWidth = 0, speed = 0;
+  var running = true, dragging = false;
+  var startX = 0, startPos = 0, lastX = 0, lastT = 0, velocity = 0;
+  var rafId = null;
+
+  function measure(){
+    var prev = halfWidth;
+    halfWidth = track.scrollWidth / 2;
+    speed = halfWidth / (durationSec * 60); // px/frame @ ~60fps
+    if(prev === 0 || !isFinite(pos)){
+      pos = direction === 'right' ? -halfWidth : 0;
+      apply();
+    }
+  }
+  function apply(){ track.style.transform = 'translateX(' + pos + 'px)'; }
+  function wrap(){
+    while(pos > 0) pos -= halfWidth;
+    while(pos < -halfWidth) pos += halfWidth;
+  }
+  function tick(){
+    if(!running){ rafId = null; return; }
+    // 관성 감쇠 (drag 직후 잠깐 이어짐)
+    if(Math.abs(velocity) > 0.1){
+      pos += velocity;
+      velocity *= 0.92;
+    } else {
+      velocity = 0;
+      pos += direction === 'right' ? speed : -speed;
+    }
+    wrap();
+    apply();
+    rafId = requestAnimationFrame(tick);
+  }
+  function start(){ if(!rafId) rafId = requestAnimationFrame(tick); }
+
+  row.addEventListener('touchstart', function(e){
+    running = false;
+    dragging = true;
+    startX = lastX = e.touches[0].clientX;
+    lastT = Date.now();
+    startPos = pos;
+    velocity = 0;
+  }, {passive:true});
+
+  row.addEventListener('touchmove', function(e){
+    if(!dragging) return;
+    var x = e.touches[0].clientX;
+    var now = Date.now();
+    var dt = now - lastT;
+    if(dt > 0) velocity = (x - lastX) / dt * 16; // px/frame 대략치
+    lastX = x;
+    lastT = now;
+    pos = startPos + (x - startX);
+    wrap();
+    apply();
+  }, {passive:true});
+
+  function release(){
+    if(!dragging) return;
+    dragging = false;
+    running = true;
+    start();
+  }
+  row.addEventListener('touchend', release);
+  row.addEventListener('touchcancel', release);
+
+  measure();
+  // 이미지/폰트 로드 후 재측정
+  window.addEventListener('load', measure);
+  setTimeout(measure, 300);
+  setTimeout(measure, 1000);
+
+  start();
+}
+
+setupMarquee('mqTop', 'right', 30);
+setupMarquee('mqBot', 'left', 26);
 
 /* ===== QNA ===== */
 var qnaTrack = document.getElementById('qnaTrack');
