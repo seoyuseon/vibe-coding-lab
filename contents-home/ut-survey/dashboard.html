@@ -37,40 +37,31 @@
     /* Header */
     .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
     .dash-title { font-size:24px; font-weight:700; }
-    .dash-title-row { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .dash-title-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .dash-subtitle { font-size:13px; color:var(--slate-400); margin-top:4px; }
     .dash-title-wrap { display:flex; flex-direction:column; }
     .dash-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     .response-count {
-      padding:3px 10px; font-size:12px; font-weight:600;
-      background:var(--slate-100); color:var(--slate-500); border-radius:20px;
+      padding:4px 10px; font-size:12px; font-weight:600;
+      background:#EBEEF2; color:var(--slate-600); border-radius:20px;
     }
-    .mode-badge { padding:3px 9px; font-size:11px; font-weight:600; border-radius:20px; letter-spacing:0.02em; }
-    .mode-badge.local { background:#FEF3C7; color:#92400E; }
-    .mode-badge.cloud { background:var(--slate-100); color:var(--slate-500); }
+    .mode-badge { font-size:12px; font-weight:500; letter-spacing:0.02em; padding:0; background:none; }
+    .mode-badge.local { color:#B45309; }
+    .mode-badge.cloud { color:var(--slate-400); }
     .btn-icon {
-      display:inline-flex; align-items:center; gap:6px;
-      padding:7px 12px; font-size:13px; font-weight:500;
-      color:var(--slate-600); background:var(--white);
-      border:1px solid var(--slate-200); border-radius:7px;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px;
+      height:32px; padding:0 14px;
+      font-size:13px; font-weight:500;
+      color:var(--slate-700); background:var(--slate-100);
+      border:none; border-radius:7px;
       transition:all 0.15s; cursor:pointer;
     }
     .btn-icon:hover {
-      color:var(--slate-900); border-color:var(--slate-300);
-      background:var(--slate-50);
+      color:var(--slate-900); background:var(--slate-200);
     }
-    .btn-icon svg { width:14px; height:14px; flex-shrink:0; transition:transform 0.5s ease; }
+    .btn-icon svg { width:14px; height:14px; flex-shrink:0; }
     .btn-icon.spinning svg { animation:spin 0.6s cubic-bezier(.4,0,.2,1); }
     @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-    .btn-danger {
-      display:inline-flex; align-items:center; gap:6px;
-      padding:7px 12px; font-size:13px; font-weight:500;
-      color:#DC2626; background:var(--white);
-      border:1px solid #FECACA; border-radius:7px;
-      transition:all 0.15s; cursor:pointer;
-    }
-    .btn-danger:hover { background:#FEF2F2; border-color:#FCA5A5; }
-    .btn-danger svg { width:14px; height:14px; flex-shrink:0; }
     .btn-danger-sm {
       padding:5px 12px; font-size:12px; font-weight:600;
       color:#DC2626; background:transparent;
@@ -334,10 +325,6 @@
       <button class="btn-icon" id="btnExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         내보내기
-      </button>
-      <button class="btn-danger" id="btnDeleteAll">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/></svg>
-        전체 삭제
       </button>
     </div>
   </div>
@@ -969,31 +956,7 @@ function deleteOne(docId, name) {
   }
 }
 
-function deleteAll() {
-  var n = allResponses.length;
-  if (n === 0) { alert('삭제할 응답이 없습니다.'); return; }
-  var msg = '정말 모든 응답 ' + n + '개를 삭제하시겠습니까?\n\n삭제 후에는 복구할 수 없습니다.';
-  if (!confirm(msg)) return;
-  if (!confirm('마지막 확인입니다. 정말 진행하시겠습니까?')) return;
-
-  // Firestore 전체 삭제
-  if (useFirebase && db) {
-    db.collection(COLLECTION).get().then(function(snap){
-      var batch = db.batch();
-      snap.forEach(function(doc){ batch.delete(doc.ref); });
-      return batch.commit();
-    }).catch(function(err){ alert('전체 삭제 실패: ' + err.message); });
-  }
-  // localStorage 초기화 (항상)
-  localStorage.removeItem(COLLECTION);
-  if (!useFirebase) {
-    allResponses = [];
-    selectedPplIdx = -1;
-    render();
-  }
-}
-
-// 삭제 버튼 이벤트 위임
+// 개별 삭제 버튼 이벤트 위임 (테이블 🗑 아이콘, 상세 뷰 "이 응답 삭제")
 document.addEventListener('click', function(e){
   var trash = e.target.closest('[data-delete-one]');
   if (trash) {
@@ -1001,8 +964,6 @@ document.addEventListener('click', function(e){
     deleteOne(trash.dataset.deleteOne, trash.dataset.deleteName);
   }
 });
-
-document.getElementById('btnDeleteAll').addEventListener('click', deleteAll);
 
 btnExport.addEventListener('click', function(){
   if (allResponses.length === 0) return;
