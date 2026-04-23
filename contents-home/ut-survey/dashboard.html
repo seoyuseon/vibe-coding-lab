@@ -304,7 +304,53 @@
       color:var(--slate-400); border-radius:4px;
     }
     .setup-close:hover { background:var(--slate-100); }
+
+    /* ========== Dark Mode ========== */
+    [data-theme="dark"] {
+      --white: #1E293B;
+      --slate-50: #0F172A;
+      --slate-100: #334155;
+      --slate-200: #475569;
+      --slate-300: #64748B;
+      --slate-600: #CBD5E1;
+      --slate-700: #E2E8F0;
+      --slate-900: #F1F5F9;
+      --blue: #60A5FA;
+      --blue-dark: #3B82F6;
+      --blue-light: #1E3A8A;
+    }
+    [data-theme="dark"] .response-count { background:#334155; color:var(--slate-600); }
+    [data-theme="dark"] .mode-badge.local { color:#FBBF24; }
+    [data-theme="dark"] .score-1, [data-theme="dark"] .score-2 { background:#4C1D1D; color:#FCA5A5; }
+    [data-theme="dark"] .score-3 { background:#4A2F10; color:#FCD34D; }
+    [data-theme="dark"] .score-4, [data-theme="dark"] .score-5 { background:#0F3D2E; color:#6EE7B7; }
+    [data-theme="dark"] .dislike-chip { background:#4C1D1D; color:#FCA5A5; }
+    [data-theme="dark"] .dislike-chip.none { background:#0F3D2E; color:#6EE7B7; }
+    [data-theme="dark"] .btn-danger-sm { border-color:#6B2626; }
+    [data-theme="dark"] .btn-danger-sm:hover { background:#4C1D1D; border-color:#991B1B; }
+    [data-theme="dark"] .trash-btn:hover { background:#4C1D1D; color:#FCA5A5; }
+    [data-theme="dark"] tbody tr:hover { background:var(--slate-100); }
+    [data-theme="dark"] .text-item { background:var(--slate-50); }
+    [data-theme="dark"] .text-empty { background:var(--slate-50); }
+    [data-theme="dark"] .card-score {
+      background:linear-gradient(135deg,#60A5FA,#93C5FD);
+      -webkit-background-clip:text; background-clip:text;
+    }
+
+    /* Theme toggle button icon visibility */
+    #btnTheme .icon-sun { display:none; }
+    [data-theme="dark"] #btnTheme .icon-moon { display:none; }
+    [data-theme="dark"] #btnTheme .icon-sun { display:block; }
   </style>
+  <script>
+    // FOUC 방지: 저장된 테마를 페인트 전에 적용
+    (function(){
+      try {
+        var t = localStorage.getItem('ut-dashboard-theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 <div class="wrap">
@@ -325,6 +371,10 @@
       <button class="btn-icon" id="btnExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         내보내기
+      </button>
+      <button class="btn-icon" id="btnTheme" aria-label="테마 전환" title="테마 전환">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
       </button>
     </div>
   </div>
@@ -931,6 +981,20 @@ btnRefresh.addEventListener('click', function(){
   if (!useFirebase) { allResponses = loadLocal(); render(); }
   btnRefresh.classList.add('spinning');
   setTimeout(function(){ btnRefresh.classList.remove('spinning'); }, 600);
+});
+
+/* ==========================================================
+   테마 토글 (저장 키: 'ut-dashboard-theme' — 응답 DB와 분리)
+   ========================================================== */
+document.getElementById('btnTheme').addEventListener('click', function(){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    try { localStorage.setItem('ut-dashboard-theme', 'light'); } catch(e) {}
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    try { localStorage.setItem('ut-dashboard-theme', 'dark'); } catch(e) {}
+  }
 });
 
 /* ==========================================================
