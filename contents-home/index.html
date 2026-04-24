@@ -55,7 +55,14 @@
     .main{padding-top:0;padding-bottom:0;background:var(--white)}
 
     /* ===== Hero Carousel (extends into header) ===== */
-    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px}
+    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px;transition:height .35s cubic-bezier(.22,1,.36,1)}
+    .hero.ptr-dragging{transition:none}
+    /* Pull-to-refresh 로더 — 헤더 영역 중앙, 화이트 아이콘 */
+    .ptr-loader{position:fixed;top:16px;left:50%;width:24px;height:24px;z-index:150;pointer-events:none;opacity:0;color:#fff;transform:translate(-50%,-40px)}
+    .ptr-loader svg{width:24px;height:24px;display:block;color:#fff;stroke:#fff}
+    .ptr-loader.spinning{transform:translate(-50%,0)!important;opacity:1!important}
+    .ptr-loader.spinning svg{animation:ptrSpin .7s linear infinite}
+    @keyframes ptrSpin{to{transform:rotate(360deg)}}
     .hero-track{display:flex;height:100%;will-change:transform}
     .hero-track.animate{transition:transform .4s cubic-bezier(.25,.46,.45,.94)}
     .hero-slide{flex:0 0 100%;width:100%;height:100%;background-size:cover;background-position:center;position:relative;cursor:pointer}
@@ -165,6 +172,11 @@
       </button>
     </div>
   </header>
+
+  <!-- Pull-to-refresh 로더 (헤더 영역, 화이트) -->
+  <div class="ptr-loader" id="ptrLoader" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+  </div>
 
   <main class="main">
 
@@ -850,6 +862,137 @@ function onScroll(){
 window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll, {passive:true});
 onScroll();
+
+/* ===== Pull-to-Refresh (방향락 + 히어로 높이 확장 + 헤더 위치 로더 + 햅틱) ===== */
+var ptrLoader = document.getElementById('ptrLoader');
+var HERO_BASE_H = 320;
+var PTR_THRESHOLD = 70;   // 이 거리 이상 당기면 새로고침
+var PTR_MAX = 120;         // 최대 확장 거리
+var DIR_LOCK_THRESHOLD = 8; // 방향 락 임계값 (px)
+
+var ptrStartX = 0, ptrStartY = 0;
+var ptrLocked = null; // null | 'v' | 'h'
+var ptrPulled = 0;
+var ptrActive = false;
+var ptrRefreshing = false;
+var ptrReadyHaptic = false;
+
+function haptic(ms){
+  try { if(navigator.vibrate) navigator.vibrate(ms || 10); } catch(e){}
+}
+
+function ptrVisual(damped){
+  // 1) 히어로 높이 확장 (단, pop-sec과의 gap 32px는 pop-sec 자체 padding으로 유지됨)
+  heroEl.style.height = (HERO_BASE_H + damped) + 'px';
+  // 2) 로더: 헤더 영역으로 슬라이드 인 + 회전
+  var progress = Math.min(damped / PTR_THRESHOLD, 1);
+  ptrLoader.style.opacity = progress;
+  var ty = -40 + progress * 40; // -40 → 0
+  ptrLoader.style.transform = 'translate(-50%,' + ty + 'px) rotate(' + (damped * 2.4) + 'deg)';
+}
+
+function ptrReset(){
+  heroEl.classList.remove('ptr-dragging');
+  heroEl.style.height = '';
+  ptrLoader.style.opacity = '';
+  ptrLoader.style.transform = '';
+}
+
+function triggerRefresh(){
+  if(ptrRefreshing) return;
+  ptrRefreshing = true;
+  haptic(20);
+  // 로더 고정 + 스핀
+  ptrLoader.classList.add('spinning');
+  // 히어로는 살짝 확장된 상태 유지
+  heroEl.classList.remove('ptr-dragging');
+  heroEl.style.height = (HERO_BASE_H + 60) + 'px';
+
+  setTimeout(function(){
+    // 콘텐츠 새로고침: 인사이트는 전체탭으로, QnA 재셔플
+    var allTab = insTabs.querySelector('.tab-pill[data-cat="all"]');
+    if(allTab){
+      insTabs.querySelectorAll('.tab-pill').forEach(function(p){p.classList.remove('on')});
+      allTab.classList.add('on');
+      insCat = 'all';
+      insBatch = 0;
+      renderInsight();
+    }
+    renderQna('all');
+    qnaScroll.scrollLeft = 0;
+    // 원복
+    heroEl.style.height = '';
+    setTimeout(function(){
+      ptrLoader.classList.remove('spinning');
+      ptrLoader.style.opacity = '';
+      ptrLoader.style.transform = '';
+      ptrRefreshing = false;
+    }, 250);
+  }, 700);
+}
+
+window.addEventListener('touchstart', function(e){
+  if(ptrRefreshing) return;
+  if(window.scrollY > 0) return;
+  ptrStartY = e.touches[0].clientY;
+  ptrStartX = e.touches[0].clientX;
+  ptrLocked = null;
+  ptrActive = true;
+  ptrPulled = 0;
+  ptrReadyHaptic = false;
+}, {passive:true});
+
+window.addEventListener('touchmove', function(e){
+  if(!ptrActive || ptrRefreshing) return;
+  var y = e.touches[0].clientY;
+  var x = e.touches[0].clientX;
+  var dy = y - ptrStartY;
+  var dx = x - ptrStartX;
+
+  // 1) 방향 락: 첫 움직임이 충분히 클 때 판정
+  if(!ptrLocked){
+    if(Math.abs(dy) < DIR_LOCK_THRESHOLD && Math.abs(dx) < DIR_LOCK_THRESHOLD) return;
+    // 가로 지배적이면 PTR 비활성 (가로 스와이프 컴포넌트에 양보)
+    if(Math.abs(dx) > Math.abs(dy)){
+      ptrLocked = 'h';
+      ptrActive = false;
+      return;
+    }
+    ptrLocked = 'v';
+    heroEl.classList.add('ptr-dragging');
+  }
+  if(ptrLocked !== 'v') return;
+  // 위로 올리면 리셋
+  if(dy <= 0){ ptrReset(); return; }
+  // 페이지가 스크롤된 상태면 비활성
+  if(window.scrollY > 0){ ptrActive = false; ptrReset(); return; }
+
+  ptrPulled = dy;
+  var damped = Math.min(Math.sqrt(dy) * 9, PTR_MAX);
+  ptrVisual(damped);
+
+  // 임계값 도달 시 햅틱 1회
+  if(damped >= PTR_THRESHOLD && !ptrReadyHaptic){
+    ptrReadyHaptic = true;
+    haptic(12);
+  } else if(damped < PTR_THRESHOLD){
+    ptrReadyHaptic = false;
+  }
+}, {passive:true});
+
+function ptrEnd(){
+  if(!ptrActive || ptrRefreshing) return;
+  ptrActive = false;
+  var damped = Math.min(Math.sqrt(ptrPulled) * 9, PTR_MAX);
+  if(damped >= PTR_THRESHOLD){
+    triggerRefresh();
+  } else {
+    ptrReset();
+  }
+  ptrPulled = 0;
+}
+window.addEventListener('touchend', ptrEnd);
+window.addEventListener('touchcancel', ptrEnd);
 
 })();
 </script>
