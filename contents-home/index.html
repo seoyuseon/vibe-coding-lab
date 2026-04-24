@@ -61,10 +61,10 @@
     /* ===== Hero Carousel (extends into header & status bar) ===== */
     .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:calc(320px + env(safe-area-inset-top,0px));transition:height .35s cubic-bezier(.22,1,.36,1)}
     .hero.ptr-dragging{transition:none}
-    /* Pull-to-refresh 로더 — 헤더 영역 중앙, 화이트 아이콘 */
-    .ptr-loader{position:fixed;top:16px;left:50%;width:24px;height:24px;z-index:150;pointer-events:none;opacity:0;color:#fff;transform:translate(-50%,-40px)}
-    .ptr-loader svg{width:24px;height:24px;display:block;color:#fff;stroke:#fff}
-    .ptr-loader.spinning{transform:translate(-50%,0)!important;opacity:1!important}
+    /* Pull-to-refresh 로더 — 상단 중앙, 화이트 (일반적인 PTR 위치) */
+    .ptr-loader{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);left:50%;width:32px;height:32px;z-index:150;pointer-events:none;opacity:0;color:#fff;transform:translate(-50%,-60px) scale(.6);filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+    .ptr-loader svg{width:32px;height:32px;display:block;color:#fff;stroke:#fff}
+    .ptr-loader.spinning{transform:translate(-50%,0) scale(1)!important;opacity:1!important}
     .ptr-loader.spinning svg{animation:ptrSpin .7s linear infinite}
     @keyframes ptrSpin{to{transform:rotate(360deg)}}
     .hero-track{display:flex;height:100%;will-change:transform}
@@ -323,8 +323,8 @@ var heroData = [
   {id:3,title:'개발자 커리어 컨퍼런스\n무료 참여 신청 오픈',tags:['tagEvent','tag1'],img:'Img/2.png'},
   // 4. EVENT - 3D 코드 아이콘 (로컬 이미지)
   {id:4,title:'AI와 일하는 조직,\nHR이 준비할 미래',tags:['tagEvent','tag4'],img:'Img/3.png'},
-  // 5. 면접 팁 - 컨퍼런스룸
-  {id:5,title:'면접관이 진짜 보는 것들,\n현직자가 알려주는 팁',tags:['tag2'],img:img('photo-1431540015161-0bf868a2d407',1600,860)}
+  // 5. 면접 팁 - 노트북+서류 (평가 느낌)
+  {id:5,title:'면접관이 진짜 보는 것들,\n현직자가 알려주는 팁',tags:['tag2'],img:'https://picsum.photos/seed/interviewroom/1600/860'}
 ];
 
 var popData = [
@@ -888,11 +888,12 @@ function haptic(ms){
 function ptrVisual(damped){
   // 1) 히어로 높이 확장 (단, pop-sec과의 gap 32px는 pop-sec 자체 padding으로 유지됨)
   heroEl.style.height = (heroBaseH + damped) + 'px';
-  // 2) 로더: 헤더 영역으로 슬라이드 인 + 회전
+  // 2) 로더: 상단 중앙에서 슬라이드 인 + 스케일 + 회전
   var progress = Math.min(damped / PTR_THRESHOLD, 1);
   ptrLoader.style.opacity = progress;
-  var ty = -40 + progress * 40; // -40 → 0
-  ptrLoader.style.transform = 'translate(-50%,' + ty + 'px) rotate(' + (damped * 2.4) + 'deg)';
+  var ty = -60 + progress * 60; // -60 → 0
+  var sc = 0.6 + progress * 0.4; // 0.6 → 1
+  ptrLoader.style.transform = 'translate(-50%,' + ty + 'px) scale(' + sc + ') rotate(' + (damped * 2.4) + 'deg)';
 }
 
 function ptrReset(){
