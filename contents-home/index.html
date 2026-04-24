@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#FFFFFF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
   <title>콘텐츠 - 잡코리아</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
@@ -20,7 +21,8 @@
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{-webkit-text-size-adjust:100%}
-    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:var(--white);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:#000;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden;margin:0;padding:0}
+    html{margin:0;padding:0;background:#000}
     a{text-decoration:none;color:inherit}
     button{border:none;background:none;font:inherit;cursor:pointer;color:inherit}
     img{display:block;max-width:100%}
@@ -28,12 +30,14 @@
     /* App Shell — 하단 bg를 QnA 컬러로 채워 흰색 틈 방지 */
     .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;background:#F0F2FA}
 
-    /* ===== Header (Fixed, transparent over hero) ===== */
+    /* ===== Header (Fixed over hero, respects safe area) ===== */
     .hdr{
       position:fixed;top:0;left:50%;transform:translateX(-50%);
-      width:100%;max-width:480px;height:var(--hdr);
+      width:100%;max-width:480px;
+      height:calc(var(--hdr) + env(safe-area-inset-top,0px));
+      padding-top:env(safe-area-inset-top,0px);
       display:flex;align-items:center;justify-content:space-between;
-      padding:0 var(--pad);z-index:100;
+      padding-left:var(--pad);padding-right:var(--pad);z-index:100;
       background:rgba(255,255,255,0);
       backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
       color:var(--white);
@@ -54,8 +58,8 @@
     /* Main — QnA가 하단까지 감싸므로 main 자체엔 padding-bottom 두지 않음 */
     .main{padding-top:0;padding-bottom:0;background:var(--white)}
 
-    /* ===== Hero Carousel (extends into header) ===== */
-    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:320px;transition:height .35s cubic-bezier(.22,1,.36,1)}
+    /* ===== Hero Carousel (extends into header & status bar) ===== */
+    .hero{position:relative;overflow:hidden;touch-action:pan-y;background:var(--g900);height:calc(320px + env(safe-area-inset-top,0px));transition:height .35s cubic-bezier(.22,1,.36,1)}
     .hero.ptr-dragging{transition:none}
     /* Pull-to-refresh 로더 — 헤더 영역 중앙, 화이트 아이콘 */
     .ptr-loader{position:fixed;top:16px;left:50%;width:24px;height:24px;z-index:150;pointer-events:none;opacity:0;color:#fff;transform:translate(-50%,-40px)}
@@ -865,7 +869,7 @@ onScroll();
 
 /* ===== Pull-to-Refresh (방향락 + 히어로 높이 확장 + 헤더 위치 로더 + 햅틱) ===== */
 var ptrLoader = document.getElementById('ptrLoader');
-var HERO_BASE_H = 320;
+var heroBaseH = 320;     // touchstart 시점에 실제 높이로 갱신 (safe-area 포함)
 var PTR_THRESHOLD = 70;   // 이 거리 이상 당기면 새로고침
 var PTR_MAX = 120;         // 최대 확장 거리
 var DIR_LOCK_THRESHOLD = 8; // 방향 락 임계값 (px)
@@ -883,7 +887,7 @@ function haptic(ms){
 
 function ptrVisual(damped){
   // 1) 히어로 높이 확장 (단, pop-sec과의 gap 32px는 pop-sec 자체 padding으로 유지됨)
-  heroEl.style.height = (HERO_BASE_H + damped) + 'px';
+  heroEl.style.height = (heroBaseH + damped) + 'px';
   // 2) 로더: 헤더 영역으로 슬라이드 인 + 회전
   var progress = Math.min(damped / PTR_THRESHOLD, 1);
   ptrLoader.style.opacity = progress;
@@ -906,7 +910,7 @@ function triggerRefresh(){
   ptrLoader.classList.add('spinning');
   // 히어로는 살짝 확장된 상태 유지
   heroEl.classList.remove('ptr-dragging');
-  heroEl.style.height = (HERO_BASE_H + 60) + 'px';
+  heroEl.style.height = (heroBaseH + 60) + 'px';
 
   setTimeout(function(){
     // 콘텐츠 새로고침: 인사이트는 전체탭으로, QnA 재셔플
@@ -940,6 +944,8 @@ window.addEventListener('touchstart', function(e){
   ptrActive = true;
   ptrPulled = 0;
   ptrReadyHaptic = false;
+  // 현재 히어로 실제 높이 기록 (safe-area 포함)
+  heroBaseH = heroEl.offsetHeight;
 }, {passive:true});
 
 window.addEventListener('touchmove', function(e){
