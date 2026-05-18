@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>MY - 잡코리아</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --g900:#222; --g800:#444; --g700:#666; --g600:#888; --g500:#999;
+      --g400:#BBB; --g300:#D1D1D1; --g200:#E8E8E8; --g100:#F4F4F4; --g50:#F7F7F7;
+      --white:#FFF; --black:#000;
+      --blue:#1B55F6; --blue-soft:#EEF3FF;
+      /* JAMS 2.0 tokens */
+      --color-red-50:#FBF5F5;
+      --color-red-400:#F37676;
+      --color-red-500:#FC3B3B;
+      --color-text-secondary:#3E434B;
+      --color-text-quaternary:#949BA8;
+      --red-up:var(--color-red-500); --blue-down:#2D7BFF;
+      --pop-bg:var(--color-red-50);
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bot:env(safe-area-inset-bottom,0px);
+      --pad:16px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%;background:#000}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:#000;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    button{border:none;background:none;font:inherit;cursor:pointer;color:inherit}
+    img{display:block;max-width:100%}
+
+    .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;background:#fff;padding-bottom:calc(56px + var(--safe-bot))}
+
+    /* ===== Status Bar (mock) ===== */
+    .status{height:calc(44px + var(--safe-top));padding-top:var(--safe-top);display:flex;align-items:center;justify-content:space-between;padding-left:20px;padding-right:20px;font-size:15px;font-weight:600;color:var(--g900)}
+    .status-right{display:flex;align-items:center;gap:6px;font-size:14px}
+    .status-right svg{width:18px;height:12px}
+
+    /* ===== Header ===== */
+    .hdr{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
+    .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
+    .hdr-icons{display:flex;gap:12px;align-items:center}
+    .hdr-icons button{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--g800)}
+    .hdr-icons svg{width:24px;height:24px;display:block}
+
+    /* ===== AD ===== */
+    .ad{margin:0 var(--pad);height:60px;background:var(--g100);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--g500);font-weight:500}
+
+    /* ===== 이력서 작성 배너 ===== */
+    .resume-banner{display:flex;align-items:center;justify-content:space-between;margin:20px var(--pad) 0;padding:14px 16px;background:var(--blue-soft);border-radius:10px}
+    .resume-banner-txt{font-size:14px;color:var(--g800);display:flex;align-items:center;gap:8px}
+    .resume-banner-txt strong{color:var(--blue);font-weight:700}
+    .resume-banner-txt .dot{display:inline-block;width:1px;height:10px;background:var(--g300)}
+    .resume-banner svg{width:20px;height:20px;color:var(--g400)}
+
+    /* ===== Profile ===== */
+    .profile{padding:24px var(--pad) 16px}
+    .profile-name{font-size:22px;font-weight:700;line-height:1.35;letter-spacing:-.02em}
+    .profile-name strong{font-weight:700}
+    .profile-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+    .profile-link{flex-shrink:0;font-size:14px;color:var(--g700);text-decoration:underline;text-underline-offset:3px;padding-bottom:4px}
+
+    /* Career card */
+    .career-card{margin-top:14px;padding:16px;background:var(--g50);border-radius:10px}
+    .career-row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .career-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:4px}
+    .career-title svg{width:14px;height:14px;color:var(--g500)}
+    .career-chip{font-size:11px;color:var(--g600);padding:3px 8px;background:#fff;border:1px solid var(--g200);border-radius:4px}
+    .career-company{font-size:14px;color:var(--g800);font-weight:600;margin-bottom:2px}
+    .career-meta{font-size:13px;color:var(--g600)}
+    .career-meta .sep{display:inline-block;width:1px;height:10px;background:var(--g300);margin:0 8px;vertical-align:middle}
+
+    /* Skill / Preference toggles */
+    .pref-block{padding:14px 0 4px}
+    .pref-row{display:flex;align-items:center;gap:6px;padding:6px var(--pad)}
+    .pref-label{flex-shrink:0;width:62px;font-size:13px;color:var(--g700);font-weight:500}
+    .pref-chips{flex:1;display:flex;gap:6px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+    .pref-chips::-webkit-scrollbar{display:none}
+    .chip-toggle{flex-shrink:0;padding:6px 12px;font-size:13px;font-weight:600;border-radius:6px;background:var(--blue-soft);color:var(--blue);border:1px solid #DAE5FF}
+    .chip-toggle.muted{background:#fff;color:var(--g700);border-color:var(--g200);font-weight:500}
+    .pref-action{flex-shrink:0;width:24px;height:24px;color:var(--g400);display:flex;align-items:center;justify-content:center}
+    .pref-action svg{width:20px;height:20px}
+
+    /* ===== 🔥 실시간 인기 콘텐츠 (Rolling) — JAMS 2.0 ===== */
+    /* Section = 16(pad)+16(header)+6(gap)+CARD+16(pad). CARD = 48px (24 line-height + 12*2 padding) */
+    .pop-roll{margin:14px 0 0;padding:16px;background:var(--pop-bg);display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+    .pop-roll-hd{display:flex;align-items:center;gap:4px;height:16px}
+    .pop-roll-fire{width:14px;height:14px;display:block;flex-shrink:0}
+    .pop-roll-title{font-size:12px;font-weight:600;line-height:16px;color:var(--color-red-400);letter-spacing:0}
+
+    .pop-roll-view{position:relative;width:100%;height:48px;background:#fff;border-radius:8px;overflow:hidden}
+    /* 부드러운 롤링: 살짝 더 긴 0.75s + ease-in-out cubic + 자식 fade */
+    .pop-roll-track{position:absolute;inset:0;will-change:transform;transform:translate3d(0,0,0);backface-visibility:hidden;transition:transform .75s cubic-bezier(.65,0,.35,1)}
+    .pop-roll-track.no-anim{transition:none}
+    .pop-roll-item{position:relative;display:flex;align-items:center;gap:8px;height:48px;padding:14px 16px;cursor:pointer;opacity:.4;transition:opacity .75s cubic-bezier(.65,0,.35,1)}
+    .pop-roll-item.is-active{opacity:1}
+    .pop-roll-rank{flex-shrink:0;width:8px;font-size:14px;font-weight:500;color:var(--color-text-quaternary);text-align:center;line-height:20px;font-variant-numeric:tabular-nums}
+    .pop-roll-text{flex:1;min-width:0;font-size:14px;font-weight:500;line-height:20px;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:8px}
+    .pop-roll-ind{flex-shrink:0;height:20px;display:flex;align-items:center;justify-content:center}
+    .pop-roll-ind img{display:block;width:16px;height:16px}
+    .pop-roll-ind.new{font-size:11px;font-weight:600;line-height:20px;color:var(--color-red-400);letter-spacing:.02em}
+
+    /* ===== Icon Grid ===== */
+    .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 0}
+    .menu-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 0;color:var(--g800);font-size:13px;font-weight:500}
+    .menu-item svg{width:28px;height:28px;color:var(--g800);stroke-width:1.6}
+
+    /* ===== Bottom Nav ===== */
+    .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--g200);display:flex;padding-bottom:var(--safe-bot);z-index:100}
+    .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;font-size:11px;font-weight:500;color:var(--g400);transition:color .15s}
+    .bnav-item.on{color:var(--g900)}
+    .bnav-item svg{width:24px;height:24px;display:block;color:inherit}
+
+    /* Home indicator */
+    .home-indicator{position:fixed;bottom:6px;left:50%;transform:translateX(-50%);width:140px;height:4px;background:#000;border-radius:2px;opacity:.85;z-index:101;pointer-events:none}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Status Bar (mock) -->
+  <div class="status">
+    <span>10:15</span>
+    <span class="status-right">
+      <svg viewBox="0 0 18 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg viewBox="0 0 16 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 3a8 8 0 015.6 2.3l-1.4 1.4A6 6 0 008 4.9a6 6 0 00-4.2 1.8L2.4 5.3A8 8 0 018 3zm0 4a4 4 0 012.8 1.2l-1.4 1.4A2 2 0 008 9a2 2 0 00-1.4.6L5.2 8.2A4 4 0 018 7zm0 4a1.5 1.5 0 011.5 1.5h-3A1.5 1.5 0 018 11z"/></svg>
+      <svg viewBox="0 0 26 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.5" y="0.5" width="22" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="19" height="8" rx="2" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+    </span>
+  </div>
+
+  <!-- Header -->
+  <header class="hdr">
+    <span class="hdr-title">MY</span>
+    <div class="hdr-icons">
+      <button aria-label="설정">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+      <button aria-label="알림">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+      <button aria-label="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- AD -->
+  <div class="ad">AD</div>
+
+  <!-- 이력서 작성 banner -->
+  <a href="#" class="resume-banner">
+    <span class="resume-banner-txt">
+      <strong>이력서 45% 작성</strong>
+      <span class="dot"></span>
+      <span>완성하고 포지션 제안 받아요! 👍</span>
+    </span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+
+  <!-- Profile -->
+  <section class="profile">
+    <div class="profile-top">
+      <h1 class="profile-name">홍길동님, <strong>잡코리아(유)</strong>에서<br>일하고 있어요 🧑🏻‍💻</h1>
+      <a href="#" class="profile-link">프로필 보기</a>
+    </div>
+
+    <div class="career-card">
+      <div class="career-row1">
+        <span class="career-title">
+          총 경력 12년 3개월
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+        <span class="career-chip">업데이트 7주 전</span>
+      </div>
+      <p class="career-company">잡코리아(유)</p>
+      <p class="career-meta">서비스기획팀<span class="sep"></span>2년 3개월 재직중</p>
+    </div>
+
+    <div class="pref-block">
+      <div class="pref-row">
+        <span class="pref-label">보유 스킬</span>
+        <div class="pref-chips">
+          <span class="chip-toggle">Confluence</span>
+          <span class="chip-toggle">Jira</span>
+          <span class="chip-toggle">꼼꼼함</span>
+          <span class="chip-toggle">QA</span>
+        </div>
+        <button class="pref-action" aria-label="펼치기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="pref-row">
+        <span class="pref-label">구직 선호도</span>
+        <div class="pref-chips">
+          <span class="chip-toggle muted">기업문화</span>
+          <span class="chip-toggle muted">산업</span>
+          <span class="chip-toggle muted">기업규모</span>
+          <span class="chip-toggle muted">개인성</span>
+        </div>
+        <button class="pref-action" aria-label="수정">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🔥 실시간 인기 콘텐츠 (Rolling) -->
+  <section class="pop-roll" aria-label="실시간 인기 콘텐츠">
+    <div class="pop-roll-hd">
+      <img class="pop-roll-fire" src="my_svg/emoji-fire.svg" alt="">
+      <span class="pop-roll-title">실시간 인기 콘텐츠</span>
+    </div>
+    <div class="pop-roll-view" id="popRollView">
+      <div class="pop-roll-track" id="popRollTrack"></div>
+    </div>
+  </section>
+
+  <!-- Icon Menu Grid -->
+  <nav class="menu-grid">
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="18" height="20" rx="1"/><line x1="9" y1="9" x2="11" y2="9"/><line x1="9" y1="13" x2="11" y2="13"/><line x1="9" y1="17" x2="11" y2="17"/><line x1="14" y1="9" x2="19" y2="9"/><line x1="14" y1="13" x2="19" y2="13"/><line x1="14" y1="17" x2="19" y2="17"/></svg>
+      <span>입사지원현황</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h7l4 4v13a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="M16 4v4h4"/><circle cx="13" cy="15" r="2.5"/><line x1="15" y1="17" x2="17" y2="19"/></svg>
+      <span>최근 본 공고</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="14 4 17 11 24 11 18 16 20 23 14 19 8 23 10 16 4 11 11 11"/></svg>
+      <span>스크랩공고</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 24s-9-5.5-9-12a5 5 0 019-3 5 5 0 019 3c0 6.5-9 12-9 12z"/></svg>
+      <span>관심기업</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="18" height="20" rx="1"/><line x1="9" y1="10" x2="19" y2="10"/><line x1="9" y1="14" x2="19" y2="14"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
+      <span>이력서 관리</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="20" height="14" rx="2"/><polyline points="4 9 14 16 24 9"/></svg>
+      <span>포지션 제안</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="14" height="16" rx="1"/><line x1="7" y1="10" x2="15" y2="10"/><line x1="7" y1="14" x2="15" y2="14"/><line x1="7" y1="18" x2="12" y2="18"/><circle cx="20" cy="18" r="3.5"/><line x1="22.5" y1="20.5" x2="25" y2="23"/></svg>
+      <span>이력서 열람기업</span>
+    </a>
+    <a href="#" class="menu-item">
+      <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l3 3v17a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/><polyline points="9 13 11.5 15.5 16 11"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+      <span>헤드헌팅 상담</span>
+    </a>
+  </nav>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bnav">
+  <a href="index.html" class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3438 9.99026C18.3437 9.92975 18.3132 9.86004 18.2402 9.81057L12.1729 5.70803C12.0712 5.63942 11.9288 5.63942 11.8271 5.70803L5.75977 9.81057C5.68676 9.86004 5.65626 9.92975 5.65625 9.99026V17.669C5.65645 18.011 5.95831 18.3438 6.40039 18.3438H9.01074V13.6748C9.01074 12.7916 9.75333 12.1311 10.5996 12.1309H13.4004C14.2467 12.1311 14.9893 12.7916 14.9893 13.6748V18.3438H17.5996C18.0417 18.3438 18.3435 18.011 18.3438 17.669V9.99026ZM19.6562 17.669C19.6561 18.7972 18.7037 19.6563 17.5996 19.6563H14.333C13.9707 19.6561 13.6768 19.3624 13.6768 19V13.6748C13.6768 13.5778 13.5846 13.4436 13.4004 13.4434H10.5996C10.4154 13.4436 10.3232 13.5778 10.3232 13.6748V19C10.3232 19.3624 10.0293 19.6561 9.66699 19.6563H6.40039C5.29633 19.6563 4.34394 18.7972 4.34375 17.669V9.99026C4.34376 9.47641 4.60543 9.0072 5.02441 8.72366L11.0918 4.62112C11.6377 4.25194 12.3623 4.25194 12.9082 4.62112L18.9756 8.72366C19.3946 9.0072 19.6562 9.47641 19.6562 9.99026V17.669Z" fill="currentColor"/></svg>
+    <span>홈</span>
+  </a>
+  <a href="#" class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.7522 12.1449C3.7522 7.56572 7.49755 3.86569 12.1028 3.86562C12.517 3.86562 12.8528 4.20141 12.8528 4.61562C12.8527 5.02973 12.5169 5.36562 12.1028 5.36562C8.31262 5.36569 5.2522 8.40744 5.2522 12.1449C5.25226 15.8823 8.31266 18.9241 12.1028 18.9242C15.893 18.9242 18.9533 15.8824 18.9534 12.1449C18.9534 11.7308 19.2893 11.3951 19.7034 11.3949C20.1176 11.3949 20.4534 11.7307 20.4534 12.1449C20.4533 16.7241 16.708 20.4242 12.1028 20.4242C7.49759 20.4241 3.75226 16.7241 3.7522 12.1449Z" fill="currentColor"/></svg>
+    <span>JOB 찾기</span>
+  </a>
+  <a href="index.html" class="bnav-item">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.58322 7.08334C6.99724 7.08352 7.33316 7.41928 7.33322 7.83334C7.33321 8.24743 6.99729 8.58317 6.58322 8.58334C5.92347 8.5834 5.45997 8.57969 5.09787 8.6517C4.77714 8.7156 4.65618 8.81645 4.57834 8.95346C4.43546 9.20525 4.37326 9.52953 4.44943 10.1302C4.52832 10.752 4.73725 11.551 5.04318 12.7113L5.89377 15.9378C6.1998 17.0985 6.41208 17.8966 6.64963 18.4749C6.87928 19.034 7.09132 19.2796 7.3342 19.4222C7.57545 19.5638 7.88645 19.6269 8.47287 19.5501C9.08192 19.4704 9.86618 19.2588 11.009 18.9476L11.8029 18.7318C12.2024 18.6232 12.614 18.8587 12.7229 19.2582C12.8317 19.6578 12.5962 20.0702 12.1965 20.179L11.4026 20.3949C10.3014 20.6947 9.40127 20.9413 8.6672 21.0374C7.91084 21.1364 7.21805 21.0932 6.57541 20.7162C5.93456 20.3401 5.55384 19.7558 5.26193 19.0453C4.97774 18.3534 4.73894 17.4399 4.44357 16.3197L3.59299 13.0941C3.2976 11.9738 3.05542 11.062 2.96115 10.3187C2.86429 9.55478 2.90653 8.85879 3.27365 8.21225C3.63725 7.57224 4.22061 7.29736 4.8049 7.181C5.34807 7.07292 5.9935 7.08339 6.58322 7.08334Z" fill="currentColor"/></svg>
+    <span>콘텐츠</span>
+  </a>
+  <a href="#" class="bnav-item on">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.607 13.21C13.5287 13.21 15.4007 13.7221 16.8785 14.6514C18.5417 15.6982 19.5999 17.1901 19.939 18.9658C20.0168 19.3725 19.9118 19.7747 19.6509 20.0693C19.5324 20.2035 19.3835 20.3117 19.2154 20.3848L19.0865 20.4326C18.9552 20.4737 18.8172 20.4939 18.6783 20.4922H4.53569C4.39681 20.4939 4.25871 20.4737 4.12748 20.4326L3.99858 20.3848C3.83051 20.3118 3.68161 20.2044 3.56303 20.0703C3.30187 19.7756 3.197 19.3728 3.27494 18.9658C3.59287 17.301 4.54268 15.8858 6.0308 14.8525L6.33549 14.6514C7.81325 13.7217 9.68525 13.21 11.607 13.21ZM11.8316 3.50488C12.9475 3.55602 13.9531 3.98842 14.6861 4.73535C15.4776 5.5421 15.8632 6.62856 15.772 7.79297L15.7505 8.00879C15.4744 10.2266 13.6593 11.996 11.607 11.9961C9.48837 11.9961 7.61935 10.1102 7.44096 7.79199C7.3566 6.69047 7.68855 5.6654 8.37846 4.88184L8.52104 4.72852C9.29929 3.93656 10.3952 3.5 11.607 3.5L11.8316 3.50488Z" fill="currentColor"/></svg>
+    <span>MY</span>
+  </a>
+</nav>
+
+<div class="home-indicator"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ===== Rolling popular articles data =====
+   trend: 'up' | 'same' | 'down' | 'new'
+   policy:
+     - 변동 없거나 높아지면 빨간색 ▲ (up, same)
+     - 낮아지면 파란색 ▼ (down)
+     - 신규 진입 시 "NEW" 텍스트 배지 (new)
+*/
+var rollData = [
+  {rank: 1,  title: '구글부터 컬리까지, 확산되는 AI 활용 코딩 테스트', trend: 'up',   url: 'article.html'},
+  {rank: 2,  title: 'HR 팀장들의 솔직한 위기의 순간들',                  trend: 'new',  url: 'article.html'},
+  {rank: 3,  title: "AI 엔지니어가 말하는 '성장하는 개발자'의 조건",      trend: 'down', url: 'article.html'},
+  {rank: 4,  title: '햄버거 맛은 기본, 성장에도 진심인 맥도날드',        trend: 'up',   url: 'article.html'},
+  {rank: 5,  title: '개발자 번아웃, 어떻게 극복할 수 있을까?',           trend: 'down', url: 'article.html'},
+  {rank: 6,  title: '스타트업 vs 대기업, 나에게 맞는 선택은?',           trend: 'new',  url: 'article.html'},
+  {rank: 7,  title: '재택근무 3년차가 알려주는 생산성 유지법',           trend: 'same', url: 'article.html'},
+  {rank: 8,  title: '직장인 자기계발, 퇴근 후 1시간의 힘',              trend: 'down', url: 'article.html'},
+  {rank: 9,  title: '회사에서 인정받는 보고서 작성의 기술',             trend: 'up',   url: 'article.html'},
+  {rank: 10, title: '연봉 협상에서 절대 하지 말아야 할 실수',            trend: 'down', url: 'article.html'}
+];
+
+var ITEM_H = 48;       // px — must match .pop-roll-item height
+var ROLL_MS = 3000;    // 3-second auto-roll
+
+var track = document.getElementById('popRollTrack');
+var view  = document.getElementById('popRollView');
+
+function indHtml(trend){
+  if (trend === 'new') {
+    return '<span class="pop-roll-ind new" aria-label="신규 진입">NEW</span>';
+  }
+  if (trend === 'down') {
+    return '<span class="pop-roll-ind down"><img src="my_svg/down.svg" alt="순위 하락"></span>';
+  }
+  // up & same → red up triangle (per policy)
+  var label = (trend === 'same') ? '순위 변동 없음' : '순위 상승';
+  return '<span class="pop-roll-ind ' + trend + '"><img src="my_svg/up.svg" alt="' + label + '"></span>';
+}
+
+function itemHtml(d){
+  return '<a class="pop-roll-item" href="' + d.url + '">'
+       + '<span class="pop-roll-rank">' + d.rank + '</span>'
+       + '<span class="pop-roll-text">' + d.title + '</span>'
+       + indHtml(d.trend)
+       + '</a>';
+}
+
+// Render all 10 items + clone the first for seamless loop
+var html = rollData.map(itemHtml).join('') + itemHtml(rollData[0]);
+track.innerHTML = html;
+
+var items = track.querySelectorAll('.pop-roll-item');
+var idx = 0;
+var timer = null;
+var paused = false;
+var animating = false;
+
+function setActive(i){
+  items.forEach(function(el, j){ el.classList.toggle('is-active', j === i); });
+}
+
+setActive(0);
+
+function tick(){
+  if (paused || animating) return;
+  animating = true;
+  idx += 1;
+  track.style.transform = 'translate3d(0,' + (-idx * ITEM_H) + 'px,0)';
+  // 다음 아이템이 활성 상태로 페이드인
+  setActive(idx);
+
+  if (idx === rollData.length){
+    // 트랜지션이 끝난 직후 클론 → 원본으로 무애니메이션 점프
+    setTimeout(function(){
+      track.classList.add('no-anim');
+      idx = 0;
+      track.style.transform = 'translate3d(0,0,0)';
+      setActive(0);
+      void track.offsetHeight; // reflow
+      track.classList.remove('no-anim');
+      animating = false;
+    }, 760);
+  } else {
+    setTimeout(function(){ animating = false; }, 760);
+  }
+}
+
+function start(){ stop(); timer = setInterval(tick, ROLL_MS); }
+function stop(){ if (timer){ clearInterval(timer); timer = null; } }
+
+// Pause when user touches/hovers the banner so they can read it
+view.addEventListener('mouseenter', function(){ paused = true; });
+view.addEventListener('mouseleave', function(){ paused = false; });
+view.addEventListener('touchstart', function(){ paused = true; }, {passive:true});
+view.addEventListener('touchend',   function(){ paused = false; }, {passive:true});
+
+// Pause when the tab is hidden
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden) stop(); else start();
+});
+
+start();
+})();
+</script>
+</body>
+</html>
