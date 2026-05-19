@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#F6F7F8">
+  <title>인기 게시물 - 잡코리아</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --g900:#222;--g800:#444;--g700:#666;--g600:#888;--g500:#999;
+      --g400:#BBB;--g300:#D1D1D1;--g200:#E8E8E8;--g100:#F4F4F4;--g50:#F6F7F8;
+      --white:#FFF;
+      --primary:#4C7AFB;
+      --icon-primary:#292C32;
+      --btn-gray800:#3E434B;
+      --bar-bg:rgba(246,247,248,0.6);
+      --hdr:56px;--tabs:88px;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bot:env(safe-area-inset-bottom,0px);
+      --pad:16px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%;background:var(--g50)}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:var(--g50);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    button{border:none;background:none;font:inherit;cursor:pointer;color:inherit}
+    img{display:block;max-width:100%}
+
+    .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;background:var(--g50)}
+
+    /* ===== Header (Fixed) ===== */
+    .hdr{
+      position:fixed;top:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:480px;
+      padding-top:var(--safe-top);
+      background:var(--bar-bg);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      backdrop-filter:saturate(180%) blur(20px);
+      z-index:100;
+    }
+    .hdr-inner{height:var(--hdr);display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
+    .hdr-l{display:flex;align-items:center;gap:8px;min-width:0}
+    .hdr-title{font-size:18px;font-weight:700;color:var(--g900);white-space:nowrap;letter-spacing:-0.01em}
+    .hdr-filter{display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:500;color:var(--g500);padding:4px 0;white-space:nowrap}
+    .hdr-filter-icon{width:14px;height:14px;display:inline-block}
+    .hdr-close{width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:-8px}
+    .hdr-close svg{width:24px;height:24px;color:var(--icon-primary)}
+
+    /* ===== Tabs (Fixed below header, slides on scroll) ===== */
+    .tabs{
+      position:fixed;
+      top:calc(var(--safe-top) + var(--hdr));
+      left:50%;transform:translateX(-50%);
+      width:100%;max-width:480px;
+      height:var(--tabs);
+      background:var(--bar-bg);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      backdrop-filter:saturate(180%) blur(20px);
+      z-index:90;
+      transition:transform .28s ease;
+    }
+    .tabs.hide{transform:translate(-50%,-100%)}
+    .tabs-row{display:flex;height:100%;padding:12px 16px 8px}
+    .tab{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;flex:1 0 0;height:64px;border-radius:12px;color:var(--g700);transition:background-color .28s cubic-bezier(.22,1,.36,1),color .28s cubic-bezier(.22,1,.36,1)}
+    .tab.on{background:var(--btn-gray800);color:var(--white)}
+    .tab-icon{width:20px;height:20px;display:block}
+    .tab-label{font-size:12px;font-weight:500;line-height:1;letter-spacing:-0.01em}
+    .tab.on .tab-label{font-weight:500}
+
+    /* ===== Main ===== */
+    .main{padding-top:calc(var(--safe-top) + var(--hdr) + var(--tabs))}
+
+    /* ===== List ===== */
+    .list-wrap{padding:8px var(--pad);display:flex;flex-direction:column;gap:10px}
+    .list-item{display:flex;align-items:center;gap:16px;padding:12px 12px 12px 16px;background:var(--white);border-radius:12px;height:104px}
+    .list-l{display:flex;align-items:flex-start;gap:4px;flex:1;min-width:0;align-self:center}
+    .list-rank{flex-shrink:0;width:20px;font-size:16px;font-weight:600;color:var(--primary);text-align:left;line-height:1.5}
+    .list-text{flex:1;min-width:0;font-size:16px;font-weight:500;line-height:1.5;color:var(--g900);display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+    .list-thumb{flex-shrink:0;width:120px;height:80px;border-radius:12px;background-size:cover;background-position:center;background-color:var(--g100)}
+
+    /* ===== Embedded sections ===== */
+    .embed{padding:32px var(--pad) 8px}
+    .embed-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .embed-l{display:flex;flex-direction:column;gap:2px}
+    .embed-label{font-size:13px;font-weight:500;color:var(--g500)}
+    .embed-title{font-size:18px;font-weight:700;color:var(--g900);letter-spacing:-0.01em}
+    .embed-link{display:flex;align-items:center;color:var(--icon-primary);margin-right:-4px}
+    .embed-link svg{width:20px;height:20px}
+
+    /* QnA cards horizontal scroll */
+    .qrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 calc(-1 * var(--pad));padding:0 var(--pad) 8px}
+    .qrow::-webkit-scrollbar{display:none}
+    .qc{flex-shrink:0;width:188px;height:180px;background:var(--white);border-radius:14px;padding:16px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px}
+    .qc-tags{display:flex;gap:4px;flex-wrap:wrap}
+    .qc-tag{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--g50);color:#768091}
+    .qc-tag.hot{background:#F0F2FA;color:var(--primary)}
+    .qc-txt{font-size:15px;font-weight:600;line-height:1.45;flex:1;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all}
+    .qc-views{font-size:12px;color:var(--g500)}
+
+    /* Job cards horizontal scroll */
+    .jrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 calc(-1 * var(--pad));padding:0 var(--pad) 8px}
+    .jrow::-webkit-scrollbar{display:none}
+    .jcard{flex-shrink:0;width:272px;background:var(--white);border-radius:12px;padding:16px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px}
+    .jcard-co{font-size:12px;color:var(--g500)}
+    .jcard-tit{font-size:15px;font-weight:600;line-height:1.4;color:var(--g900);display:-webkit-box;-webkit-line-clamp:1;line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+    .jcard-meta{font-size:13px;color:var(--g700);margin-top:2px}
+    .jcard-tags{display:flex;gap:4px;margin-top:6px}
+    .jcard-tag{font-size:11px;font-weight:600;padding:3px 6px;border-radius:4px}
+    .jcard-tag.hot{background:#FFF3E0;color:#FB8C00}
+    .jcard-tag.deadline{background:#FBE9E7;color:#E53935}
+
+    /* ===== Bottom button (in flow, not fixed) ===== */
+    .bottom-wrap{padding:24px var(--pad) calc(32px + var(--safe-bot))}
+    .btn-primary{display:flex;align-items:center;justify-content:center;width:100%;height:48px;background:var(--primary);color:var(--white);border-radius:12px;font-size:15px;font-weight:600;transition:background .15s}
+    .btn-primary:active{background:#3D63D9}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header (fixed) -->
+  <header class="hdr" id="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-l">
+        <span class="hdr-title">인기 게시물</span>
+        <button class="hdr-filter" id="hdrFilter" type="button">
+          <span id="hdrFilterText">최근 한 달</span>
+          <img class="hdr-filter-icon" src="svg/gnb/icon.svg" alt="">
+        </button>
+      </div>
+      <button class="hdr-close" type="button" aria-label="닫기" onclick="if(history.length>1){history.back()}else{location.href='index.html'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6L18 18M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Tabs (fixed, hides on scroll-down) -->
+  <div class="tabs" id="tabs">
+    <div class="tabs-row" id="tabsRow">
+      <button class="tab on" data-cat="job"><img class="tab-icon" src="svg/gnb/emoji-technologist.svg" alt=""><span class="tab-label">지원·이직</span></button>
+      <button class="tab" data-cat="career"><img class="tab-icon" src="svg/gnb/emoji-chart.svg" alt=""><span class="tab-label">커리어</span></button>
+      <button class="tab" data-cat="trend"><img class="tab-icon" src="svg/gnb/emoji-runningshoe.svg" alt=""><span class="tab-label">트렌드</span></button>
+      <button class="tab" data-cat="life"><img class="tab-icon" src="svg/gnb/emoji-necktie.svg" alt=""><span class="tab-label">회사생활</span></button>
+      <button class="tab" data-cat="etc"><img class="tab-icon" src="svg/gnb/emoji-pen.svg" alt=""><span class="tab-label">기타</span></button>
+    </div>
+  </div>
+
+  <main class="main">
+
+    <!-- List 1-10 -->
+    <div class="list-wrap" id="list1"></div>
+
+    <!-- Embedded: 함께하는 고민해결 -->
+    <section class="embed">
+      <div class="embed-hd">
+        <div class="embed-l">
+          <span class="embed-label">취업톡톡</span>
+          <span class="embed-title">함께하는 고민해결</span>
+        </div>
+        <a class="embed-link" href="index.html#qna" aria-label="더보기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <div class="qrow" id="qrow"></div>
+    </section>
+
+    <!-- List 11-15 -->
+    <div class="list-wrap" id="list2"></div>
+
+    <!-- Embedded: 지원자가 많아요 -->
+    <section class="embed">
+      <div class="embed-hd">
+        <div class="embed-l">
+          <span class="embed-label">추천 공고</span>
+          <span class="embed-title">지원자가 많아요</span>
+        </div>
+        <a class="embed-link" href="#" aria-label="더보기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <div class="jrow" id="jrow"></div>
+    </section>
+
+    <!-- List 16-20 -->
+    <div class="list-wrap" id="list3"></div>
+
+    <!-- Bottom button (inline, not fixed) -->
+    <div class="bottom-wrap">
+      <a class="btn-primary" href="index.html">콘텐츠 더 보러가기</a>
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var US = 'https://images.unsplash.com/';
+function img(id, w, h){ return US + id + '?w=' + w + '&h=' + h + '&fit=crop&auto=format&q=75'; }
+
+/* ===== DATA ===== */
+var articles = [
+  {t:'잡코리아 커리어 컨퍼런스, 선배가 알려주는 이직 치트키',i:img('photo-1517245386807-bb43f82c33c4',360,240)},
+  {t:'HR 팀장들의 솔직한 위기의 순간들',i:img('photo-1573496359142-b8d87734a5a2',360,240)},
+  {t:'개발자 번아웃, 어떻게 극복할 수 있을까?',i:img('photo-1499209974431-9dddcece7f88',360,240)},
+  {t:'스타트업 vs 대기업, 나에게 맞는 선택은?',i:img('photo-1486406146926-c627a92ad1ab',360,240)},
+  {t:'재택근무 3년차가 알려주는 생산성 유지법',i:img('photo-1593642632559-0c6d3fc62b89',360,240)},
+  {t:'직장인 자기계발, 퇴근 후 1시간의 힘',i:img('photo-1481627834876-b7833e8f5570',360,240)},
+  {t:'회사에서 인정받는 보고서 작성의 기술',i:img('photo-1551288049-bebda4e38f71',360,240)},
+  {t:'연봉 협상에서 절대 하지 말아야 할 실수',i:img('photo-1554224155-6726b3ff858f',360,240)},
+  {t:'팀워크의 비밀, 협업 잘하는 사람의 차이',i:img('photo-1543269865-cbf427effbad',360,240)},
+  {t:'사수 없는 신입의 생존법과 성장기',i:img('photo-1556761175-b413da4baf72',360,240)},
+  {t:'면접관이 진짜 보는 것들, 현직자가 알려주는 팁',i:img('photo-1573496359142-b8d87734a5a2',360,240)},
+  {t:'MZ세대가 원하는 회사의 조건 5가지',i:img('photo-1497366216548-37526070297c',360,240)},
+  {t:'AI와 일하는 조직, HR이 준비할 미래',i:img('photo-1485827404703-89b55fcc595e',360,240)},
+  {t:'경력직 이직 시기, 언제가 가장 좋을까',i:img('photo-1518770660439-4636190af475',360,240)},
+  {t:'PM이 알아야 할 일정 관리의 모든 것',i:img('photo-1454165804606-c3d57bc86b40',360,240)},
+  {t:'디자이너 포트폴리오, 면접관은 무엇을 볼까',i:img('photo-1561070791-2526d30994b8',360,240)},
+  {t:'마케터의 데이터 분석, 이렇게 시작하세요',i:img('photo-1460925895917-afdab827c52f',360,240)},
+  {t:'주니어 개발자가 시니어가 되는 5가지 습관',i:img('photo-1517694712202-14dd9538aa97',360,240)},
+  {t:'좋은 회사를 알아보는 면접 질문 7가지',i:img('photo-1521737711867-e3b97375f902',360,240)},
+  {t:'커리어 전환, 무엇부터 준비해야 할까',i:img('photo-1454165804606-c3d57bc86b40',360,240)}
+];
+
+var qnaCards = [
+  {tags:['인기글','연봉'],t:'3년차 앱개발자 연봉이 어떻게 되는지 궁금합니다.',v:'1.9만회'},
+  {tags:['인기글','퇴사'],t:'퇴사를 고민하고있는데 일주일 전에 얘기해도 될까요?',v:'3.7만회'},
+  {tags:['이직'],t:'이직 시 경력증명서는 언제 요청하나요?',v:'2.1만회'},
+  {tags:['신입','기획'],t:'신입 기획자인데 포트폴리오 어떻게 준비하나요?',v:'2.1만회'}
+];
+
+var jobs = [
+  {co:'바이오플러스',title:'해외 속착 사업본부 영업 매니저',meta:'9-11년',tags:[{label:'합격다음',cls:'hot'}]},
+  {co:'바이오플러스',title:'해외 속착 사업본부 영업 매니저',meta:'9-11년',tags:[{label:'합격다음',cls:'hot'}]},
+  {co:'코어테크',title:'백엔드 개발자 시니어',meta:'5-8년',tags:[{label:'D-3',cls:'deadline'}]}
+];
+
+/* ===== Render lists ===== */
+function rankItem(idx, a){
+  return '<a class="list-item" href="article.html?id='+(idx+1)+'">'
+    + '<div class="list-l">'
+    + '<span class="list-rank">'+(idx+1)+'</span>'
+    + '<p class="list-text">'+a.t+'</p>'
+    + '</div>'
+    + '<div class="list-thumb" style="background-image:url('+a.i+')"></div>'
+    + '</a>';
+}
+function renderRange(targetId, start, end){
+  var el = document.getElementById(targetId);
+  var html = '';
+  for(var i=start; i<end && i<articles.length; i++){
+    html += rankItem(i, articles[i]);
+  }
+  el.innerHTML = html;
+}
+renderRange('list1', 0, 10);
+renderRange('list2', 10, 15);
+renderRange('list3', 15, 20);
+
+/* ===== Render QnA ===== */
+(function(){
+  var html = '';
+  qnaCards.forEach(function(q){
+    var tagHtml = q.tags.map(function(t){
+      return '<span class="qc-tag'+(t==='인기글'?' hot':'')+'">'+t+'</span>';
+    }).join('');
+    html += '<a class="qc" href="qna.html"><div class="qc-tags">'+tagHtml+'</div><p class="qc-txt">'+q.t+'</p><span class="qc-views">조회수 '+q.v+'</span></a>';
+  });
+  document.getElementById('qrow').innerHTML = html;
+})();
+
+/* ===== Render Jobs ===== */
+(function(){
+  var html = '';
+  jobs.forEach(function(j){
+    var tagHtml = j.tags.map(function(t){
+      return '<span class="jcard-tag '+t.cls+'">'+t.label+'</span>';
+    }).join('');
+    html += '<a class="jcard" href="#">'
+      + '<span class="jcard-co">'+j.co+'</span>'
+      + '<p class="jcard-tit">'+j.title+'</p>'
+      + '<span class="jcard-meta">'+j.meta+'</span>'
+      + '<div class="jcard-tags">'+tagHtml+'</div>'
+      + '</a>';
+  });
+  document.getElementById('jrow').innerHTML = html;
+})();
+
+/* ===== Tab selection ===== */
+var tabsRow = document.getElementById('tabsRow');
+tabsRow.addEventListener('click', function(e){
+  var t = e.target.closest('.tab');
+  if(!t) return;
+  tabsRow.querySelectorAll('.tab').forEach(function(p){p.classList.remove('on')});
+  t.classList.add('on');
+});
+
+/* ===== Filter toggle (최근 한 달 ↔ 최근 일주일) ===== */
+var hdrFilter = document.getElementById('hdrFilter');
+var hdrFilterText = document.getElementById('hdrFilterText');
+var isMonth = true;
+hdrFilter.addEventListener('click', function(){
+  isMonth = !isMonth;
+  hdrFilterText.textContent = isMonth ? '최근 한 달' : '최근 일주일';
+});
+
+/* ===== Tabs auto-hide on scroll-down ===== */
+var tabsEl = document.getElementById('tabs');
+var lastY = window.scrollY;
+var ticking = false;
+function onScroll(){
+  var y = window.scrollY;
+  if(y > lastY && y > 8){
+    tabsEl.classList.add('hide');
+  } else if(y < lastY){
+    tabsEl.classList.remove('hide');
+  }
+  lastY = y;
+  ticking = false;
+}
+window.addEventListener('scroll', function(){
+  if(!ticking){
+    requestAnimationFrame(onScroll);
+    ticking = true;
+  }
+}, {passive:true});
+
+})();
+</script>
+</body>
+</html>

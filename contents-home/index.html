@@ -21,8 +21,8 @@
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{-webkit-text-size-adjust:100%}
-    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:#000;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden;margin:0;padding:0}
-    html{margin:0;padding:0;background:#000}
+    body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;color:var(--g900);background:#F0F2FA;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden;margin:0;padding:0}
+    html{margin:0;padding:0;background:#F0F2FA}
     a{text-decoration:none;color:inherit}
     button{border:none;background:none;font:inherit;cursor:pointer;color:inherit}
     img{display:block;max-width:100%}
@@ -91,11 +91,17 @@
     /* Popular — 히어로 → 인기게시물 여백 32px, 좌측 16px 여백 */
     .pop-sec{padding:32px 0 0}
     .pop-sec .sec-hd{padding:0 var(--pad)}
+    .pop-link{display:flex;align-items:center;justify-content:space-between;width:100%}
+    .pop-link svg{width:20px;height:20px;color:#292C32}
     .pop-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 var(--gutter);scroll-padding-left:var(--gutter)}
     .pop-track::-webkit-scrollbar{display:none}
-    .pop-card{flex:0 0 45%;scroll-snap-align:start;display:block}
-    .pop-thumb{width:100%;aspect-ratio:3/2;border-radius:12px;background-size:cover;background-position:center;margin-bottom:10px}
+    .pop-card{flex-shrink:0;width:188px;scroll-snap-align:start;display:block}
+    .pop-thumb{width:188px;height:125px;border-radius:12px;background-size:cover;background-position:center;margin-bottom:10px}
     .pop-title{font-size:15px;font-weight:600;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .pop-end{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:125px;background:var(--white);border-radius:12px;padding:24px 16px;text-align:center;box-shadow:0 4px 20px 0 rgba(0,0,0,.10)}
+    .pop-end-emoji{width:24px;height:24px}
+    .pop-end-text{font-size:14px;font-weight:600;line-height:1.4;color:#F37676}
+    .pop-end-arrow{width:16px;height:16px;vertical-align:middle;display:inline-block}
 
     /* Insights */
     .ins-box{background:var(--white);border-radius:16px;border:1px solid var(--g200);overflow:hidden;padding:24px 16px 20px}
@@ -132,8 +138,8 @@
     .qna-inner{padding:0 var(--pad)}
     .qna-label{font-size:13px;font-weight:500;color:var(--g500);margin-bottom:2px}
     .qna-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    .qna-link{display:flex;align-items:center;gap:2px}
-    .qna-link svg{width:20px;height:20px;color:var(--g400)}
+    .qna-link{display:flex;align-items:center;justify-content:space-between;width:100%}
+    .qna-link svg{width:20px;height:20px;color:#292C32}
     .qna-scroll{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 var(--gutter);scroll-padding-left:var(--gutter)}
     .qna-scroll::-webkit-scrollbar{display:none}
     .qna-track{display:flex;gap:10px;width:max-content}
@@ -194,7 +200,10 @@
     <section class="pop-sec">
       <div class="sec-hd">
         <p class="sec-label">지금 뜨는</p>
-        <h2 class="sec-title">인기 게시물</h2>
+        <a class="pop-link" href="popular.html">
+          <h2 class="sec-title">인기 게시물</h2>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
       </div>
       <div class="pop-track" id="popTrack"></div>
     </section>
@@ -634,17 +643,11 @@ var popHtml = '';
 popData.forEach(function(p){
   popHtml += '<a class="pop-card" href="article.html?id='+p.id+'"><div class="pop-thumb" style="background-image:url('+p.img+')"></div><p class="pop-title">'+p.title+'</p></a>';
 });
-popTrack.innerHTML = popHtml + popHtml;
-var popReset = false;
-popTrack.addEventListener('scroll',function(){
-  if(popReset) return;
-  var half = popTrack.scrollWidth / 2;
-  if(popTrack.scrollLeft >= half - 10){
-    popReset = true;
-    popTrack.scrollLeft -= half;
-    requestAnimationFrame(function(){popReset=false});
-  }
-},{passive:true});
+popHtml += '<a class="pop-card pop-end" href="popular.html">'
+  + '<img class="pop-end-emoji" src="svg/fire.svg" alt="">'
+  + '<p class="pop-end-text">더 많은 인기 게시물<br>보러가기 <img class="pop-end-arrow" src="svg/icon.svg" alt=""></p>'
+  + '</a>';
+popTrack.innerHTML = popHtml;
 
 /* ===== INSIGHTS ===== */
 var insTabs = document.getElementById('insTabs');
