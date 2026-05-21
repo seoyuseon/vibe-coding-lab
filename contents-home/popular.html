@@ -31,8 +31,9 @@
 
     .app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;background:var(--g50)}
 
-    /* ===== Header (Fixed) ===== */
-    .hdr{
+    /* ===== Topbar (Header + Tabs unified, single glass layer) ===== */
+    /* 유선수정: 헤더와 탭을 하나의 fixed 컨테이너(.topbar)로 통합. backdrop-filter가 한 번만 렌더링되어 두 바 사이 분리감 제거. compact 상태에서 max-height가 줄어들며 탭이 같이 숨겨짐. */
+    .topbar{
       position:fixed;top:0;left:50%;transform:translateX(-50%);
       width:100%;max-width:480px;
       padding-top:var(--safe-top);
@@ -40,34 +41,36 @@
       -webkit-backdrop-filter:saturate(180%) blur(20px);
       backdrop-filter:saturate(180%) blur(20px);
       z-index:100;
+      overflow:hidden;
+      max-height:calc(var(--safe-top) + var(--hdr) + var(--tabs));
+      transition:max-height .3s cubic-bezier(.22,1,.36,1);
     }
+    .topbar.compact{max-height:calc(var(--safe-top) + var(--hdr))}
     .hdr-inner{height:var(--hdr);display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
     .hdr-l{display:flex;align-items:center;gap:8px;min-width:0}
     .hdr-title{font-size:18px;font-weight:700;color:var(--g900);white-space:nowrap;letter-spacing:-0.01em}
-    .hdr-filter{display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:500;color:var(--g500);padding:4px 0;white-space:nowrap}
-    .hdr-filter-icon{width:14px;height:14px;display:inline-block}
+    /* 유선수정: 필터 버튼 — font-size 13→12, hover/active 인터랙션 추가(부드러운 cubic-bezier 트랜지션 + scale press), 아이콘 회전은 .flip 클래스 토글 방식으로 한 번에 부드럽게 180° 회전 */
+    .hdr-filter{display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:500;color:var(--g500);padding:4px 6px;margin:0 -6px;border-radius:6px;white-space:nowrap;transition:background-color .35s cubic-bezier(.22,1,.36,1),color .35s cubic-bezier(.22,1,.36,1),transform .25s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent}
+    @media (hover:hover){.hdr-filter:hover{background:rgba(41,44,50,.06);color:var(--g800)}}
+    .hdr-filter:active{background:rgba(41,44,50,.1);color:var(--g900);transform:scale(.97)}
+    .hdr-filter-icon{width:14px;height:14px;display:inline-block;transition:transform .4s cubic-bezier(.22,1,.36,1)}
+    .hdr-filter.flip .hdr-filter-icon{transform:rotate(180deg)}
     .hdr-close{width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:-8px}
     .hdr-close svg{width:24px;height:24px;color:var(--icon-primary)}
 
-    /* ===== Tabs (Fixed below header, slides on scroll) ===== */
-    .tabs{
-      position:fixed;
-      top:calc(var(--safe-top) + var(--hdr));
-      left:50%;transform:translateX(-50%);
-      width:100%;max-width:480px;
-      height:var(--tabs);
-      background:var(--bar-bg);
-      -webkit-backdrop-filter:saturate(180%) blur(20px);
-      backdrop-filter:saturate(180%) blur(20px);
-      z-index:90;
-      transition:transform .28s ease;
-    }
-    .tabs.hide{transform:translate(-50%,-100%)}
+    /* ===== Tabs (inside topbar, fades out when compact) ===== */
+    /* 유선수정: 탭을 topbar 내부 요소로 이동(이전엔 별도 fixed 바). compact 상태에서 opacity 페이드로 부드럽게 사라짐. */
+    .tabs{height:var(--tabs);transition:opacity .2s ease}
+    .topbar.compact .tabs{opacity:0}
     .tabs-row{display:flex;height:100%;padding:12px 16px 8px}
-    .tab{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;flex:1 0 0;height:64px;border-radius:12px;color:var(--g700);transition:background-color .28s cubic-bezier(.22,1,.36,1),color .28s cubic-bezier(.22,1,.36,1)}
+    /* 유선수정: 탭 미선택 컬러 #768091, active scale press 인터랙션, hover 제거(누름 피드백만 유지) */
+    .tab{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;flex:1 0 0;height:64px;border-radius:12px;color:#768091;transition:background-color .28s cubic-bezier(.22,1,.36,1),color .28s cubic-bezier(.22,1,.36,1),transform .15s ease;-webkit-tap-highlight-color:transparent}
     .tab.on{background:var(--btn-gray800);color:var(--white)}
+    .tab:active{transform:scale(.95)}
+    .tab.on:active{transform:scale(.97)}
     .tab-icon{width:20px;height:20px;display:block}
-    .tab-label{font-size:12px;font-weight:500;line-height:1;letter-spacing:-0.01em}
+    /* 유선수정: 라벨 line-height 1 → 17px (JAMS 토큰 기준) */
+    .tab-label{font-size:12px;font-weight:500;line-height:17px;letter-spacing:-0.01em}
     .tab.on .tab-label{font-weight:500}
 
     /* ===== Main ===== */
@@ -91,7 +94,8 @@
     .embed-link svg{width:20px;height:20px}
 
     /* QnA cards horizontal scroll */
-    .qrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 calc(-1 * var(--pad));padding:0 var(--pad) 8px}
+    /* 유선수정: 좌측 16px 여백만 유지하고 우측은 화면 끝까지 흐르도록 margin-right로 padding 상쇄 (이전엔 양쪽 모두 -16 마진으로 풀폭이었음) */
+    .qrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin-right:calc(-1 * var(--pad));padding-bottom:8px}
     .qrow::-webkit-scrollbar{display:none}
     .qc{flex-shrink:0;width:188px;height:180px;background:var(--white);border-radius:14px;padding:16px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px}
     .qc-tags{display:flex;gap:4px;flex-wrap:wrap}
@@ -101,7 +105,8 @@
     .qc-views{font-size:12px;color:var(--g500)}
 
     /* Job cards horizontal scroll */
-    .jrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 calc(-1 * var(--pad));padding:0 var(--pad) 8px}
+    /* 유선수정: 좌측 16px 여백만 유지 (qrow와 동일 처리) */
+    .jrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin-right:calc(-1 * var(--pad));padding-bottom:8px}
     .jrow::-webkit-scrollbar{display:none}
     .jcard{flex-shrink:0;width:272px;background:var(--white);border-radius:12px;padding:16px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px}
     .jcard-co{font-size:12px;color:var(--g500)}
@@ -121,8 +126,8 @@
 <body>
 <div class="app">
 
-  <!-- Header (fixed) -->
-  <header class="hdr" id="hdr">
+  <!-- 유선수정: 헤더와 탭을 하나의 .topbar 컨테이너로 통합 (이전엔 <header>와 <div class="tabs">가 별도 fixed 바였음) -->
+  <div class="topbar" id="topbar">
     <div class="hdr-inner">
       <div class="hdr-l">
         <span class="hdr-title">인기 게시물</span>
@@ -135,16 +140,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6L18 18M18 6L6 18"/></svg>
       </button>
     </div>
-  </header>
-
-  <!-- Tabs (fixed, hides on scroll-down) -->
-  <div class="tabs" id="tabs">
-    <div class="tabs-row" id="tabsRow">
-      <button class="tab on" data-cat="job"><img class="tab-icon" src="svg/gnb/emoji-technologist.svg" alt=""><span class="tab-label">지원·이직</span></button>
-      <button class="tab" data-cat="career"><img class="tab-icon" src="svg/gnb/emoji-chart.svg" alt=""><span class="tab-label">커리어</span></button>
-      <button class="tab" data-cat="trend"><img class="tab-icon" src="svg/gnb/emoji-runningshoe.svg" alt=""><span class="tab-label">트렌드</span></button>
-      <button class="tab" data-cat="life"><img class="tab-icon" src="svg/gnb/emoji-necktie.svg" alt=""><span class="tab-label">회사생활</span></button>
-      <button class="tab" data-cat="etc"><img class="tab-icon" src="svg/gnb/emoji-pen.svg" alt=""><span class="tab-label">기타</span></button>
+    <div class="tabs" id="tabs">
+      <div class="tabs-row" id="tabsRow">
+        <button class="tab on" data-cat="job"><img class="tab-icon" src="svg/gnb/emoji-technologist.svg" alt=""><span class="tab-label">지원·이직</span></button>
+        <button class="tab" data-cat="career"><img class="tab-icon" src="svg/gnb/emoji-chart.svg" alt=""><span class="tab-label">커리어</span></button>
+        <button class="tab" data-cat="trend"><img class="tab-icon" src="svg/gnb/emoji-runningshoe.svg" alt=""><span class="tab-label">트렌드</span></button>
+        <button class="tab" data-cat="life"><img class="tab-icon" src="svg/gnb/emoji-necktie.svg" alt=""><span class="tab-label">회사생활</span></button>
+        <button class="tab" data-cat="etc"><img class="tab-icon" src="svg/gnb/emoji-pen.svg" alt=""><span class="tab-label">기타</span></button>
+      </div>
     </div>
   </div>
 
@@ -304,21 +307,24 @@ tabsRow.addEventListener('click', function(e){
 var hdrFilter = document.getElementById('hdrFilter');
 var hdrFilterText = document.getElementById('hdrFilterText');
 var isMonth = true;
+// 유선수정: 클릭마다 .flip 클래스 토글 → 아이콘이 한 번씩 부드럽게 180° 회전(이전 :active 회전은 두 번 회전 문제 있었음)
 hdrFilter.addEventListener('click', function(){
   isMonth = !isMonth;
   hdrFilterText.textContent = isMonth ? '최근 한 달' : '최근 일주일';
+  hdrFilter.classList.toggle('flip');
 });
 
 /* ===== Tabs auto-hide on scroll-down ===== */
-var tabsEl = document.getElementById('tabs');
+// 유선수정: 토글 대상을 tabs → topbar.compact로 변경. topbar가 max-height 트랜지션으로 줄어들면서 내부 탭이 opacity로 페이드아웃. (이전 tabs translateY 방식은 헤더와 탭이 분리된 두 fixed 바였을 때 사용)
+var topbarEl = document.getElementById('topbar');
 var lastY = window.scrollY;
 var ticking = false;
 function onScroll(){
   var y = window.scrollY;
   if(y > lastY && y > 8){
-    tabsEl.classList.add('hide');
+    topbarEl.classList.add('compact');
   } else if(y < lastY){
-    tabsEl.classList.remove('hide');
+    topbarEl.classList.remove('compact');
   }
   lastY = y;
   ticking = false;
