@@ -378,9 +378,9 @@ else {
   }
 }
 
-/* Back button */
+/* Back button — 유선수정: referrer 체크 대신 history 기반으로 단순화. 인기게시물에서 들어오면 인기게시물로, 홈에서 들어오면 홈으로 자연스럽게 복귀 */
 document.getElementById('backBtn').addEventListener('click',function(){
-  if(document.referrer && document.referrer.indexOf('contents-home')>=0){
+  if(history.length > 1){
     history.back();
   } else {
     location.href = 'index.html';
