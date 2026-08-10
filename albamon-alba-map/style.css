@@ -272,14 +272,25 @@ body{
 .status-icons .ic-battery{width:22px; height:12px; color:#292c32;}
 
 /* ============ Search bar + chips (top_bar, y=44..208) ============ */
+/* Figma top_bar 는 ❍ shadow/lg 를 그룹 전체에 한 번 건다.
+   칩마다 box-shadow 를 주면 .chip-row 의 overflow-x:auto 가 세로도 auto 로
+   계산되어 그림자가 잘린다. 래퍼에 drop-shadow 필터로 걸면 필터는
+   클리핑 이후에 합성되므로 영역 밖으로 자연스럽게 번진다. */
+.top-bar{
+  position:absolute; inset:0;
+  z-index:9;
+  pointer-events:none;            /* 지도 탭이 막히지 않도록 */
+  filter:drop-shadow(0 8px 8px rgba(0,0,0,.08))
+         drop-shadow(0 0 3px rgba(0,0,0,.04));
+}
+.top-bar > *{pointer-events:auto;}
+
 .search-bar{
   position:absolute; left:16px; top:52px; width:358px; height:48px;
-  z-index:9;
   background:var(--white);
   border-radius:var(--radius-pill);
   display:flex; align-items:center; justify-content:space-between;
   padding:0 20px;
-  box-shadow:0 8px 8px rgba(0,0,0,.08), 0 0 3px rgba(0,0,0,.04);
 }
 .search-placeholder{font-size:14px; color:var(--text-subtle); font-weight:400;}
 .search-icon{width:17.7px; height:17.7px;}
@@ -287,7 +298,6 @@ body{
 /* full-bleed 390px with 16px padding — content clips at the screen edge (Figma top_bar) */
 .chip-row{
   position:absolute; left:0; top:108px; width:390px; height:36px;
-  z-index:9;
   display:flex; gap:8px;
   padding:0 16px;
   overflow-x:auto;
@@ -302,14 +312,13 @@ body{
   border-radius:var(--radius-pill);
   background:var(--white);
   border:none;
-  box-shadow:0 8px 8px rgba(0,0,0,.08), 0 0 3px rgba(0,0,0,.04);
   font-size:14px;
   font-weight:600;
   color:var(--text-secondary);
   white-space:nowrap;
   font-family:inherit;
 }
-.chip-money{border:1px solid var(--border-subtle); box-shadow:none; color:var(--text-subtle); padding-left:12px; padding-right:10px;}
+.chip-money{border:1px solid var(--border-subtle); color:var(--text-subtle); padding-left:12px; padding-right:10px;}
 .icon-plus-fill{width:15px; height:15px;}
 .chip-emoji{width:18px; height:18px; display:block;}
 

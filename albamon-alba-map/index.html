@@ -126,7 +126,10 @@
     <!-- ============ 시안 C: [지도 위 요소 디벨롭] 크롬 ============ -->
     <div class="chrome chrome-c">
 
-    <!-- ===== top bar: search + chips ===== -->
+    <!-- ===== top bar: search + chips =====
+         Figma top_bar 는 그룹 전체에 drop-shadow 를 한 번 건다.
+         칩마다 box-shadow 를 주면 스크롤 컨테이너에 잘리므로 래퍼에 필터로 적용. -->
+    <div class="top-bar">
     <div class="search-bar">
       <span class="search-placeholder">지역, 지하철역, 대학교명 검색</span>
       <img class="search-icon" src="assets/icon-search.svg" alt="">
@@ -142,6 +145,7 @@
       <button class="chip"><img class="chip-emoji" src="assets/chip-icon-office.svg" alt="">사무직</button>
       <button class="chip"><img class="chip-emoji" src="assets/chip-icon-headset.svg" alt="">고객상담·리서치·영업</button>
     </div>
+    </div><!-- /top-bar -->
 
     <!-- ===== floating map controls ===== -->
     <button class="map-btn map-btn-refresh"><img class="icon-restart" src="assets/icon-restart.svg" alt=""></button>
