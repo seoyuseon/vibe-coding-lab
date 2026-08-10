@@ -1,0 +1,678 @@
+/* ============ Tokens (from Figma: 알바지도 개선(1차) file) ============ */
+:root{
+  --pin-food:#ff6d12;
+  --pin-hospital:#02b160;
+  --pin-build:#ffc821;
+  --pin-service:#f980b4;
+  --pin-expert:#9d6ef8;
+  --pin-sales:#5580ff;
+
+  --badge-dark:#30363c;
+  --text-default:#131618;
+  --text-secondary:#30363c;
+  --text-subtle:#6c767f;
+  --border-subtle:#e2e6e8;
+  --surface:#f4f6f7;
+  --white:#ffffff;
+
+  --radius-pill:999px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;
+  color:var(--text-default);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.page-bg{
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  background:#E7E9EE;
+  padding:32px 16px;
+}
+
+/* ============ 시안 전환 (프로토타입 전용 UI) ============ */
+.variant-switch{
+  display:flex;
+  gap:4px;
+  padding:4px;
+  border-radius:var(--radius-pill);
+  background:rgba(255,255,255,.7);
+  box-shadow:0 2px 10px rgba(20,22,30,.10);
+}
+.variant-switch button{
+  border:none;
+  background:transparent;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text-subtle);
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s ease, color .15s ease;
+}
+.variant-switch button:hover{color:var(--text-secondary);}
+.variant-switch button[aria-selected="true"]{
+  background:var(--badge-dark);
+  color:var(--white);
+}
+
+/* ============ 시안별 크롬 전환 ============ */
+.chrome{display:contents;}
+.phone[data-variant="c"] .chrome-ab,
+.phone[data-variant="a"] .chrome-c,
+.phone[data-variant="b"] .chrome-c{display:none;}
+
+.phone[data-variant="a"] .tabbar-am,
+.phone[data-variant="b"] .tabbar-mw,
+.phone[data-variant="c"] .tabbar-mw{display:none;}
+
+/* "최신 등록" 배지는 시안 B에서만 노출 */
+.b-only{display:none;}
+.phone[data-variant="b"] .b-only{display:block;}
+
+/* 시안 A는 구버전 원형 핀 (teardrop 없음) */
+.phone[data-variant="a"] .pin-base{display:none;}
+.phone[data-variant="a"] .pin-shape{width:42px; height:42px;}
+.phone[data-variant="a"] .pin-circle{
+  width:42px; height:42px;
+  top:50%;
+  border:2px solid var(--white);
+}
+.phone[data-variant="a"] .pin-circle img{width:24px; height:24px;}
+.phone[data-variant="a"] .pin-count{
+  width:20px; height:20px;
+  left:26px; top:-3px;
+  font-size:11px;
+  border:2px solid var(--white);
+}
+
+/* ============ Icon engine (CSS mask + inline SVG) for UI chrome icons ============ */
+[class^="ic-"]{
+  display:inline-block;
+  width:18px;
+  height:18px;
+  -webkit-mask-size:contain;
+  mask-size:contain;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  background-color:currentColor;
+  flex-shrink:0;
+}
+.ic-chevron{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); }
+.ic-home{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-4.2v-6.2H9.2V21H5a1 1 0 0 1-1-1z'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-4.2v-6.2H9.2V21H5a1 1 0 0 1-1-1z'/></svg>"); }
+.ic-community{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='black' stroke-width='1.6'><line x1='6' y1='6' x2='18' y2='6'/><line x1='6' y1='6' x2='12' y2='18'/><line x1='18' y1='6' x2='12' y2='18'/><circle cx='6' cy='6' r='2.6' fill='white'/><circle cx='18' cy='6' r='2.6' fill='white'/><circle cx='12' cy='18' r='2.6' fill='white'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='black' stroke-width='1.6'><line x1='6' y1='6' x2='18' y2='6'/><line x1='6' y1='6' x2='12' y2='18'/><line x1='18' y1='6' x2='12' y2='18'/><circle cx='6' cy='6' r='2.6' fill='white'/><circle cx='18' cy='6' r='2.6' fill='white'/><circle cx='12' cy='18' r='2.6' fill='white'/></svg>"); }
+.ic-chat{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 5.5a1.5 1.5 0 0 1 1.5-1.5h15A1.5 1.5 0 0 1 21 5.5v10a1.5 1.5 0 0 1-1.5 1.5H9l-4.5 4v-4H4.5A1.5 1.5 0 0 1 3 15.5z'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 5.5a1.5 1.5 0 0 1 1.5-1.5h15A1.5 1.5 0 0 1 21 5.5v10a1.5 1.5 0 0 1-1.5 1.5H9l-4.5 4v-4H4.5A1.5 1.5 0 0 1 3 15.5z'/></svg>"); }
+.ic-user{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='7.5' r='4'/><path d='M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='7.5' r='4'/><path d='M3.5 21c0-4.7 3.8-7.6 8.5-7.6s8.5 2.9 8.5 7.6z'/></svg>"); }
+.ic-pin{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z'/><circle cx='12' cy='9' r='2.6' fill='white'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z'/><circle cx='12' cy='9' r='2.6' fill='white'/></svg>"); }
+.ic-signal{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='1' y='14' width='4' height='7' rx='0.8'/><rect x='7' y='10' width='4' height='11' rx='0.8'/><rect x='13' y='6' width='4' height='15' rx='0.8'/><rect x='19' y='2' width='4' height='19' rx='0.8'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='1' y='14' width='4' height='7' rx='0.8'/><rect x='7' y='10' width='4' height='11' rx='0.8'/><rect x='13' y='6' width='4' height='15' rx='0.8'/><rect x='19' y='2' width='4' height='19' rx='0.8'/></svg>"); }
+.ic-wifi{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><path d='M2 8.5a15 15 0 0 1 20 0'/><path d='M5.5 12.5a10 10 0 0 1 13 0'/><path d='M9 16.5a5 5 0 0 1 6 0'/><circle cx='12' cy='20' r='1.3' fill='black' stroke='none'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><path d='M2 8.5a15 15 0 0 1 20 0'/><path d='M5.5 12.5a10 10 0 0 1 13 0'/><path d='M9 16.5a5 5 0 0 1 6 0'/><circle cx='12' cy='20' r='1.3' fill='black' stroke='none'/></svg>"); }
+.ic-battery{ -webkit-mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 14'><rect x='1' y='1' width='20' height='12' rx='3' fill='none' stroke='black' stroke-width='1.4'/><rect x='3' y='3' width='16' height='8' rx='1.5'/><rect x='22.5' y='4.5' width='2' height='5' rx='1'/></svg>"); mask-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 14'><rect x='1' y='1' width='20' height='12' rx='3' fill='none' stroke='black' stroke-width='1.4'/><rect x='3' y='3' width='16' height='8' rx='1.5'/><rect x='22.5' y='4.5' width='2' height='5' rx='1'/></svg>"); }
+
+/* ============ Phone frame — fixed 390x800 canvas matching Figma exactly ============ */
+.phone{
+  position:relative;
+  width:390px;
+  height:800px;
+  background:var(--white);
+  border-radius:44px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(20,22,30,.28), 0 0 0 10px #111417;
+}
+
+/* ---- map background ---- */
+.mapbg{position:absolute; inset:0; overflow:hidden;}
+.mapbg-img{
+  position:absolute;
+  left:calc(50% + 52.5px);
+  top:-6px;
+  width:1147px;
+  height:836px;
+  transform:translateX(-50%);
+  opacity:.74;
+  object-fit:cover;
+  pointer-events:none;
+}
+
+/* ---- minor category dots ---- */
+.dot{
+  position:absolute;
+  width:12px; height:12px;
+  border-radius:50%;
+  border:2px solid var(--white);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+  z-index:3;
+}
+.dot-food{background:var(--pin-food);}
+.dot-sales{background:var(--pin-sales);}
+.dot-build{background:var(--pin-build);}
+
+/* ---- current location (Figma my_location 40x40: blue gradient halo + dot) ---- */
+.my-location{
+  position:absolute;
+  width:40px; height:40px;
+  background:url("assets/my-location.svg") no-repeat center / contain;
+  z-index:4;
+}
+/* ripple plays 3 times on load then stays gone; the gradient halo above remains */
+.my-location-pulse{
+  position:absolute; left:50%; top:50%;
+  width:40px; height:40px;
+  margin:-20px 0 0 -20px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(67,94,255,.28) 0%, rgba(67,94,255,0) 70%);
+  animation:pulse 2.4s ease-out 3 both;
+  pointer-events:none;
+}
+@keyframes pulse{
+  0%{transform:scale(.4); opacity:.9;}
+  100%{transform:scale(2.2); opacity:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .my-location-pulse{animation:none; opacity:0;}
+}
+
+/* ---- job pins (exact Figma coordinates) ---- */
+.pin-marker{
+  position:absolute;
+  width:66px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  z-index:5;
+}
+.badge-new{
+  background:rgba(48,54,60,.8);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  color:var(--white);
+  font-size:12px;
+  font-weight:500;
+  padding:3px 6px;
+  border-radius:12px;
+  box-shadow:0 0 6px rgba(0,0,0,.12);
+  margin-bottom:4px;
+  white-space:nowrap;
+}
+.pin-shape{
+  position:relative;
+  width:34px; height:34px;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.28));
+}
+.pin-base{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:28px; height:30.586px;
+  background:url("assets/pin-vector.svg") no-repeat center / contain;
+}
+.pin-circle{
+  position:absolute; left:50%; top:calc(50% - 1px);
+  transform:translate(-50%,-50%);
+  width:24px; height:24px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+}
+.pin-circle img{width:20px; height:20px; display:block;}
+.pin-food{background:var(--pin-food);}
+.pin-hospital{background:var(--pin-hospital);}
+.pin-build{background:var(--pin-build);}
+.pin-service{background:var(--pin-service);}
+.pin-expert{background:var(--pin-expert);}
+.pin-sales{background:var(--pin-sales);}
+/* Figma: num 16x16 at x=37,y=1 within the 66x34 "main"; pin circle sits at x=21
+   -> inside our 34px .pin-shape (circle at x=5) the badge lands at x=21, y=1 */
+.pin-count{
+  position:absolute; top:1px; left:21px;
+  width:16px; height:16px;
+  border-radius:50%;
+  background:var(--badge-dark);
+  color:var(--white);
+  font-size:10px;
+  font-weight:600;
+  line-height:11px;
+  display:flex; align-items:center; justify-content:center;
+  z-index:2;
+}
+.pin-label{
+  margin-top:2px;
+  font-size:12px;
+  font-weight:600;
+  line-height:18px;
+  color:var(--text-default);
+  text-align:center;
+  width:66px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  -webkit-text-stroke:3px var(--white);
+  paint-order:stroke fill;
+}
+
+/* ============ Status bar ============ */
+.statusbar{
+  position:absolute; top:0; left:0; right:0; height:44px;
+  z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 14px 0 21px;
+}
+.status-time{font-size:15px; font-weight:700; color:#000; letter-spacing:-0.2px;}
+.status-icons{display:flex; align-items:center; gap:5px;}
+.status-icons .ic-signal,.status-icons .ic-wifi{width:16px; height:14px; color:#000;}
+.status-icons .ic-battery{width:22px; height:12px; color:#292c32;}
+
+/* ============ Search bar + chips (top_bar, y=44..208) ============ */
+.search-bar{
+  position:absolute; left:16px; top:52px; width:358px; height:48px;
+  z-index:9;
+  background:var(--white);
+  border-radius:var(--radius-pill);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 8px 8px rgba(0,0,0,.08), 0 0 3px rgba(0,0,0,.04);
+}
+.search-placeholder{font-size:14px; color:var(--text-subtle); font-weight:400;}
+.search-icon{width:17.7px; height:17.7px;}
+
+/* full-bleed 390px with 16px padding — content clips at the screen edge (Figma top_bar) */
+.chip-row{
+  position:absolute; left:0; top:108px; width:390px; height:36px;
+  z-index:9;
+  display:flex; gap:8px;
+  padding:0 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{
+  flex:0 0 auto;
+  display:flex; align-items:center; gap:4px;
+  height:36px;
+  padding:0 12px;
+  border-radius:var(--radius-pill);
+  background:var(--white);
+  border:none;
+  box-shadow:0 8px 8px rgba(0,0,0,.08), 0 0 3px rgba(0,0,0,.04);
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-secondary);
+  white-space:nowrap;
+  font-family:inherit;
+}
+.chip-money{border:1px solid var(--border-subtle); box-shadow:none; color:var(--text-subtle); padding-left:12px; padding-right:10px;}
+.icon-plus-fill{width:15px; height:15px;}
+.chip-emoji{width:18px; height:18px; display:block;}
+
+/* ============ Floating map controls ============ */
+.map-btn{
+  position:absolute;
+  width:40px; height:40px;
+  border-radius:50%;
+  background:var(--white);
+  border:none;
+  box-shadow:0 4px 4px rgba(0,0,0,.08), 0 0 2px rgba(0,0,0,.04);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9;
+}
+.icon-restart{width:19px; height:18.5px;}
+.icon-locate{width:24px; height:24px;}
+
+.list-btn{
+  position:absolute;
+  height:40px;
+  display:flex; align-items:center; gap:4px;
+  padding:0 10px 0 12px;
+  border-radius:var(--radius-pill);
+  background:var(--white);
+  border:none;
+  box-shadow:0 4px 4px rgba(0,0,0,.08), 0 0 2px rgba(0,0,0,.04);
+  font-size:14px;
+  font-weight:600;
+  color:var(--text-secondary);
+  font-family:inherit;
+  z-index:9;
+}
+.icon-list{width:13.87px; height:9.7px;}
+
+/* ============ Bottom sheet (handlebar + Bottom_filter, sits just above tabbar) ============ */
+.sheet{
+  position:absolute; left:0; bottom:81px; width:390px;
+  z-index:8;
+  background:var(--white);
+  border-radius:20px 20px 0 0;
+  padding:8px 0 12px;
+  box-shadow:0 -8px 20px rgba(20,22,30,.08);
+}
+.sheet-handle{
+  width:36px; height:4px;
+  border-radius:2px;
+  background:var(--border-subtle);
+  margin:0 auto 12px;
+}
+/* rows are full-bleed with 16px padding so chips clip at the screen edge (Figma Bottom_filter) */
+.sheet-filters{
+  display:flex; align-items:center; gap:8px;
+  padding:0 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.sheet-filters::-webkit-scrollbar{display:none;}
+.filter-icon-btn{
+  flex:0 0 auto;
+  width:32px; height:32px;
+  border-radius:50%;
+  border:1px solid var(--border-subtle);
+  background:var(--white);
+  display:flex; align-items:center; justify-content:center;
+}
+.icon-filter-sliders{width:11.8px; height:9.28px;}
+.filter-pill{
+  flex:0 0 auto;
+  display:flex; align-items:center; gap:4px;
+  height:32px;
+  padding:0 12px;
+  border-radius:var(--radius-pill);
+  border:1px solid var(--border-subtle);
+  background:var(--white);
+  font-size:13px;
+  font-weight:500;
+  color:var(--text-secondary);
+  white-space:nowrap;
+  font-family:inherit;
+}
+.filter-pill .ic-chevron{width:14px; height:14px; color:var(--text-secondary);}
+
+.sheet-tags{
+  margin-top:10px;
+  display:flex; gap:8px;
+  padding:0 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.sheet-tags::-webkit-scrollbar{display:none;}
+.tag{
+  flex:0 0 auto;
+  height:32px;
+  padding:0 12px;
+  border-radius:var(--radius-pill);
+  background:var(--surface);
+  color:var(--text-secondary);
+  font-size:13px;
+  font-weight:500;
+  display:flex; align-items:center;
+  white-space:nowrap;
+}
+
+/* ============ Tab bar (D-Tabber, 81px total) ============ */
+.tabbar{
+  position:absolute; left:0; bottom:0; width:390px; height:81px;
+  z-index:8;
+  background:var(--white);
+}
+.tabbar-sep{height:1px; background:#e6e8ea; width:100%;}
+.tabbar-row{
+  display:flex;
+  height:60px;
+}
+.tab-item{
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px;
+  color:#1a1a1e;
+}
+.tab-item span{font-size:11px; font-weight:600;}
+.tab-item i{width:24px; height:24px; color:#8c929b;}
+.tab-item.active i{color:#1a1a1e;}
+
+.home-indicator{
+  position:absolute; bottom:8px; left:50%;
+  transform:translateX(-50%);
+  width:139px; height:3px;
+  border-radius:2px;
+  background:#000;
+}
+
+/* ============================================================
+   시안 A·B 크롬 — [현재 운영] 레이아웃
+   Figma: top_bar 390x88 / hot spot / 지도뷰-업종·스위치 / 바텀 / MW_tabbar
+   ============================================================ */
+
+/* ---- top_bar: 검색 필드 + 햄버거 (top_bar y=33, padding 20) ---- */
+.ab-search{
+  position:absolute; left:20px; top:53px;
+  width:292px; height:48px;
+  z-index:9;
+  display:flex; align-items:center; gap:6px;
+  padding:12px 14px 12px 16px;
+  background:var(--white);
+  border-radius:8px;
+  box-shadow:0 1px 8px rgba(0,0,0,.10);
+}
+.ab-search-icon{width:15.07px; height:14.4px; flex:0 0 auto;}
+.ab-search span{
+  font-size:16px; line-height:22px; font-weight:400;
+  color:#B8B8B8;
+  margin-left:5px;
+  white-space:nowrap;
+}
+.ab-hamburger{
+  position:absolute; left:322px; top:53px;
+  width:48px; height:48px;
+  z-index:9;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--white);
+  border:none;
+  border-radius:8px;
+  box-shadow:0 1px 8px rgba(0,0,0,.10);
+}
+.ab-hamburger img{width:17.5px; height:13.5px;}
+
+/* ---- hot spot: 핫플 알바 말풍선 + 가로수길 pill ---- */
+.ab-hotspot{
+  position:absolute; left:22px; top:121px;
+  z-index:9;
+}
+.ab-tip{
+  position:absolute; left:2px; top:-14px;
+  display:flex; flex-direction:column; align-items:flex-start;
+}
+.ab-tip-bubble{
+  background:#3A3D5A;
+  color:var(--white);
+  font-size:11px; line-height:12px; font-weight:700;
+  padding:4px 6px;
+  border-radius:1000px;
+  margin-bottom:-1.5px;
+  white-space:nowrap;
+}
+.ab-tip-tail{width:17.4px; height:5px; margin-left:2px;}
+.ab-hotspot-pill{
+  display:flex; align-items:center; gap:2px;
+  height:34px;
+  padding:4px 6px 4px 8px;
+  background:var(--white);
+  border:1px solid #000;
+  border-radius:100px;
+  box-shadow:0 1px 8px rgba(0,0,0,.10);
+  font-family:inherit;
+}
+.ab-hotspot-dir{width:10.5px; height:10.68px; transform:rotate(40deg); margin-right:4px;}
+.ab-hotspot-pill span{
+  font-size:14px; line-height:20px; font-weight:500;
+  color:var(--text-secondary);
+  white-space:nowrap;
+}
+.ab-hotspot-chev{width:4.375px; height:7.29px; margin-left:5px;}
+
+/* ---- 업종 / 급여 스위치 ---- */
+.ab-switch{
+  position:absolute; left:322px; top:121px;
+  width:48px; height:108px;
+  z-index:9;
+  display:flex; flex-direction:column;
+  background:var(--white);
+  border-radius:8px;
+  box-shadow:0 1px 8px rgba(0,0,0,.10);
+  overflow:hidden;
+}
+.ab-sw{
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px;
+  border:none;
+  background:transparent;
+  font-family:inherit;
+  font-size:13px; line-height:19px; font-weight:500;
+  color:var(--text-secondary);
+}
+.ab-sw + .ab-sw{border-top:1px solid #F4F4F4;}
+.ab-sw-ico{width:22px; height:22px;}
+.ab-sw-off{color:#9E9E9E;}
+
+/* ---- 지도 위 액션 버튼 ---- */
+.ab-map-btn{
+  position:absolute;
+  width:40px; height:40px;
+  z-index:9;
+  border-radius:50%;
+  background:var(--white);
+  border:none;
+  box-shadow:0 1px 8px rgba(0,0,0,.10);
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ---- 바텀시트 ---- */
+.ab-sheet{
+  position:absolute; left:0; right:0; top:485px;
+  z-index:8;
+  background:var(--white);
+  border-radius:20px 20px 0 0;
+  padding:14px 0 0;
+  box-shadow:0 -8px 20px rgba(20,22,30,.08);
+  overflow:hidden;
+}
+.phone[data-variant="a"] .ab-sheet{bottom:60px;}
+.phone[data-variant="b"] .ab-sheet{bottom:81px;}
+
+.ab-sheet-filters,
+.ab-sheet-tags{
+  display:flex; align-items:center; gap:8px;
+  padding:0 16px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.ab-sheet-filters::-webkit-scrollbar,
+.ab-sheet-tags::-webkit-scrollbar{display:none;}
+.ab-sheet-tags{margin-top:10px;}
+.tag-emo{font-size:13px; margin-right:3px;}
+
+.ab-sort{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px 12px;
+}
+.ab-total{font-size:13px; font-weight:500; color:var(--text-subtle);}
+.ab-sort-opts{display:flex; gap:12px;}
+.ab-sort-opt{font-size:13px; font-weight:500; color:#9E9E9E;}
+.ab-sort-opt.is-on{color:var(--text-default); font-weight:600;}
+.ab-sort-opt.is-on::before{content:"•"; margin-right:3px;}
+
+.ab-card{padding:0 16px 16px; border-top:1px solid #F4F4F4; padding-top:14px;}
+.ab-card p{margin:0;}
+.ab-card-tags{font-size:13px; font-weight:500; color:#6C767F; margin-bottom:6px !important;}
+.ab-card-title{
+  font-size:15px; font-weight:700; line-height:22px;
+  color:var(--text-default);
+  margin-bottom:8px !important;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ab-card-meta{font-size:13px; line-height:19px; color:var(--text-subtle);}
+
+/* ---- MW_tabbar (시안 A) 360x60 @ x=15 y=740 ---- */
+.tabbar-mw{
+  position:absolute; left:0; bottom:0; width:390px; height:60px;
+  z-index:8;
+  background:var(--white);
+  border-top:1px solid rgba(232,232,232,.7);
+}
+.mw-row{display:flex; height:60px; padding:0 15px;}
+.mw-tab{
+  position:relative;
+  width:72px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px;
+}
+.mw-tab img{width:24px; height:24px; object-fit:contain;}
+.mw-tab .mw-flip{transform:scaleX(-1);}
+.mw-tab span{
+  font-size:9px; line-height:12px; font-weight:400;
+  letter-spacing:-0.54px;
+  color:var(--text-secondary);
+  white-space:nowrap;
+}
+.mw-badge{
+  position:absolute; left:40px; top:6px;
+  min-width:28px; height:18px;
+  padding:0 4px 1px;
+  border-radius:100px;
+  background:#FF501B;
+  color:var(--white) !important;
+  font-size:10px !important; line-height:16px !important; font-weight:700 !important;
+  letter-spacing:-0.05px !important;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ============================================================
+   지도 몰입 모드 (시안 C) — 지도를 탭하면 크롬이 비켜난다
+   Figma 223:84132 "디폴트 - 메인" 기준
+     top_bar 164px(검색+칩) -> 52px(칩만)   = 칩 -56px, 검색창 소멸
+     focus_my_location y 484 -> 680         = +196px
+     목록보기 button    y 548 -> 744         = +196px
+     bottom(바텀시트) hidden / AM 탭바 없음
+   ============================================================ */
+.phone[data-variant="c"] .mapbg{cursor:pointer;}
+
+.search-bar,
+.chip-row,
+.map-btn,
+.list-btn,
+.sheet,
+.tabbar{
+  transition:transform .34s cubic-bezier(.32,.72,0,1),
+             opacity   .22s ease;
+  will-change:transform;
+}
+
+/* 검색창: 상단으로 슬라이드하며 소멸 */
+.phone.is-map-focused .search-bar{
+  transform:translateY(-64px);
+  opacity:0;
+  pointer-events:none;
+}
+/* 탑필터: 검색창이 비운 자리로 함께 상승 (108 -> 52) */
+.phone.is-map-focused .chip-row{transform:translateY(-56px);}
+
+/* 목록보기 / 새로고침 / 내 위치: 시트가 비운 자리로 함께 하강 */
+.phone.is-map-focused .map-btn,
+.phone.is-map-focused .list-btn{transform:translateY(196px);}
+
+/* 바텀시트 · 바텀 네비게이션: 하단으로 슬라이드하며 소멸 */
+.phone.is-map-focused .sheet{
+  transform:translateY(calc(100% + 81px));
+  opacity:0;
+  pointer-events:none;
+}
+.phone.is-map-focused .tabbar{transform:translateY(100%);}
+
+@media (prefers-reduced-motion:reduce){
+  .search-bar,.chip-row,.map-btn,.list-btn,.sheet,.tabbar{transition:none;}
+}

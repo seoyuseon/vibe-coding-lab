@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>알바몬 - 알바지도</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-bg">
+
+  <!-- ============ 시안 전환 ============ -->
+  <div class="variant-switch" role="tablist" aria-label="시안 전환">
+    <button type="button" role="tab" data-variant="a" aria-selected="false">현재 운영</button>
+    <button type="button" role="tab" data-variant="b" aria-selected="false">현재 운영 + 핀 배지</button>
+    <button type="button" role="tab" data-variant="c" aria-selected="true">지도 위 요소 디벨롭</button>
+  </div>
+
+  <div class="phone" data-variant="c">
+
+    <!-- map background (real map screenshot per Figma) -->
+    <div class="mapbg">
+      <img class="mapbg-img" src="assets/map-bg.png" alt="">
+    </div>
+
+    <!-- minor category dots -->
+    <div class="dot dot-food" style="left:66px; top:256px;"></div>
+    <div class="dot dot-sales" style="left:113px; top:456px;"></div>
+    <div class="dot dot-sales" style="left:323px; top:311px;"></div>
+    <div class="dot dot-build" style="left:169px; top:682px;"></div>
+
+    <!-- current location -->
+    <div class="my-location" style="left:199px; top:352px;"><span class="my-location-pulse"></span></div>
+
+    <!-- ===== job pins ===== -->
+    <div class="pin-marker" style="left:79px; top:176px;">
+      <div class="badge-new b-only">최신 등록</div>
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
+      <div class="pin-label">모니랑잡코네<br>커피랑빵먹자요</div>
+    </div>
+
+    <div class="pin-marker" style="left:97px; top:685px;">
+      <div class="badge-new">최신 등록</div>
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
+      <div class="pin-label">동네카페인데<br>케이크를잘해요</div>
+    </div>
+
+    <div class="pin-marker" style="left:14px; top:270px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
+      <div class="pin-label">강남식당이야<br>맛난맛집</div>
+    </div>
+
+    <div class="pin-marker" style="left:162px; top:622px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
+      <div class="pin-label">돈까스먹자</div>
+    </div>
+
+    <div class="pin-marker" style="left:305px; top:248px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-hospital"><img src="assets/pin-icon-hospital.svg" alt=""></span></div>
+      <div class="pin-label">주토피아약국</div>
+    </div>
+
+    <div class="pin-marker" style="left:63px; top:604px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-hospital"><img src="assets/pin-icon-hospital.svg" alt=""></span></div>
+      <div class="pin-label">아프지마병원</div>
+    </div>
+
+    <div class="pin-marker" style="left:333px; top:311px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-build"><img src="assets/pin-icon-wheel.svg" alt=""></span></div>
+      <div class="pin-label">닉운전만점</div>
+    </div>
+
+    <div class="pin-marker" style="left:22px; top:109px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-service"><img src="assets/pin-icon-service.svg" alt=""></span></div>
+      <div class="pin-label">서비스맛집</div>
+    </div>
+
+    <div class="pin-marker" style="left:139px; top:297px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span><span class="pin-count">9</span></div>
+      <div class="pin-label">주토피아커피<br>외 10건</div>
+    </div>
+
+    <div class="pin-marker" style="left:109px; top:389px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-build"><img src="assets/pin-icon-build.svg" alt=""></span></div>
+      <div class="pin-label">모니건설주식<br>회사</div>
+    </div>
+
+    <div class="pin-marker" style="left:220px; top:445px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-bread.svg" alt=""></span><span class="pin-count">3</span></div>
+      <div class="pin-label">맛나요빵집<br>외 3건</div>
+    </div>
+
+    <div class="pin-marker" style="left:222px; top:178px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-expert"><img src="assets/pin-icon-expert.svg" alt=""></span><span class="pin-count">2</span></div>
+      <div class="pin-label">개발짱회사<br>외 2개</div>
+    </div>
+
+    <div class="pin-marker" style="left:305px; top:586px;">
+      <div class="badge-new b-only">최신 등록</div>
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-expert"><img src="assets/pin-icon-expert.svg" alt=""></span><span class="pin-count">2</span></div>
+      <div class="pin-label">최고회사<br>외 2개</div>
+    </div>
+
+    <div class="pin-marker" style="left:32px; top:434px;">
+      <div class="badge-new b-only">최신 등록</div>
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
+      <div class="pin-label">콩나물국밥</div>
+    </div>
+
+    <div class="pin-marker" style="left:107px; top:497px;">
+      <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-sales"><img src="assets/pin-icon-sales.svg" alt=""></span></div>
+      <div class="pin-label">주디소품샵</div>
+    </div>
+
+    <!-- ===== status bar ===== -->
+    <div class="statusbar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <i class="ic-signal"></i><i class="ic-wifi"></i><i class="ic-battery"></i>
+      </div>
+    </div>
+
+    <!-- ============ 시안 C: [지도 위 요소 디벨롭] 크롬 ============ -->
+    <div class="chrome chrome-c">
+
+    <!-- ===== top bar: search + chips ===== -->
+    <div class="search-bar">
+      <span class="search-placeholder">지역, 지하철역, 대학교명 검색</span>
+      <img class="search-icon" src="assets/icon-search.svg" alt="">
+    </div>
+
+    <div class="chip-row">
+      <button class="chip chip-money">급여<img class="icon-plus-fill" src="assets/icon-plus-fill.svg" alt=""></button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-coffee.svg" alt="">외식·음료</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-package.svg" alt="">매장관리·판매</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-thumbsup.svg" alt="">서비스</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-construction.svg" alt="">생산·건설·노무</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-mic.svg" alt="">교육·강사</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-office.svg" alt="">사무직</button>
+      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-headset.svg" alt="">고객상담·리서치·영업</button>
+    </div>
+
+    <!-- ===== floating map controls ===== -->
+    <button class="map-btn" style="left:334px; top:500px;"><img class="icon-restart" src="assets/icon-restart.svg" alt=""></button>
+    <button class="map-btn" style="left:334px; top:548px;"><img class="icon-locate" src="assets/icon-location-focus.svg" alt=""></button>
+    <button class="list-btn" style="left:148px; top:548px;"><img class="icon-list" src="assets/icon-list.svg" alt="">목록보기</button>
+
+    <!-- ===== bottom filter sheet ===== -->
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-filters">
+        <button class="filter-icon-btn"><img class="icon-filter-sliders" src="assets/icon-filter-sliders.svg" alt=""></button>
+        <button class="filter-pill">하는 일<i class="ic-chevron"></i></button>
+        <button class="filter-pill">일하는 기간<i class="ic-chevron"></i></button>
+        <button class="filter-pill">일하는 요일<i class="ic-chevron"></i></button>
+        <button class="filter-pill">일하는 시간<i class="ic-chevron"></i></button>
+        <button class="filter-pill">탐색 태그<i class="ic-chevron"></i></button>
+        <button class="filter-pill">기본 정보<i class="ic-chevron"></i></button>
+        <button class="filter-pill">키워드<i class="ic-chevron"></i></button>
+        <button class="filter-pill">고용 형태<i class="ic-chevron"></i></button>
+      </div>
+      <div class="sheet-tags">
+        <span class="tag">초보 가능</span>
+        <span class="tag">친구와 함께</span>
+        <span class="tag">점심 제공</span>
+        <span class="tag">인근 주민 우대</span>
+        <span class="tag">야간 근무</span>
+      </div>
+    </div>
+
+    </div><!-- /chrome-c -->
+
+    <!-- ============ 시안 A·B: [현재 운영] 크롬 ============ -->
+    <div class="chrome chrome-ab">
+
+      <!-- top_bar 390x88 -->
+      <div class="ab-search">
+        <img class="ab-search-icon" src="assets/ab-search.svg" alt="">
+        <span>지역, 지하철, 대학교명 검색</span>
+      </div>
+      <button class="ab-hamburger"><img src="assets/ab-hamburger.svg" alt=""></button>
+
+      <!-- hot spot -->
+      <div class="ab-hotspot">
+        <div class="ab-tip">
+          <span class="ab-tip-bubble">핫플 알바</span>
+          <img class="ab-tip-tail" src="assets/ab-tip-tail.svg" alt="">
+        </div>
+        <button class="ab-hotspot-pill">
+          <img class="ab-hotspot-dir" src="assets/ab-direction.svg" alt="">
+          <span>가로수길</span>
+          <img class="ab-hotspot-chev" src="assets/ab-chevron.svg" alt="">
+        </button>
+      </div>
+
+      <!-- 업종 / 급여 스위치 -->
+      <div class="ab-switch">
+        <button class="ab-sw"><img class="ab-sw-ico" src="assets/ab-sw-pin.svg" alt=""><span>업종</span></button>
+        <button class="ab-sw ab-sw-off"><img class="ab-sw-ico" src="assets/ab-sw-money.svg" alt=""><span>급여</span></button>
+      </div>
+
+      <!-- 바텀 스위치: 지도 위 액션 버튼 -->
+      <button class="ab-map-btn" style="left:20px; top:429px;"><img class="icon-restart" src="assets/icon-restart.svg" alt=""></button>
+      <button class="ab-map-btn" style="left:330px; top:383px;"><img class="icon-locate" src="assets/ab-sw-pin.svg" alt=""></button>
+      <button class="ab-map-btn" style="left:330px; top:429px;"><img class="icon-locate" src="assets/icon-location-focus.svg" alt=""></button>
+
+      <!-- 바텀시트 -->
+      <div class="ab-sheet">
+        <div class="ab-sheet-filters">
+          <button class="filter-icon-btn"><img class="icon-filter-sliders" src="assets/icon-filter-sliders.svg" alt=""></button>
+          <button class="filter-pill">탐색 태그<i class="ic-chevron"></i></button>
+          <button class="filter-pill">하는 일<i class="ic-chevron"></i></button>
+          <button class="filter-pill">일하는 기간<i class="ic-chevron"></i></button>
+          <button class="filter-pill">일하는 시간<i class="ic-chevron"></i></button>
+          <button class="filter-pill">일하는 요일<i class="ic-chevron"></i></button>
+        </div>
+        <div class="ab-sheet-tags">
+          <span class="tag"><span class="tag-emo">🔰</span>초보가능</span>
+          <span class="tag"><span class="tag-emo">😊</span>친구와 함께</span>
+          <span class="tag"><span class="tag-emo">🍱</span>점심제공</span>
+          <span class="tag"><span class="tag-emo">📍</span>인근지역역</span>
+        </div>
+        <div class="ab-sort">
+          <span class="ab-total">총 1,000 건</span>
+          <div class="ab-sort-opts">
+            <span class="ab-sort-opt is-on">추천순</span>
+            <span class="ab-sort-opt">거리순</span>
+            <span class="ab-sort-opt">등록순</span>
+          </div>
+        </div>
+        <div class="ab-card">
+          <p class="ab-card-tags">#콜수적음 #업무강도낮음 #초보가능</p>
+          <p class="ab-card-title">[4H 파트타임] 파리바게뜨/던킨도너츠 인테리어 A/S</p>
+          <p class="ab-card-meta">3개월~6개월 · 12:00~16:00</p>
+          <p class="ab-card-meta">서울시 강남구 도곡동</p>
+        </div>
+      </div>
+    </div><!-- /chrome-ab -->
+
+    <!-- ===== bottom tab bar: 시안 B·C (AM) ===== -->
+    <div class="tabbar tabbar-am">
+      <div class="tabbar-sep"></div>
+      <div class="tabbar-row">
+        <div class="tab-item"><i class="ic-home"></i><span>홈</span></div>
+        <div class="tab-item"><i class="ic-community"></i><span>커뮤니티</span></div>
+        <div class="tab-item active"><i class="ic-pin"></i><span>지도</span></div>
+        <div class="tab-item"><i class="ic-chat"></i><span>채팅</span></div>
+        <div class="tab-item"><i class="ic-user"></i><span>MY</span></div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <!-- ===== bottom tab bar: 시안 A (MW_tabbar 360x60) ===== -->
+    <div class="tabbar tabbar-mw">
+      <div class="mw-row">
+        <div class="mw-tab"><img src="assets/ab-tab-home.svg" alt=""><span>홈</span></div>
+        <div class="mw-tab"><img src="assets/ab-tab-ai.svg" alt=""><span>AI 추천</span></div>
+        <div class="mw-tab"><img src="assets/ab-tab-map.svg" alt=""><span>알바지도</span></div>
+        <div class="mw-tab"><img class="mw-flip" src="assets/ab-tab-chat.svg" alt=""><span>채팅</span><span class="mw-badge">99+</span></div>
+        <div class="mw-tab"><img src="assets/ab-tab-my.svg" alt=""><span>마이페이지</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var phone = document.querySelector('.phone');
+  var btns  = document.querySelectorAll('.variant-switch button');
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      phone.dataset.variant = b.dataset.variant;
+      phone.classList.remove('is-map-focused');   // 시안을 바꾸면 몰입 모드 해제
+      btns.forEach(function(o){ o.setAttribute('aria-selected', String(o === b)); });
+      // replay the my-location ripple on every variant change
+      var p = phone.querySelector('.my-location-pulse');
+      if (p) { var c = p.cloneNode(true); p.replaceWith(c); }
+    });
+  });
+
+  // 지도 영역을 탭하면 상·하단 크롬이 비켜나며 지도뷰가 넓어진다 (시안 C 전용)
+  phone.addEventListener('click', function(e){
+    if (phone.dataset.variant !== 'c') return;
+    if (e.target.closest('.chrome, .tabbar, .statusbar')) return;
+    phone.classList.toggle('is-map-focused');
+  });
+})();
+</script>
+
+</body>
+</html>
