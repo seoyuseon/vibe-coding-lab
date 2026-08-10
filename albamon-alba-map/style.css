@@ -324,11 +324,17 @@ body{
   display:flex; align-items:center; justify-content:center;
   z-index:9;
 }
+/* 하단 기준으로 앵커 — 화면이 길어져도 바텀시트 바로 위에 붙는다
+   (390x800 기준: refresh top500 = bottom260, locate top548 = bottom212) */
+.map-btn-refresh{left:334px; bottom:260px;}
+.map-btn-locate {left:334px; bottom:212px;}
+
 .icon-restart{width:19px; height:18.5px;}
 .icon-locate{width:24px; height:24px;}
 
 .list-btn{
   position:absolute;
+  left:148px; bottom:212px;
   height:40px;
   display:flex; align-items:center; gap:4px;
   padding:0 10px 0 12px;
@@ -552,8 +558,9 @@ body{
 }
 
 /* ---- 바텀시트 ---- */
+/* 하단 앵커 + 고정 높이 (390x800 기준 top:485에서 산출) */
 .ab-sheet{
-  position:absolute; left:0; right:0; top:485px;
+  position:absolute; left:0; right:0;
   z-index:8;
   background:var(--white);
   border-radius:20px 20px 0 0;
@@ -561,8 +568,8 @@ body{
   box-shadow:0 -8px 20px rgba(20,22,30,.08);
   overflow:hidden;
 }
-.phone[data-variant="a"] .ab-sheet{bottom:60px;}
-.phone[data-variant="b"] .ab-sheet{bottom:81px;}
+.phone[data-variant="a"] .ab-sheet{bottom:60px; height:255px;}
+.phone[data-variant="b"] .ab-sheet{bottom:81px; height:234px;}
 
 .ab-sheet-filters,
 .ab-sheet-tags{
@@ -675,4 +682,76 @@ body{
 
 @media (prefers-reduced-motion:reduce){
   .search-bar,.chip-row,.map-btn,.list-btn,.sheet,.tabbar{transition:none;}
+}
+
+/* ============================================================
+   모바일: 폰 프레임 없이 화면을 꽉 채운다
+   설계는 390px 폭 고정이므로 가로는 스케일로 정확히 맞추고,
+   남는 세로는 --stage-h 로 늘려 지도가 채우게 한다 (letterbox 없음)
+   ============================================================ */
+.stage{display:contents;}   /* 데스크톱에서는 없는 셈 */
+
+@media (max-width:520px){
+  html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+
+  .page-bg{
+    display:block;
+    padding:0;
+    gap:0;
+    min-height:100dvh;
+    background:#000;
+  }
+
+  .stage{
+    display:block;
+    position:fixed; inset:0;
+    overflow:hidden;
+  }
+
+  .phone{
+    position:absolute; left:0; top:0;
+    width:390px;
+    height:var(--stage-h, 800px);
+    border-radius:0;
+    box-shadow:none;
+    transform:scale(var(--stage-scale, 1));
+    transform-origin:top left;
+  }
+
+  /* 늘어난 높이만큼 지도가 아래까지 덮도록 */
+  .mapbg-img{
+    height:max(836px, calc(100% + 6px));
+  }
+
+  /* 시안 전환 바 → 상단(장식용 상태바 자리)에 떠 있는 컴팩트 알약.
+     하단에 두면 탭바 라벨을 가리므로 위로 올린다. */
+  .variant-switch{
+    position:fixed; left:50%;
+    top:calc(env(safe-area-inset-top, 0px) + 5px);
+    transform:translateX(-50%);
+    z-index:100;
+    gap:2px;
+    padding:3px;
+    background:rgba(19,22,24,.82);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    box-shadow:0 6px 20px rgba(0,0,0,.28);
+    transition:opacity .24s ease, transform .24s ease;
+  }
+  .variant-switch button{
+    font-size:12px;
+    padding:7px 11px;
+    color:rgba(255,255,255,.66);
+  }
+  .variant-switch button:hover{color:rgba(255,255,255,.9);}
+  .variant-switch button[aria-selected="true"]{
+    background:var(--white);
+    color:var(--text-default);
+  }
+  /* 몰입 모드에서는 전환 바도 함께 비켜난다 (지도를 다시 탭하면 복귀) */
+  body.map-focused .variant-switch{
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(-50%) translateY(-16px);
+  }
 }

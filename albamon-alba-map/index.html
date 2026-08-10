@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>알바몬 - 알바지도</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -18,6 +18,7 @@
     <button type="button" role="tab" data-variant="c" aria-selected="true">지도 위 요소 디벨롭</button>
   </div>
 
+  <div class="stage">
   <div class="phone" data-variant="c">
 
     <!-- map background (real map screenshot per Figma) -->
@@ -143,9 +144,9 @@
     </div>
 
     <!-- ===== floating map controls ===== -->
-    <button class="map-btn" style="left:334px; top:500px;"><img class="icon-restart" src="assets/icon-restart.svg" alt=""></button>
-    <button class="map-btn" style="left:334px; top:548px;"><img class="icon-locate" src="assets/icon-location-focus.svg" alt=""></button>
-    <button class="list-btn" style="left:148px; top:548px;"><img class="icon-list" src="assets/icon-list.svg" alt="">목록보기</button>
+    <button class="map-btn map-btn-refresh"><img class="icon-restart" src="assets/icon-restart.svg" alt=""></button>
+    <button class="map-btn map-btn-locate"><img class="icon-locate" src="assets/icon-location-focus.svg" alt=""></button>
+    <button class="list-btn"><img class="icon-list" src="assets/icon-list.svg" alt="">목록보기</button>
 
     <!-- ===== bottom filter sheet ===== -->
     <div class="sheet">
@@ -264,6 +265,7 @@
     </div>
 
   </div>
+  </div><!-- /stage -->
 </div>
 
 <script>
@@ -286,8 +288,29 @@
   phone.addEventListener('click', function(e){
     if (phone.dataset.variant !== 'c') return;
     if (e.target.closest('.chrome, .tabbar, .statusbar')) return;
-    phone.classList.toggle('is-map-focused');
+    var on = phone.classList.toggle('is-map-focused');
+    document.body.classList.toggle('map-focused', on);  // 모바일 시안 전환 바 숨김용
   });
+
+  // ---- 모바일: 프레임 없이 화면을 꽉 채우도록 390px 설계를 스케일 ----
+  var MOBILE = '(max-width:520px)';
+  function fitStage(){
+    var root = document.documentElement;
+    if (!window.matchMedia(MOBILE).matches){
+      root.style.removeProperty('--stage-scale');
+      root.style.removeProperty('--stage-h');
+      return;
+    }
+    var vw = window.innerWidth;
+    var vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    var s  = vw / 390;                    // 가로는 설계 폭에 정확히 맞춘다
+    root.style.setProperty('--stage-scale', s);
+    root.style.setProperty('--stage-h', (vh / s) + 'px');  // 남는 세로는 지도가 채운다
+  }
+  fitStage();
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', fitStage);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
 })();
 </script>
 
