@@ -174,8 +174,17 @@ body{
 .my-location{
   position:absolute;
   width:40px; height:40px;
-  background:url("assets/my-location.svg") no-repeat center / contain;
   z-index:4;
+}
+.my-location-art{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:block;
+  width:40px;
+  height:40px;
+  max-width:none;
+  pointer-events:none;
 }
 /* ripple plays 3 times on load then stays gone; the gradient halo above remains */
 .my-location-pulse{
@@ -742,9 +751,17 @@ body{
     transform-origin:top left;
   }
 
-  /* 실제 기기의 OS 상태바를 사용하므로 Figma 목업용 상태바는 숨긴다.
-     상단 콘텐츠의 44px 기준 위치는 유지해 safe area와 겹치지 않게 한다. */
+  /* 실제 기기의 OS 상태바를 사용하므로 Figma 목업용 상태바는 숨긴다. */
   .statusbar{display:none;}
+
+  /* Figma 352:39140 — 상태바가 빠진 모바일 화면의 top_bar(y=0).
+     20px 상단 여백 뒤 검색창, 8px 간격 뒤 탑필터가 이어진다. */
+  .top-bar{
+    top:0;
+    height:132px;
+  }
+  .search-bar{top:20px;}
+  .chip-row{top:76px;}
 
   /* 늘어난 높이만큼 지도가 아래까지 덮도록 */
   .mapbg-img{
