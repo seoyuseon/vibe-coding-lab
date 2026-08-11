@@ -18,11 +18,10 @@
   --radius-pill:999px;
 
   /* Figma `❍ shadow/lg`:
-     0 0 6px #0000000a + 0 8px 16px -1px #00000014.
-     CSS filter blur는 Figma blur radius의 절반값으로 변환한다. */
+     0 0 6px #0000000a + 0 8px 16px -1px #00000014. */
   --shadow-lg-filter:
-    drop-shadow(0 8px 8px rgba(0,0,0,.08))
-    drop-shadow(0 0 3px rgba(0,0,0,.04));
+    drop-shadow(0 8px 16px rgba(0,0,0,.08))
+    drop-shadow(0 0 6px rgba(0,0,0,.04));
 }
 
 *{box-sizing:border-box;}
@@ -271,6 +270,10 @@ body{
   z-index:5;
 }
 .badge-new{
+  position:absolute;
+  left:50%;
+  top:-13px;
+  transform:translateX(-50%);
   background:rgba(48,54,60,.8);
   backdrop-filter:blur(2px);
   -webkit-backdrop-filter:blur(2px);
@@ -281,11 +284,9 @@ body{
   border-radius:12px;
   box-shadow:0 0 6px rgba(0,0,0,.12);
   line-height:14px;
-  margin-bottom:-7px;
   white-space:nowrap;
   z-index:2;
 }
-.badge-new + .pin-shape .pin-count{top:-1px;}
 .pin-shape{
   position:relative;
   width:34px; height:34px;
