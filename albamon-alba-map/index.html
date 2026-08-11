@@ -11,15 +11,32 @@
 
 <div class="page-bg">
 
-  <!-- ============ 시안 전환 ============ -->
-  <div class="variant-switch" role="tablist" aria-label="시안 전환">
-    <button type="button" role="tab" data-variant="a" aria-selected="false">현재 운영</button>
-    <button type="button" role="tab" data-variant="b" aria-selected="false">현재 운영 + 핀 배지</button>
-    <button type="button" role="tab" data-variant="c" aria-selected="true">지도 위 요소 디벨롭</button>
+  <!-- ============ 실험 그룹 전환 ============ -->
+  <button class="variant-trigger" type="button" aria-expanded="false" aria-controls="variant-panel" aria-label="실험 그룹 선택, 현재 B Group">
+    <span class="variant-trigger-label">B</span>
+  </button>
+  <button class="variant-backdrop" type="button" tabindex="-1" aria-label="실험 그룹 선택 닫기"></button>
+
+  <div class="variant-panel" id="variant-panel" aria-hidden="false">
+    <div class="variant-panel-head">
+      <strong>실험 그룹</strong>
+      <button class="variant-close" type="button" aria-label="닫기">×</button>
+    </div>
+    <div class="variant-switch" role="tablist" aria-label="실험 그룹 전환">
+      <button type="button" role="tab" data-variant="a" data-group="A" aria-selected="false" title="현재 운영">
+        <span class="variant-name">A Group</span><span class="variant-desc">현재 운영</span>
+      </button>
+      <button type="button" role="tab" data-variant="b" data-group="B" aria-selected="true" title="지도 위 요소 디벨롭">
+        <span class="variant-name">B Group</span><span class="variant-desc">지도 위 요소 디벨롭</span>
+      </button>
+      <button type="button" role="tab" data-variant="c" data-group="C" aria-selected="false" title="현재 운영 + 핀 최신등록 배지">
+        <span class="variant-name">C Group</span><span class="variant-desc">현재 운영 + 핀 최신등록 배지</span>
+      </button>
+    </div>
   </div>
 
   <div class="stage">
-  <div class="phone" data-variant="c">
+  <div class="phone" data-variant="b">
 
     <!-- map background (real map screenshot per Figma) -->
     <div class="mapbg">
@@ -37,7 +54,7 @@
 
     <!-- ===== job pins ===== -->
     <div class="pin-marker" style="left:79px; top:176px;">
-      <div class="badge-new b-only">최신 등록</div>
+      <div class="badge-new c-only">최신 등록</div>
       <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
       <div class="pin-label">모니랑잡코네<br>커피랑빵먹자요</div>
     </div>
@@ -99,13 +116,13 @@
     </div>
 
     <div class="pin-marker" style="left:305px; top:586px;">
-      <div class="badge-new b-only">최신 등록</div>
+      <div class="badge-new c-only">최신 등록</div>
       <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-expert"><img src="assets/pin-icon-expert.svg" alt=""></span><span class="pin-count">2</span></div>
       <div class="pin-label">최고회사<br>외 2개</div>
     </div>
 
     <div class="pin-marker" style="left:32px; top:434px;">
-      <div class="badge-new b-only">최신 등록</div>
+      <div class="badge-new c-only">최신 등록</div>
       <div class="pin-shape"><span class="pin-base"></span><span class="pin-circle pin-food"><img src="assets/pin-icon-food.svg" alt=""></span></div>
       <div class="pin-label">콩나물국밥</div>
     </div>
@@ -123,8 +140,8 @@
       </div>
     </div>
 
-    <!-- ============ 시안 C: [지도 위 요소 디벨롭] 크롬 ============ -->
-    <div class="chrome chrome-c">
+    <!-- ============ B Group: [지도 위 요소 디벨롭] 크롬 ============ -->
+    <div class="chrome chrome-b">
 
     <!-- ===== top bar: search + chips =====
          Figma top_bar 는 그룹 전체에 drop-shadow 를 한 번 건다.
@@ -175,10 +192,10 @@
       </div>
     </div>
 
-    </div><!-- /chrome-c -->
+    </div><!-- /chrome-b -->
 
-    <!-- ============ 시안 A·B: [현재 운영] 크롬 ============ -->
-    <div class="chrome chrome-ab">
+    <!-- ============ A·C Group: [현재 운영] 크롬 ============ -->
+    <div class="chrome chrome-ac">
 
       <!-- top_bar 390x88 -->
       <div class="ab-search">
@@ -242,9 +259,9 @@
           <p class="ab-card-meta">서울시 강남구 도곡동</p>
         </div>
       </div>
-    </div><!-- /chrome-ab -->
+    </div><!-- /chrome-ac -->
 
-    <!-- ===== bottom tab bar: 시안 B·C (AM) ===== -->
+    <!-- ===== bottom tab bar: B·C Group (AM) ===== -->
     <div class="tabbar tabbar-am">
       <div class="tabbar-sep"></div>
       <div class="tabbar-row">
@@ -257,7 +274,7 @@
       <div class="home-indicator"></div>
     </div>
 
-    <!-- ===== bottom tab bar: 시안 A (MW_tabbar 360x60) ===== -->
+    <!-- ===== bottom tab bar: A Group (MW_tabbar 360x60) ===== -->
     <div class="tabbar tabbar-mw">
       <div class="mw-row">
         <div class="mw-tab"><img src="assets/ab-tab-home.svg" alt=""><span>홈</span></div>
@@ -276,28 +293,69 @@
 (function(){
   var phone = document.querySelector('.phone');
   var btns  = document.querySelectorAll('.variant-switch button');
+  var pickerTrigger = document.querySelector('.variant-trigger');
+  var pickerPanel = document.querySelector('.variant-panel');
+  var pickerBackdrop = document.querySelector('.variant-backdrop');
+  var pickerClose = document.querySelector('.variant-close');
+  var MOBILE = '(max-width:520px)';
+
+  function setPicker(open){
+    var isMobile = window.matchMedia(MOBILE).matches;
+    var isOpen = isMobile && open;
+    var wasOpen = document.body.classList.contains('variant-picker-open');
+    document.body.classList.toggle('variant-picker-open', isOpen);
+    pickerTrigger.setAttribute('aria-expanded', String(isOpen));
+    pickerPanel.setAttribute('aria-hidden', String(isMobile && !isOpen));
+    pickerPanel.inert = isMobile && !isOpen;
+    if (isOpen && !wasOpen) {
+      var selected = pickerPanel.querySelector('[aria-selected="true"]');
+      if (selected) selected.focus();
+    } else if (!isOpen && wasOpen) {
+      pickerTrigger.focus();
+    }
+  }
+
+  pickerTrigger.addEventListener('click', function(){
+    setPicker(!document.body.classList.contains('variant-picker-open'));
+  });
+  pickerBackdrop.addEventListener('click', function(){ setPicker(false); });
+  pickerClose.addEventListener('click', function(){ setPicker(false); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setPicker(false);
+  });
+  setPicker(false);
+  var mobilePickerQuery = window.matchMedia(MOBILE);
+  if (mobilePickerQuery.addEventListener) {
+    mobilePickerQuery.addEventListener('change', function(){ setPicker(false); });
+  } else {
+    mobilePickerQuery.addListener(function(){ setPicker(false); });
+  }
 
   btns.forEach(function(b){
     b.addEventListener('click', function(){
       phone.dataset.variant = b.dataset.variant;
-      phone.classList.remove('is-map-focused');   // 시안을 바꾸면 몰입 모드 해제
+      phone.classList.remove('is-map-focused');   // 그룹을 바꾸면 몰입 모드 해제
+      document.body.classList.remove('map-focused');
       btns.forEach(function(o){ o.setAttribute('aria-selected', String(o === b)); });
+      pickerTrigger.querySelector('.variant-trigger-label').textContent = b.dataset.group;
+      pickerTrigger.setAttribute('aria-label', '실험 그룹 선택, 현재 ' + b.dataset.group + ' Group');
+      setPicker(false);
       // replay the my-location ripple on every variant change
       var p = phone.querySelector('.my-location-pulse');
       if (p) { var c = p.cloneNode(true); p.replaceWith(c); }
     });
   });
 
-  // 지도 영역을 탭하면 상·하단 크롬이 비켜나며 지도뷰가 넓어진다 (시안 C 전용)
+  // 지도 영역을 탭하면 상·하단 크롬이 비켜나며 지도뷰가 넓어진다 (B Group 전용)
   phone.addEventListener('click', function(e){
-    if (phone.dataset.variant !== 'c') return;
+    if (phone.dataset.variant !== 'b') return;
     if (e.target.closest('.chrome, .tabbar, .statusbar')) return;
+    setPicker(false);
     var on = phone.classList.toggle('is-map-focused');
     document.body.classList.toggle('map-focused', on);  // 모바일 시안 전환 바 숨김용
   });
 
   // ---- 모바일: 프레임 없이 화면을 꽉 채우도록 390px 설계를 스케일 ----
-  var MOBILE = '(max-width:520px)';
   function fitStage(){
     var root = document.documentElement;
     if (!window.matchMedia(MOBILE).matches){

@@ -16,6 +16,13 @@
   --white:#ffffff;
 
   --radius-pill:999px;
+
+  /* Figma `❍ shadow/lg`:
+     0 0 6px #0000000a + 0 8px 16px -1px #00000014.
+     CSS filter blur는 Figma blur radius의 절반값으로 변환한다. */
+  --shadow-lg-filter:
+    drop-shadow(0 8px 8px rgba(0,0,0,.08))
+    drop-shadow(0 0 3px rgba(0,0,0,.04));
 }
 
 *{box-sizing:border-box;}
@@ -39,6 +46,10 @@ body{
 }
 
 /* ============ 시안 전환 (프로토타입 전용 UI) ============ */
+.variant-panel{display:contents;}
+.variant-trigger,
+.variant-backdrop,
+.variant-panel-head{display:none;}
 .variant-switch{
   display:flex;
   gap:4px;
@@ -65,20 +76,21 @@ body{
   background:var(--badge-dark);
   color:var(--white);
 }
+.variant-desc{display:none;}
 
 /* ============ 시안별 크롬 전환 ============ */
 .chrome{display:contents;}
-.phone[data-variant="c"] .chrome-ab,
-.phone[data-variant="a"] .chrome-c,
-.phone[data-variant="b"] .chrome-c{display:none;}
+.phone[data-variant="b"] .chrome-ac,
+.phone[data-variant="a"] .chrome-b,
+.phone[data-variant="c"] .chrome-b{display:none;}
 
 .phone[data-variant="a"] .tabbar-am,
 .phone[data-variant="b"] .tabbar-mw,
 .phone[data-variant="c"] .tabbar-mw{display:none;}
 
-/* "최신 등록" 배지는 시안 B에서만 노출 */
-.b-only{display:none;}
-.phone[data-variant="b"] .b-only{display:block;}
+/* "최신 등록" 배지는 C Group에서만 노출 */
+.c-only{display:none;}
+.phone[data-variant="c"] .c-only{display:block;}
 
 /* 시안 A는 구버전 원형 핀 (teardrop 없음) */
 .phone[data-variant="a"] .pin-base{display:none;}
@@ -277,16 +289,19 @@ body{
    계산되어 그림자가 잘린다. 래퍼에 drop-shadow 필터로 걸면 필터는
    클리핑 이후에 합성되므로 영역 밖으로 자연스럽게 번진다. */
 .top-bar{
-  position:absolute; inset:0;
+  position:absolute;
+  left:0;
+  top:44px;
+  width:390px;
+  height:108px;
   z-index:9;
   pointer-events:none;            /* 지도 탭이 막히지 않도록 */
-  filter:drop-shadow(0 8px 8px rgba(0,0,0,.08))
-         drop-shadow(0 0 3px rgba(0,0,0,.04));
+  filter:var(--shadow-lg-filter);
 }
 .top-bar > *{pointer-events:auto;}
 
 .search-bar{
-  position:absolute; left:16px; top:52px; width:358px; height:48px;
+  position:absolute; left:16px; top:8px; width:358px; height:48px;
   background:var(--white);
   border-radius:var(--radius-pill);
   display:flex; align-items:center; justify-content:space-between;
@@ -297,7 +312,7 @@ body{
 
 /* full-bleed 390px with 16px padding — content clips at the screen edge (Figma top_bar) */
 .chip-row{
-  position:absolute; left:0; top:108px; width:390px; height:36px;
+  position:absolute; left:0; top:64px; width:390px; height:36px;
   display:flex; gap:8px;
   padding:0 16px;
   overflow-x:auto;
@@ -458,7 +473,7 @@ body{
 }
 
 /* ============================================================
-   시안 A·B 크롬 — [현재 운영] 레이아웃
+   A·C Group 크롬 — [현재 운영] 레이아웃
    Figma: top_bar 390x88 / hot spot / 지도뷰-업종·스위치 / 바텀 / MW_tabbar
    ============================================================ */
 
@@ -578,7 +593,7 @@ body{
   overflow:hidden;
 }
 .phone[data-variant="a"] .ab-sheet{bottom:60px; height:255px;}
-.phone[data-variant="b"] .ab-sheet{bottom:81px; height:234px;}
+.phone[data-variant="c"] .ab-sheet{bottom:81px; height:234px;}
 
 .ab-sheet-filters,
 .ab-sheet-tags{
@@ -648,14 +663,14 @@ body{
 }
 
 /* ============================================================
-   지도 몰입 모드 (시안 C) — 지도를 탭하면 크롬이 비켜난다
+   지도 몰입 모드 (B Group) — 지도를 탭하면 크롬이 비켜난다
    Figma 223:84132 "디폴트 - 메인" 기준
      top_bar 164px(검색+칩) -> 52px(칩만)   = 칩 -56px, 검색창 소멸
      focus_my_location y 484 -> 680         = +196px
      목록보기 button    y 548 -> 744         = +196px
      bottom(바텀시트) hidden / AM 탭바 없음
    ============================================================ */
-.phone[data-variant="c"] .mapbg{cursor:pointer;}
+.phone[data-variant="b"] .mapbg{cursor:pointer;}
 
 .search-bar,
 .chip-row,
@@ -727,40 +742,147 @@ body{
     transform-origin:top left;
   }
 
+  /* 실제 기기의 OS 상태바를 사용하므로 Figma 목업용 상태바는 숨긴다.
+     상단 콘텐츠의 44px 기준 위치는 유지해 safe area와 겹치지 않게 한다. */
+  .statusbar{display:none;}
+
   /* 늘어난 높이만큼 지도가 아래까지 덮도록 */
   .mapbg-img{
     height:max(836px, calc(100% + 6px));
   }
 
-  /* 시안 전환 바 → 상단(장식용 상태바 자리)에 떠 있는 컴팩트 알약.
-     하단에 두면 탭바 라벨을 가리므로 위로 올린다. */
-  .variant-switch{
-    position:fixed; left:50%;
-    top:calc(env(safe-area-inset-top, 0px) + 5px);
-    transform:translateX(-50%);
-    z-index:100;
-    gap:2px;
-    padding:3px;
+  /* 모바일에서는 실제 앱 UI와 분리된 작은 실험용 런처만 상시 노출한다. */
+  .variant-trigger{
+    position:fixed;
+    left:8px;
+    top:calc(env(safe-area-inset-top, 0px) + 160px);
+    z-index:97;
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    border:1px solid rgba(255,255,255,.72);
+    border-radius:50%;
     background:rgba(19,22,24,.82);
+    color:var(--white);
+    box-shadow:0 6px 20px rgba(0,0,0,.22);
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
-    box-shadow:0 6px 20px rgba(0,0,0,.28);
-    transition:opacity .24s ease, transform .24s ease;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    transition:opacity .2s ease, transform .24s ease;
   }
-  .variant-switch button{
-    font-size:12px;
-    padding:7px 11px;
-    color:rgba(255,255,255,.66);
-  }
-  .variant-switch button:hover{color:rgba(255,255,255,.9);}
-  .variant-switch button[aria-selected="true"]{
-    background:var(--white);
-    color:var(--text-default);
-  }
-  /* 몰입 모드에서는 전환 바도 함께 비켜난다 (지도를 다시 탭하면 복귀) */
-  body.map-focused .variant-switch{
+
+  .variant-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:98;
+    display:block;
+    border:0;
+    padding:0;
+    background:rgba(0,0,0,.28);
     opacity:0;
     pointer-events:none;
-    transform:translateX(-50%) translateY(-16px);
+    transition:opacity .2s ease;
+  }
+
+  .variant-panel{
+    position:fixed;
+    left:12px;
+    right:12px;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 12px);
+    z-index:99;
+    display:block;
+    padding:18px 16px 16px;
+    border-radius:20px;
+    background:var(--white);
+    box-shadow:0 16px 48px rgba(0,0,0,.24);
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(calc(100% + 24px));
+    transition:transform .3s cubic-bezier(.32,.72,0,1), opacity .2s ease;
+  }
+
+  .variant-panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .variant-panel-head strong{font-size:17px; line-height:24px;}
+  .variant-close{
+    width:32px;
+    height:32px;
+    padding:0;
+    border:0;
+    border-radius:50%;
+    background:var(--surface);
+    color:var(--text-secondary);
+    font-family:inherit;
+    font-size:24px;
+    font-weight:400;
+    line-height:30px;
+  }
+
+  .variant-switch{
+    position:static;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  .variant-switch button{
+    width:100%;
+    min-height:56px;
+    display:grid;
+    grid-template-columns:72px 1fr;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border:1px solid var(--border-subtle);
+    border-radius:14px;
+    color:var(--text-secondary);
+    text-align:left;
+  }
+  .variant-switch button:hover{color:var(--text-secondary);}
+  .variant-switch button[aria-selected="true"]{
+    border-color:var(--badge-dark);
+    background:var(--badge-dark);
+    color:var(--white);
+  }
+  .variant-name{font-size:14px; font-weight:700;}
+  .variant-desc{
+    display:block;
+    font-size:13px;
+    font-weight:500;
+    color:var(--text-subtle);
+  }
+  .variant-switch button[aria-selected="true"] .variant-desc{color:rgba(255,255,255,.72);}
+
+  body.variant-picker-open .variant-backdrop{
+    opacity:1;
+    pointer-events:auto;
+  }
+  body.variant-picker-open .variant-panel{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+
+  /* 지도 몰입 모드에서는 실험용 런처도 함께 비켜난다. */
+  body.map-focused .variant-trigger{
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(-16px);
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .variant-trigger,.variant-backdrop,.variant-panel{transition:none;}
   }
 }
