@@ -419,17 +419,17 @@
       pickerTrigger.querySelector('.variant-trigger-label').textContent = b.dataset.group;
       pickerTrigger.setAttribute('aria-label', '실험 그룹 선택, 현재 ' + b.dataset.group + ' Group');
       setPicker(false);
-      // replay the my-location ripple on every variant change
-      phone.querySelectorAll('.my-location-pulse').forEach(function(p){
+      // B·C 진입 때만 내 위치 강조를 처음부터 3회 재생한다.
+      if (b.dataset.variant === 'a') return;
+      phone.querySelectorAll('.modern-map-elements .my-location-pulse').forEach(function(p){
         var c = p.cloneNode(true);
         p.replaceWith(c);
       });
     });
   });
 
-  // 지도 영역을 탭하면 상·하단 크롬이 비켜나며 지도뷰가 넓어진다 (B Group 전용)
+  // 지도 영역을 탭하면 각 그룹의 상·하단 크롬이 비켜나며 지도뷰가 넓어진다.
   phone.addEventListener('click', function(e){
-    if (phone.dataset.variant !== 'b') return;
     if (e.target.closest('.chrome, .tabbar, .statusbar')) return;
     setPicker(false);
     var on = phone.classList.toggle('is-map-focused');

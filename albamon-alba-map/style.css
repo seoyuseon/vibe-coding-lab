@@ -137,8 +137,8 @@ body{
   font-weight:700;
   line-height:16px;
   color:#71787F;
-  -webkit-text-stroke:0;
-  paint-order:normal;
+  -webkit-text-stroke:3px var(--white);
+  paint-order:stroke fill;
 }
 .phone[data-variant="a"] .pin-count{
   width:20px; height:20px;
@@ -209,29 +209,56 @@ body{
 .dot-sales{background:var(--pin-sales);}
 .dot-build{background:var(--pin-build);}
 
-/* ---- current location (Figma my_location 40x40: blue gradient halo + dot) ---- */
+/* ---- current location: 중심 핀과 진입용 그라데이션 후광을 분리 ---- */
 .my-location{
   position:absolute;
   width:40px; height:40px;
-  background:url("assets/my-location.svg") no-repeat center / contain;
   z-index:4;
 }
-/* ripple plays 3 times on load then stays gone; the gradient halo above remains */
+.my-location::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:url("assets/my-location.svg") no-repeat center / contain;
+  pointer-events:none;
+}
+/* B·C 진입 시에만 3회 재생하고 정지한다. */
 .my-location-pulse{
   position:absolute; left:50%; top:50%;
+  z-index:0;
   width:40px; height:40px;
   margin:-20px 0 0 -20px;
   border-radius:50%;
-  background:radial-gradient(circle, rgba(67,94,255,.28) 0%, rgba(67,94,255,0) 70%);
-  animation:pulse 2.4s ease-out 3 both;
+  background:url("assets/my-location-halo.svg") no-repeat center / contain;
+  opacity:0;
+  animation:none;
   pointer-events:none;
 }
+.phone[data-variant="b"] .modern-map-elements .my-location-pulse,
+.phone[data-variant="c"] .modern-map-elements .my-location-pulse{
+  animation:
+    pulse 1.15s ease-out 2,
+    pulse-settle .9s cubic-bezier(.22,.8,.3,1) 2.3s 1 forwards;
+}
 @keyframes pulse{
-  0%{transform:scale(.4); opacity:.9;}
-  100%{transform:scale(2.2); opacity:0;}
+  0%{transform:scale(.55); opacity:0;}
+  14%{opacity:1;}
+  100%{transform:scale(1.55); opacity:0;}
+}
+@keyframes pulse-settle{
+  0%{transform:scale(.55); opacity:0;}
+  35%{opacity:1;}
+  78%{transform:scale(1.06); opacity:1;}
+  100%{transform:scale(1); opacity:1;}
 }
 @media (prefers-reduced-motion:reduce){
-  .my-location-pulse{animation:none; opacity:0;}
+  .phone[data-variant="b"] .modern-map-elements .my-location-pulse,
+  .phone[data-variant="c"] .modern-map-elements .my-location-pulse{
+    animation:none;
+    transform:scale(1);
+    opacity:1;
+  }
 }
 
 /* ---- job pins (exact Figma coordinates) ---- */
@@ -763,20 +790,26 @@ body{
 .phone[data-variant="a"] .mapbg-img{top:-34px;}
 
 /* ============================================================
-   지도 몰입 모드 (B Group) — 지도를 탭하면 크롬이 비켜난다
+   지도 몰입 모드 — 지도를 탭하면 각 그룹의 크롬이 비켜난다
    Figma 223:84132 "디폴트 - 메인" 기준
      top_bar 164px(검색+칩) -> 52px(칩만)   = 칩 -56px, 검색창 소멸
      focus_my_location y 484 -> 680         = +196px
      목록보기 button    y 548 -> 744         = +196px
      bottom(바텀시트) hidden / AM 탭바 없음
    ============================================================ */
-.phone[data-variant="b"] .mapbg{cursor:pointer;}
+.phone .mapbg{cursor:pointer;}
 
 .search-bar,
 .chip-row,
 .map-btn,
 .list-btn,
 .sheet,
+.ab-search,
+.ab-hamburger,
+.ab-hotspot,
+.ab-switch,
+.ab-map-btn,
+.ab-sheet,
 .tabbar{
   transition:transform .34s cubic-bezier(.32,.72,0,1),
              opacity   .22s ease;
@@ -802,10 +835,34 @@ body{
   opacity:0;
   pointer-events:none;
 }
+
+/* A·C: 검색 영역은 닫고, 지도 필터는 비워진 상단 자리로 이동한다. */
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-search,
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-hamburger{
+  transform:translateY(-64px);
+  opacity:0;
+  pointer-events:none;
+}
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-hotspot,
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-switch{
+  transform:translateY(-68px);
+}
+
+/* A·C의 하단 크롬 높이는 두 그룹 모두 315px다. */
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-map-btn{
+  transform:translateY(315px);
+}
+.phone:is([data-variant="a"],[data-variant="c"]).is-map-focused .ab-sheet{
+  transform:translateY(calc(100% + 81px));
+  opacity:0;
+  pointer-events:none;
+}
 .phone.is-map-focused .tabbar{transform:translateY(100%);}
 
 @media (prefers-reduced-motion:reduce){
-  .search-bar,.chip-row,.map-btn,.list-btn,.sheet,.tabbar{transition:none;}
+  .search-bar,.chip-row,.map-btn,.list-btn,.sheet,
+  .ab-search,.ab-hamburger,.ab-hotspot,.ab-switch,.ab-map-btn,.ab-sheet,
+  .tabbar{transition:none;}
 }
 
 /* ============================================================
