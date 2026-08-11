@@ -92,18 +92,57 @@ body{
 .c-only{display:none;}
 .phone[data-variant="c"] .c-only{display:block;}
 
-/* 시안 A는 구버전 원형 핀 (teardrop 없음) */
-.phone[data-variant="a"] .pin-base{display:none;}
-.phone[data-variant="a"] .pin-shape{width:42px; height:42px;}
-.phone[data-variant="a"] .pin-circle{
-  width:42px; height:42px;
-  top:50%;
-  border:2px solid var(--white);
+/* A는 운영 중인 레거시 지도 핀 배치를 별도로 사용한다. */
+.legacy-map-elements{display:none;}
+.modern-map-elements{
+  position:absolute;
+  inset:0;
 }
-.phone[data-variant="a"] .pin-circle img{width:24px; height:24px;}
+.phone[data-variant="a"] .modern-map-elements{display:none;}
+.phone[data-variant="a"] .legacy-map-elements{
+  display:block;
+  position:absolute;
+  inset:0;
+}
+
+/* 시안 A는 352:47152의 레거시 라인형 핀 */
+.phone[data-variant="a"] .pin-base{display:none;}
+.phone[data-variant="a"] .pin-shape{
+  width:36px;
+  height:36px;
+  filter:none;
+}
+.phone[data-variant="a"] .pin-shape::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:36px;
+  height:41px;
+  background:url("assets/pin-legacy-outline.svg") no-repeat center / 36px 41px;
+  pointer-events:none;
+}
+.phone[data-variant="a"] .pin-circle{
+  left:50%;
+  top:5px;
+  width:22px;
+  height:22px;
+  border:0;
+  transform:translateX(-50%);
+}
+.phone[data-variant="a"] .pin-circle img{width:15px; height:15px;}
+.phone[data-variant="a"] .pin-label{
+  margin-top:0;
+  font-size:12px;
+  font-weight:700;
+  line-height:16px;
+  color:#71787F;
+  -webkit-text-stroke:0;
+  paint-order:normal;
+}
 .phone[data-variant="a"] .pin-count{
   width:20px; height:20px;
-  left:26px; top:-3px;
+  left:19px; top:-3px;
   font-size:11px;
   border:2px solid var(--white);
 }
@@ -174,17 +213,8 @@ body{
 .my-location{
   position:absolute;
   width:40px; height:40px;
+  background:url("assets/my-location.svg") no-repeat center / contain;
   z-index:4;
-}
-.my-location-art{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  display:block;
-  width:40px;
-  height:40px;
-  max-width:none;
-  pointer-events:none;
 }
 /* ripple plays 3 times on load then stays gone; the gradient halo above remains */
 .my-location-pulse{
@@ -223,9 +253,12 @@ body{
   padding:3px 6px;
   border-radius:12px;
   box-shadow:0 0 6px rgba(0,0,0,.12);
-  margin-bottom:4px;
+  line-height:14px;
+  margin-bottom:-7px;
   white-space:nowrap;
+  z-index:2;
 }
+.badge-new + .pin-shape .pin-count{top:-1px;}
 .pin-shape{
   position:relative;
   width:34px; height:34px;
@@ -306,6 +339,7 @@ body{
   z-index:9;
   pointer-events:none;            /* 지도 탭이 막히지 않도록 */
   filter:var(--shadow-lg-filter);
+  -webkit-filter:var(--shadow-lg-filter);
 }
 .top-bar > *{pointer-events:auto;}
 
@@ -567,7 +601,7 @@ body{
 .ab-sw{
   flex:1;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:2px;
+  gap:0;
   border:none;
   background:transparent;
   font-family:inherit;
@@ -575,7 +609,24 @@ body{
   color:var(--text-secondary);
 }
 .ab-sw + .ab-sw{border-top:1px solid #F4F4F4;}
-.ab-sw-ico{width:22px; height:22px;}
+.ab-sw-icon{
+  width:22px;
+  height:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 22px;
+}
+.ab-sw-pin{
+  display:block;
+  width:14.667px;
+  height:16.5px;
+}
+.ab-sw-money{
+  display:block;
+  width:22px;
+  height:22px;
+}
 .ab-sw-off{color:#9E9E9E;}
 
 /* ---- 지도 위 액션 버튼 ---- */
@@ -585,9 +636,17 @@ body{
   z-index:9;
   border-radius:50%;
   background:var(--white);
-  border:none;
+  border:1px solid #E8E8E8;
   box-shadow:0 1px 8px rgba(0,0,0,.10);
   display:flex; align-items:center; justify-content:center;
+}
+.ab-map-refresh{left:20px; top:429px;}
+.ab-map-list{left:330px; top:383px;}
+.ab-map-locate{left:330px; top:429px;}
+.ab-map-list-icon{
+  display:block;
+  width:17px;
+  height:19.4px;
 }
 
 /* ---- 바텀시트 ---- */
@@ -597,28 +656,57 @@ body{
   z-index:8;
   background:var(--white);
   border-radius:20px 20px 0 0;
-  padding:14px 0 0;
+  padding:0;
   box-shadow:0 -8px 20px rgba(20,22,30,.08);
   overflow:hidden;
 }
 .phone[data-variant="a"] .ab-sheet{bottom:60px; height:255px;}
 .phone[data-variant="c"] .ab-sheet{bottom:81px; height:234px;}
 
+.ab-sheet-handle{
+  height:28px;
+  display:flex;
+  justify-content:center;
+  padding-top:8px;
+}
+.ab-sheet-handle span{
+  width:36px;
+  height:4px;
+  border-radius:2px;
+  background:var(--border-subtle);
+}
+
 .ab-sheet-filters,
 .ab-sheet-tags{
-  display:flex; align-items:center; gap:8px;
-  padding:0 16px;
+  display:flex; align-items:center; gap:6px;
+  padding:0 20px;
   overflow-x:auto;
   scrollbar-width:none;
 }
 .ab-sheet-filters::-webkit-scrollbar,
 .ab-sheet-tags::-webkit-scrollbar{display:none;}
 .ab-sheet-tags{margin-top:10px;}
+.ab-sheet .filter-icon-btn{
+  width:34px;
+  height:34px;
+}
+.ab-sheet .filter-pill{
+  height:34px;
+  padding:0 10px;
+  border-color:#E8E8E8;
+  font-size:14px;
+  color:#6A6A6A;
+}
+.ab-sheet .tag{
+  height:34px;
+  padding:0 10px;
+}
 .tag-emo{font-size:13px; margin-right:3px;}
 
 .ab-sort{
   display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px 12px;
+  min-height:46px;
+  padding:12px 20px 10px;
 }
 .ab-total{font-size:13px; font-weight:500; color:var(--text-subtle);}
 .ab-sort-opts{display:flex; gap:12px;}
@@ -626,7 +714,7 @@ body{
 .ab-sort-opt.is-on{color:var(--text-default); font-weight:600;}
 .ab-sort-opt.is-on::before{content:"•"; margin-right:3px;}
 
-.ab-card{padding:0 16px 16px; border-top:1px solid #F4F4F4; padding-top:14px;}
+.ab-card{padding:14px 20px 16px; border-top:1px solid #F4F4F4;}
 .ab-card p{margin:0;}
 .ab-card-tags{font-size:13px; font-weight:500; color:#6C767F; margin-bottom:6px !important;}
 .ab-card-title{
@@ -670,6 +758,9 @@ body{
   letter-spacing:-0.05px !important;
   display:flex; align-items:center; justify-content:center;
 }
+
+/* A Group 103:73249 — 확대 지도 배경 */
+.phone[data-variant="a"] .mapbg-img{top:-34px;}
 
 /* ============================================================
    지도 몰입 모드 (B Group) — 지도를 탭하면 크롬이 비켜난다
@@ -753,6 +844,23 @@ body{
 
   /* 실제 기기의 OS 상태바를 사용하므로 Figma 목업용 상태바는 숨긴다. */
   .statusbar{display:none;}
+
+  /* A·C도 실제 앱 상태바를 제외한 콘텐츠 좌표로 당긴다. */
+  .ab-search,
+  .ab-hamburger{top:20px;}
+  .ab-hotspot{top:88px;}
+  .ab-switch{top:88px;}
+
+  /* 가변 화면 높이에서도 운영안 컨트롤은 바텀시트 위 간격을 유지한다. */
+  .ab-map-refresh,
+  .ab-map-locate{
+    top:auto;
+    bottom:331px;
+  }
+  .ab-map-list{
+    top:auto;
+    bottom:377px;
+  }
 
   /* Figma 352:39140 — 상태바가 빠진 모바일 화면의 top_bar(y=0).
      20px 상단 여백 뒤 검색창, 8px 간격 뒤 탑필터가 이어진다. */
