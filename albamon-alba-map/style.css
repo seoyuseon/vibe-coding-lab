@@ -222,6 +222,11 @@ body{
   background:url("assets/my-location.svg") no-repeat center / contain;
   pointer-events:none;
 }
+.my-location.is-targeted::after{animation:location-target .52s cubic-bezier(.2,.8,.3,1);}
+@keyframes location-target{
+  0%,100%{transform:scale(1);}
+  45%{transform:scale(1.18);}
+}
 /* B·C 진입 시에만 3회 재생하고 정지한다. */
 .my-location-pulse{
   position:absolute; left:50%; top:50%;
@@ -248,7 +253,6 @@ body{
 @keyframes pulse-settle{
   0%{transform:scale(.55); opacity:0;}
   35%{opacity:1;}
-  78%{transform:scale(1.03); opacity:1;}
   100%{transform:scale(1); opacity:1;}
 }
 @media (prefers-reduced-motion:reduce){
@@ -268,6 +272,65 @@ body{
   flex-direction:column;
   align-items:center;
   z-index:5;
+}
+.phone[data-variant="b"] .modern-map-elements .pin-marker{
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:opacity .2s ease, transform .24s cubic-bezier(.2,.8,.3,1);
+}
+.phone[data-variant="b"] .modern-map-elements .pin-marker.is-filtered-out{
+  opacity:0;
+  transform:scale(.84);
+  pointer-events:none;
+}
+.phone[data-variant="b"] .modern-map-elements .pin-shape{
+  transition:transform .22s cubic-bezier(.2,.8,.3,1), filter .22s ease;
+  transform-origin:50% 100%;
+}
+.phone[data-variant="b"] .modern-map-elements .pin-marker.is-selected{z-index:7;}
+.phone[data-variant="b"] .modern-map-elements .pin-marker.is-selected .pin-shape{
+  transform:translateY(-4px) scale(1.12);
+  filter:drop-shadow(0 5px 7px rgba(0,0,0,.28));
+}
+.phone[data-variant="b"] .modern-map-elements .pin-marker.is-selected .pin-label{color:#435EFF;}
+.pin-salary{
+  display:none;
+  height:34px;
+  min-width:98px;
+  align-items:center;
+  gap:6px;
+  padding:3px 10px 3px 4px;
+  border:1px solid rgba(19,22,24,.08);
+  border-radius:var(--radius-pill);
+  background:var(--white);
+  box-shadow:0 3px 10px rgba(20,22,30,.16);
+  color:var(--text-default);
+  white-space:nowrap;
+  transform-origin:50% 100%;
+  transition:background .2s ease, color .2s ease, transform .22s cubic-bezier(.2,.8,.3,1);
+}
+.pin-salary-icon{
+  width:26px;
+  height:26px;
+  flex:0 0 26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+}
+.pin-salary-icon img{display:block; width:20px; height:20px;}
+.pin-salary strong{font-size:13px; line-height:18px; font-weight:700;}
+.phone.is-salary-mode .modern-map-elements .pin-marker{width:auto; min-width:98px;}
+.phone.is-salary-mode .modern-map-elements .pin-shape{display:none;}
+.phone.is-salary-mode .modern-map-elements .pin-salary{display:flex;}
+.phone.is-salary-mode .modern-map-elements .pin-label{margin-top:3px;}
+.phone.is-salary-mode .modern-map-elements .pin-marker.is-selected{z-index:7;}
+.phone.is-salary-mode .modern-map-elements .pin-marker.is-selected .pin-salary{
+  border-color:#FF501B;
+  background:#FF501B;
+  color:var(--white);
+  transform:translateY(-3px) scale(1.06);
+  box-shadow:0 5px 12px rgba(255,80,27,.28);
 }
 .badge-new{
   position:absolute;
@@ -312,6 +375,8 @@ body{
 .pin-service{background:var(--pin-service);}
 .pin-expert{background:var(--pin-expert);}
 .pin-sales{background:var(--pin-sales);}
+.pin-office{background:var(--pin-expert);}
+.pin-customer{background:var(--pin-sales);}
 /* Figma: num 16x16 at x=37,y=1 within the 66x34 "main"; pin circle sits at x=21
    -> inside our 34px .pin-shape (circle at x=5) the badge lands at x=21, y=1 */
 .pin-count{
@@ -450,12 +515,32 @@ body{
   border-radius:20px 20px 0 0;
   padding:8px 0 12px;
   box-shadow:0 -8px 20px rgba(20,22,30,.08);
+  overflow:hidden;
+  transition:transform .34s cubic-bezier(.32,.72,0,1),
+             opacity .22s ease,
+             top .34s cubic-bezier(.32,.72,0,1),
+             bottom .34s cubic-bezier(.32,.72,0,1),
+             height .34s cubic-bezier(.32,.72,0,1);
 }
 .sheet-handle{
+  position:relative;
+  display:block;
+  width:100%; height:20px;
+  padding:0;
+  border:0;
+  background:transparent;
+  margin:-8px 0 4px;
+  cursor:grab;
+  touch-action:none;
+}
+.sheet-handle::after{
+  content:"";
+  position:absolute;
+  left:50%; top:8px;
   width:36px; height:4px;
+  transform:translateX(-50%);
   border-radius:2px;
   background:var(--border-subtle);
-  margin:0 auto 12px;
 }
 /* rows are full-bleed with 16px padding so chips clip at the screen edge (Figma Bottom_filter) */
 .sheet-filters{
@@ -510,6 +595,126 @@ body{
   display:flex; align-items:center;
   white-space:nowrap;
 }
+
+.phone[data-variant="b"] .chip.is-active{
+  border:1px solid var(--badge-dark);
+  background:var(--badge-dark);
+  color:var(--white);
+}
+.phone[data-variant="b"] .chip-money.is-active .icon-plus-fill{
+  filter:brightness(0) invert(1);
+  transform:rotate(45deg);
+}
+.chip-money .icon-plus-fill{transition:transform .2s ease;}
+.phone[data-variant="b"] .filter-pill.is-active{
+  border-color:var(--badge-dark);
+  color:var(--text-default);
+}
+.phone[data-variant="b"] .filter-pill.is-active .ic-chevron{color:var(--text-default);}
+.filter-icon-btn{position:relative;}
+.filter-icon-btn.has-linked-filter::after{
+  content:"✓";
+  position:absolute;
+  right:-2px; top:-3px;
+  width:12px; height:12px;
+  display:flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--white);
+  border-radius:50%;
+  background:#FF6D12;
+  color:var(--white);
+  font-size:8px;
+  font-weight:800;
+  line-height:1;
+}
+
+.sheet-list{display:none;}
+.sheet-sort-row{
+  height:47px;
+  padding:0 20px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid #ECEFF1;
+  color:#929BA3;
+  font-size:13px;
+}
+.sheet-sort-row div{display:flex; gap:10px;}
+.sheet-sort-row strong{color:var(--text-default); font-weight:600;}
+.sheet-sort-row span{white-space:nowrap;}
+.sheet-job-card{
+  min-height:166px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:16px 20px;
+  border-bottom:1px solid #ECEFF1;
+  background:var(--white);
+}
+.sheet-job-company{display:flex; align-items:center; justify-content:space-between; font-size:14px; line-height:20px;}
+.sheet-job-company button{border:0; background:transparent; color:#C5CBD0; font-size:24px; line-height:20px; padding:0;}
+.sheet-job-title{font-size:16px; line-height:22px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.sheet-job-meta{font-size:13px; line-height:18px; color:#8C959D;}
+.sheet-job-pay{display:flex; align-items:center; gap:4px; margin-top:6px; font-size:12px;}
+.sheet-job-pay strong{font-size:15px; color:#00A6A6;}
+.sheet-job-pay span{color:#8C959D;}
+.sheet-job-pay em{color:#FF501B; font-style:normal;}
+
+.phone[data-variant="b"][data-sheet-level="list"] .sheet{
+  top:76px;
+  bottom:81px;
+  height:auto;
+  z-index:11;
+  overflow-y:auto;
+  padding-bottom:0;
+}
+.phone[data-variant="b"][data-sheet-level="list"] .sheet-list,
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet-list{display:block;}
+.phone[data-variant="b"][data-sheet-level="list"] .list-btn,
+.phone[data-variant="b"][data-sheet-level="pin"] .list-btn{opacity:0; pointer-events:none;}
+
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet{
+  bottom:0;
+  height:360px;
+  z-index:11;
+  padding-bottom:0;
+  overflow-y:auto;
+}
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet-filters,
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet-tags,
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet-sort-row{display:none;}
+.phone[data-variant="b"][data-sheet-level="pin"] .sheet-job-card:nth-of-type(n+3){display:none;}
+.phone[data-variant="b"][data-sheet-level="pin"] .tabbar{transform:translateY(100%);}
+.phone[data-variant="b"][data-sheet-level="pin"] .map-btn,
+.phone[data-variant="b"][data-sheet-level="pin"] .list-btn{transform:translateY(92px);}
+
+.map-view-btn{
+  position:absolute;
+  left:50%; bottom:100px;
+  z-index:13;
+  height:40px;
+  display:flex; align-items:center; gap:6px;
+  padding:0 14px;
+  border:0;
+  border-radius:var(--radius-pill);
+  background:var(--badge-dark);
+  color:var(--white);
+  font-family:inherit;
+  font-size:14px;
+  font-weight:700;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,8px);
+  transition:opacity .2s ease, transform .24s ease;
+}
+.map-view-btn .ic-pin{width:18px; height:18px; color:var(--white);}
+.phone[data-variant="b"][data-sheet-level="list"] .map-view-btn{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(-50%,0);
+}
+
+.map-btn-refresh.is-refreshing .icon-restart{animation:refresh-spin .62s ease-in-out;}
+@keyframes refresh-spin{to{transform:rotate(360deg);}}
+.modern-map-elements.is-refreshing .pin-marker{animation:pin-refresh .62s ease both;}
+@keyframes pin-refresh{50%{opacity:.15; transform:scale(.88);}100%{opacity:1; transform:scale(1);}}
 
 /* ============ Tab bar (D-Tabber, 81px total) ============ */
 .tabbar{
@@ -861,6 +1066,10 @@ body{
   .search-bar,.chip-row,.map-btn,.list-btn,.sheet,
   .ab-search,.ab-hamburger,.ab-hotspot,.ab-switch,.ab-map-btn,.ab-sheet,
   .tabbar{transition:none;}
+  .pin-marker,.pin-shape,.pin-salary,.map-view-btn,.icon-plus-fill{transition:none !important;}
+  .my-location.is-targeted::after,
+  .map-btn-refresh.is-refreshing .icon-restart,
+  .modern-map-elements.is-refreshing .pin-marker{animation:none;}
 }
 
 /* ============================================================

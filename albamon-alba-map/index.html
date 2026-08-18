@@ -225,14 +225,14 @@
     </div>
 
     <div class="chip-row">
-      <button class="chip chip-money">급여<img class="icon-plus-fill" src="assets/icon-plus-fill.svg" alt=""></button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-coffee.svg" alt="">외식·음료</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-package.svg" alt="">매장관리·판매</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-thumbsup.svg" alt="">서비스</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-construction.svg" alt="">생산·건설·노무</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-mic.svg" alt="">교육·강사</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-office.svg" alt="">사무직</button>
-      <button class="chip"><img class="chip-emoji" src="assets/chip-icon-headset.svg" alt="">고객상담·리서치·영업</button>
+      <button class="chip chip-money" data-control="salary">급여<img class="icon-plus-fill" src="assets/icon-plus-fill.svg" alt=""></button>
+      <button class="chip" data-category="food"><img class="chip-emoji" src="assets/chip-icon-coffee.svg" alt="">외식·음료</button>
+      <button class="chip" data-category="sales"><img class="chip-emoji" src="assets/chip-icon-package.svg" alt="">매장관리·판매</button>
+      <button class="chip" data-category="service"><img class="chip-emoji" src="assets/chip-icon-thumbsup.svg" alt="">서비스</button>
+      <button class="chip" data-category="build"><img class="chip-emoji" src="assets/chip-icon-construction.svg" alt="">생산·건설·노무</button>
+      <button class="chip" data-category="expert"><img class="chip-emoji" src="assets/chip-icon-mic.svg" alt="">교육·강사</button>
+      <button class="chip" data-category="office"><img class="chip-emoji" src="assets/chip-icon-office.svg" alt="">사무직</button>
+      <button class="chip" data-category="customer"><img class="chip-emoji" src="assets/chip-icon-headset.svg" alt="">고객상담·리서치·영업</button>
     </div>
     </div><!-- /top-bar -->
 
@@ -243,10 +243,10 @@
 
     <!-- ===== bottom filter sheet ===== -->
     <div class="sheet">
-      <div class="sheet-handle"></div>
+      <button class="sheet-handle" type="button" aria-expanded="true" aria-label="필터 영역 접기"></button>
       <div class="sheet-filters">
         <button class="filter-icon-btn"><img class="icon-filter-sliders" src="assets/icon-filter-sliders.svg" alt=""></button>
-        <button class="filter-pill">하는 일<i class="ic-chevron"></i></button>
+        <button class="filter-pill filter-job"><span class="filter-label">하는 일</span><i class="ic-chevron"></i></button>
         <button class="filter-pill">일하는 기간<i class="ic-chevron"></i></button>
         <button class="filter-pill">일하는 요일<i class="ic-chevron"></i></button>
         <button class="filter-pill">일하는 시간<i class="ic-chevron"></i></button>
@@ -262,7 +262,35 @@
         <span class="tag">인근 주민 우대</span>
         <span class="tag">야간 근무</span>
       </div>
+      <div class="sheet-list" aria-live="polite">
+        <div class="sheet-sort-row">
+          <span>총 1,000건</span>
+          <div><strong>• 추천순</strong><span>• 거리순</span><span>• 최신순</span></div>
+        </div>
+        <article class="sheet-job-card">
+          <div class="sheet-job-company">주토피아커피 <button type="button" aria-label="스크랩">☆</button></div>
+          <strong class="sheet-job-title">[2호선 역세권/칼퇴OK] 저축 은행 대출잔액 및 이자조회</strong>
+          <span class="sheet-job-meta">3개월~6개월 · 09:00~18:00</span>
+          <span class="sheet-job-meta">서울시 강남구 도곡동</span>
+          <div class="sheet-job-pay"><strong>시급 12,000원</strong><span>· 내 위치에서 <em>200m</em></span></div>
+        </article>
+        <article class="sheet-job-card">
+          <div class="sheet-job-company">코코코 <button type="button" aria-label="스크랩">☆</button></div>
+          <strong class="sheet-job-title">[코코코 신논현점] 홀,주방 직원/아르바이트 공고</strong>
+          <span class="sheet-job-meta">3개월~6개월 · 09:00~18:00</span>
+          <span class="sheet-job-meta">서울시 강남구 도곡동</span>
+          <div class="sheet-job-pay"><strong>월급 3,000,000원</strong><span>· 내 위치에서 <em>200m</em></span></div>
+        </article>
+        <article class="sheet-job-card">
+          <div class="sheet-job-company">양미당 <button type="button" aria-label="스크랩">☆</button></div>
+          <strong class="sheet-job-title">[강남역 양미당] 전통주점 홀직원/홀알바 모집</strong>
+          <span class="sheet-job-meta">3개월~6개월 · 09:00~18:00</span>
+          <span class="sheet-job-meta">서울시 강남구 도곡동</span>
+          <div class="sheet-job-pay"><strong>시급 13,000원</strong><span>· 내 위치에서 <em>200m</em></span></div>
+        </article>
+      </div>
     </div>
+    <button class="map-view-btn" type="button"><i class="ic-pin"></i>지도보기</button>
 
     </div><!-- /chrome-b -->
 
@@ -376,7 +404,172 @@
   var pickerPanel = document.querySelector('.variant-panel');
   var pickerBackdrop = document.querySelector('.variant-backdrop');
   var pickerClose = document.querySelector('.variant-close');
+  var bSheet = phone.querySelector('.chrome-b .sheet');
+  var bSheetHandle = bSheet.querySelector('.sheet-handle');
+  var filterJob = bSheet.querySelector('.filter-job');
+  var filterJobLabel = filterJob.querySelector('.filter-label');
+  var mapViewButton = phone.querySelector('.map-view-btn');
   var MOBILE = '(max-width:520px)';
+  var CATEGORY_LABELS = {
+    food:'외식·음료', sales:'매장관리·판매', service:'서비스',
+    build:'생산·건설·노무', expert:'교육·강사', office:'사무직',
+    customer:'고객상담·리서치·영업'
+  };
+  var SALARY_LABELS = {
+    food:'시 12,000원', sales:'일 20만원', service:'시 11,000원',
+    build:'일 15만원', expert:'주 30만원', office:'월 280만원',
+    customer:'월 300만원'
+  };
+  var interactionState = {
+    variant:'b',
+    selectedCategories:[],
+    selectedBottomFilters:[],
+    salaryMode:false,
+    sheetLevel:'peek',
+    selectedPin:null,
+    mapFocused:false
+  };
+
+  // 모든 그룹이 공유하는 interaction state machine.
+  // 화면 요소는 상태를 직접 변경하지 않고 action만 전달한다.
+  function transitionInteraction(action, payload){
+    switch (action) {
+      case 'GROUP_CHANGE':
+        interactionState.variant = payload;
+        interactionState.mapFocused = false;
+        interactionState.sheetLevel = 'peek';
+        interactionState.selectedPin = null;
+        break;
+      case 'MAP_FOCUS':
+        interactionState.mapFocused = payload;
+        if (payload) interactionState.sheetLevel = 'peek';
+        break;
+      case 'PIN_SELECT':
+        interactionState.mapFocused = false;
+        interactionState.selectedPin = payload;
+        interactionState.sheetLevel = 'pin';
+        break;
+      case 'SHEET_SET':
+        interactionState.mapFocused = false;
+        interactionState.sheetLevel = payload;
+        if (payload !== 'pin') interactionState.selectedPin = null;
+        break;
+      case 'CATEGORY_TOGGLE':
+        var categoryIndex = interactionState.selectedCategories.indexOf(payload);
+        if (categoryIndex === -1) interactionState.selectedCategories.push(payload);
+        else interactionState.selectedCategories.splice(categoryIndex, 1);
+        interactionState.selectedPin = null;
+        interactionState.sheetLevel = 'peek';
+        break;
+      case 'CATEGORY_CLEAR':
+        interactionState.selectedCategories = [];
+        break;
+      case 'SALARY_TOGGLE':
+        interactionState.salaryMode = !interactionState.salaryMode;
+        interactionState.selectedPin = null;
+        interactionState.sheetLevel = 'peek';
+        break;
+      case 'BOTTOM_FILTER_TOGGLE':
+        var filterIndex = interactionState.selectedBottomFilters.indexOf(payload);
+        if (filterIndex === -1) interactionState.selectedBottomFilters.push(payload);
+        else interactionState.selectedBottomFilters.splice(filterIndex, 1);
+        break;
+    }
+    renderInteraction();
+  }
+
+  function setMapFocused(on){
+    transitionInteraction('MAP_FOCUS', on);
+  }
+
+  function replayLocation(){
+    phone.querySelectorAll('.modern-map-elements .my-location-pulse').forEach(function(p){
+      var c = p.cloneNode(true);
+      p.replaceWith(c);
+    });
+    var location = phone.querySelector('.modern-map-elements .my-location');
+    location.classList.remove('is-targeted');
+    void location.offsetWidth;
+    location.classList.add('is-targeted');
+  }
+
+  function pinCategory(pin){
+    var circle = pin.querySelector('.pin-circle');
+    if (circle.classList.contains('pin-food')) return 'food';
+    if (circle.classList.contains('pin-sales')) return 'sales';
+    if (circle.classList.contains('pin-service')) return 'service';
+    if (circle.classList.contains('pin-build')) return 'build';
+    if (circle.classList.contains('pin-expert')) return 'expert';
+    return 'customer';
+  }
+
+  function ensureSalaryPins(){
+    phone.querySelectorAll('.modern-map-elements .pin-marker').forEach(function(pin){
+      if (pin.querySelector('.pin-salary')) return;
+      var category = pinCategory(pin);
+      var sourceIcon = pin.querySelector('.pin-circle img');
+      var salary = document.createElement('div');
+      salary.className = 'pin-salary';
+      salary.innerHTML = '<span class="pin-salary-icon pin-' + category + '"><img src="' + sourceIcon.getAttribute('src') + '" alt=""></span><strong>' + SALARY_LABELS[category] + '</strong>';
+      pin.insertBefore(salary, pin.querySelector('.pin-label'));
+      pin.dataset.category = category;
+    });
+  }
+
+  function renderInteraction(){
+    var isB = interactionState.variant === 'b';
+    phone.dataset.variant = interactionState.variant;
+    phone.dataset.sheetLevel = isB ? interactionState.sheetLevel : 'peek';
+    phone.classList.toggle('is-map-focused', interactionState.mapFocused);
+    phone.classList.toggle('is-salary-mode', isB && interactionState.salaryMode);
+    document.body.classList.toggle('map-focused', interactionState.mapFocused);
+
+    phone.querySelectorAll('.chrome-b .chip[data-category]').forEach(function(chip){
+      var active = interactionState.selectedCategories.indexOf(chip.dataset.category) !== -1;
+      chip.classList.toggle('is-active', active);
+      chip.setAttribute('aria-pressed', String(active));
+    });
+    var salaryChip = phone.querySelector('.chip-money');
+    salaryChip.classList.toggle('is-active', interactionState.salaryMode);
+    salaryChip.setAttribute('aria-pressed', String(interactionState.salaryMode));
+
+    var selectedLabels = interactionState.selectedCategories.map(function(key){ return CATEGORY_LABELS[key]; });
+    filterJobLabel.textContent = selectedLabels.length > 1 ? selectedLabels[0] + ' 외 ' + (selectedLabels.length - 1) : (selectedLabels[0] || '하는 일');
+    filterJob.classList.toggle('is-active', selectedLabels.length > 0);
+    filterJob.setAttribute('aria-pressed', String(selectedLabels.length > 0));
+    bSheet.querySelector('.filter-icon-btn').classList.toggle('has-linked-filter', selectedLabels.length > 0);
+
+    phone.querySelectorAll('.chrome-b .filter-pill:not(.filter-job)').forEach(function(filter){
+      var active = interactionState.selectedBottomFilters.indexOf(filter.textContent.trim()) !== -1;
+      filter.classList.toggle('is-active', active);
+      filter.setAttribute('aria-pressed', String(active));
+    });
+
+    phone.querySelectorAll('.modern-map-elements .pin-marker').forEach(function(pin){
+      var selected = interactionState.selectedPin === pin;
+      var visible = !interactionState.selectedCategories.length || interactionState.selectedCategories.indexOf(pin.dataset.category) !== -1;
+      pin.classList.toggle('is-selected', selected);
+      pin.classList.toggle('is-filtered-out', !visible);
+      if (isB) {
+        pin.setAttribute('role', 'button');
+        pin.setAttribute('tabindex', '0');
+        pin.setAttribute('aria-pressed', String(selected));
+      } else {
+        pin.removeAttribute('role');
+        pin.removeAttribute('tabindex');
+        pin.removeAttribute('aria-pressed');
+      }
+    });
+
+    var expanded = interactionState.sheetLevel !== 'peek';
+    bSheetHandle.setAttribute('aria-expanded', String(expanded));
+    bSheetHandle.setAttribute('aria-label', expanded ? '공고 목록 내리기' : '공고 목록 올리기');
+
+    if (interactionState.selectedPin) {
+      var selectedTitle = interactionState.selectedPin.querySelector('.pin-label').innerText.replace(/\s+/g, ' ').trim();
+      bSheet.querySelector('.sheet-job-company').firstChild.nodeValue = selectedTitle + ' ';
+    }
+  }
 
   function setPicker(open){
     var isMobile = window.matchMedia(MOBILE).matches;
@@ -412,28 +605,108 @@
 
   btns.forEach(function(b){
     b.addEventListener('click', function(){
-      phone.dataset.variant = b.dataset.variant;
-      phone.classList.remove('is-map-focused');   // 그룹을 바꾸면 몰입 모드 해제
-      document.body.classList.remove('map-focused');
+      transitionInteraction('GROUP_CHANGE', b.dataset.variant);
       btns.forEach(function(o){ o.setAttribute('aria-selected', String(o === b)); });
       pickerTrigger.querySelector('.variant-trigger-label').textContent = b.dataset.group;
       pickerTrigger.setAttribute('aria-label', '실험 그룹 선택, 현재 ' + b.dataset.group + ' Group');
       setPicker(false);
       // B·C 진입 때만 내 위치 강조를 처음부터 3회 재생한다.
-      if (b.dataset.variant === 'a') return;
-      phone.querySelectorAll('.modern-map-elements .my-location-pulse').forEach(function(p){
-        var c = p.cloneNode(true);
-        p.replaceWith(c);
-      });
+      if (b.dataset.variant !== 'a') replayLocation();
     });
+  });
+
+  // 공통 핀 모델: B에서 선택 가능하고 이후 A·C에도 같은 상태를 연결한다.
+  ensureSalaryPins();
+  phone.querySelectorAll('.modern-map-elements .pin-marker').forEach(function(pin){
+    var title = pin.querySelector('.pin-label').innerText.replace(/\s+/g, ' ').trim();
+    pin.setAttribute('aria-label', title + ' 공고 선택');
+
+    function selectPin(e){
+      if (phone.dataset.variant !== 'b') return;
+      e.stopPropagation();
+      transitionInteraction('PIN_SELECT', pin);
+    }
+
+    pin.addEventListener('click', selectPin);
+    pin.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectPin(e);
+      }
+    });
+  });
+  renderInteraction();
+
+  // 공통 바텀시트 상태: peek → list, 핀 선택 시 pin.
+  var sheetStartY = 0;
+  bSheetHandle.addEventListener('pointerdown', function(e){ sheetStartY = e.clientY; });
+  bSheetHandle.addEventListener('pointerup', function(e){
+    if (phone.dataset.variant !== 'b') return;
+    var delta = e.clientY - sheetStartY;
+    var nextLevel = Math.abs(delta) > 14
+      ? (delta > 0 ? 'peek' : 'list')
+      : (interactionState.sheetLevel === 'peek' ? 'list' : 'peek');
+    transitionInteraction('SHEET_SET', nextLevel);
+  });
+
+  // Top Filter ↔ Bottom Filter 공통 상태 연동
+  phone.querySelectorAll('.chrome-b .chip[data-category]').forEach(function(chip){
+    chip.setAttribute('aria-pressed', 'false');
+    chip.addEventListener('click', function(){
+      if (interactionState.variant !== 'b') return;
+      transitionInteraction('CATEGORY_TOGGLE', chip.dataset.category);
+    });
+  });
+
+  phone.querySelector('.chip-money').addEventListener('click', function(){
+    if (interactionState.variant !== 'b') return;
+    transitionInteraction('SALARY_TOGGLE');
+  });
+
+  filterJob.addEventListener('click', function(){
+    if (!interactionState.selectedCategories.length) return;
+    transitionInteraction('CATEGORY_CLEAR');
+  });
+
+  phone.querySelectorAll('.chrome-b .filter-pill:not(.filter-job)').forEach(function(filter){
+    filter.setAttribute('aria-pressed', 'false');
+    filter.addEventListener('click', function(){
+      transitionInteraction('BOTTOM_FILTER_TOGGLE', filter.textContent.trim());
+    });
+  });
+
+  phone.querySelector('.chrome-b .map-btn-refresh').addEventListener('click', function(e){
+    if (phone.dataset.variant !== 'b') return;
+    var button = e.currentTarget;
+    var mapElements = phone.querySelector('.modern-map-elements');
+    button.classList.remove('is-refreshing');
+    mapElements.classList.remove('is-refreshing');
+    void button.offsetWidth;
+    button.classList.add('is-refreshing');
+    mapElements.classList.add('is-refreshing');
+    setTimeout(function(){ mapElements.classList.remove('is-refreshing'); }, 620);
+  });
+
+  phone.querySelector('.chrome-b .map-btn-locate').addEventListener('click', function(){
+    if (phone.dataset.variant !== 'b') return;
+    replayLocation();
+  });
+
+  phone.querySelector('.chrome-b .list-btn').addEventListener('click', function(){
+    if (phone.dataset.variant !== 'b') return;
+    transitionInteraction('SHEET_SET', 'list');
+  });
+
+  mapViewButton.addEventListener('click', function(){
+    transitionInteraction('SHEET_SET', 'peek');
   });
 
   // 지도 영역을 탭하면 각 그룹의 상·하단 크롬이 비켜나며 지도뷰가 넓어진다.
   phone.addEventListener('click', function(e){
+    if (phone.dataset.variant === 'b' && e.target.closest('.pin-marker')) return;
     if (e.target.closest('.chrome, .tabbar, .statusbar')) return;
     setPicker(false);
-    var on = phone.classList.toggle('is-map-focused');
-    document.body.classList.toggle('map-focused', on);  // 모바일 시안 전환 바 숨김용
+    setMapFocused(!phone.classList.contains('is-map-focused'));
   });
 
   // ---- 모바일: 프레임 없이 화면을 꽉 채우도록 390px 설계를 스케일 ----
