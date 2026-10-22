@@ -56,7 +56,6 @@
       region: '서울',
       selected: [],          // 'region|district' (district '*' = 전체), 선택 순서 유지
       remote: false,
-      tooltip: false,
       query: '',
       period: null,
       periodConfirmed: false, // STEP 3까지 진행한 뒤 돌아오면 '다음' 버튼 노출
@@ -78,8 +77,6 @@
   var input = $('region-search');
   var clearBtn = $('search-clear');
   var remoteCheck = $('remote-check');
-  var remoteInfo = $('remote-info');
-  var tooltip = $('remote-tooltip');
   var step1Bar = $('step1-bar');
   var sheet = $('select-sheet');
   var chipRow = $('chip-row');
@@ -109,7 +106,6 @@
 
     screens.forEach(function(s){ s.hidden = s.dataset.screen !== name; });
     phone.dataset.screen = name;
-    hideTooltip();
     hideToast();
 
     if (name === 'login') resetStep1View();
@@ -294,7 +290,7 @@
     if (wasSearching !== (state.query.trim() !== '')) results.scrollTop = 0;
     renderStep1();
   });
-  input.addEventListener('focus', function(){ step1.classList.add('is-keyboard'); hideTooltip(); });
+  input.addEventListener('focus', function(){ step1.classList.add('is-keyboard'); });
   input.addEventListener('blur', function(){ step1.classList.remove('is-keyboard'); });
   input.addEventListener('keydown', function(e){ if (e.key === 'Enter') input.blur(); });
   $('search-field').addEventListener('click', function(e){
@@ -317,18 +313,6 @@
     state.remote = !state.remote;
     remoteCheck.setAttribute('aria-checked', state.remote ? 'true' : 'false');
   });
-  function showTooltip(){
-    state.tooltip = true;
-    tooltip.hidden = false;
-    remoteInfo.setAttribute('aria-expanded', 'true');
-  }
-  function hideTooltip(){
-    state.tooltip = false;
-    tooltip.hidden = true;
-    remoteInfo.setAttribute('aria-expanded', 'false');
-  }
-  remoteInfo.addEventListener('click', function(){ state.tooltip ? hideTooltip() : showTooltip(); });
-  $('tooltip-close').addEventListener('click', hideTooltip);
 
   // 초기화
   $('select-reset').addEventListener('click', function(){
@@ -358,10 +342,11 @@
   periodList.addEventListener('click', function(e){
     var btn = e.target.closest('[data-period]');
     if (!btn) return;
+    // 처음 선택하거나, STEP 3에서 돌아와 다른 기간을 고르면 바로 STEP 3으로 이동한다.
+    // 이미 고른 기간을 다시 누르면 그대로 두고 '다음'으로 이동한다.
+    if (state.periodConfirmed && btn.dataset.period === state.period) return;
     state.period = btn.dataset.period;
-    // 처음 선택할 때는 바로 STEP 3으로, STEP 3에서 돌아온 뒤에는 선택만 바꾸고 '다음'으로 이동
-    if (state.periodConfirmed) renderPeriod();
-    else go('step3');
+    go('step3');
   });
 
   /* ============ STEP 3 · 업직종 ============ */

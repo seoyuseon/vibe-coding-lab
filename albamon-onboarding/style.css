@@ -498,14 +498,8 @@ p,h1{margin:0;}
 .search-icons{display:flex; gap:8px; align-items:center;}
 .search-icons button{display:flex;}
 
-.remote{
-  position:relative;
-  flex:none;
-  display:flex;
-  align-items:center;
-  gap:2px;
-}
 .remote-check{
+  flex:none;
   display:flex;
   align-items:center;
   gap:8px;
@@ -534,33 +528,6 @@ p,h1{margin:0;}
   white-space:nowrap;
 }
 .remote-check[aria-checked="true"] .remote-label{color:var(--typo-secondary);}
-.remote-info{display:flex;}
-
-.tooltip{
-  position:absolute;
-  z-index:5;
-  top:calc(100% + 5px);
-  right:-13px;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-}
-.tooltip-box{
-  display:flex;
-  align-items:flex-start;
-  gap:4px;
-  padding:8px 16px;
-  border-radius:var(--radius-sm);
-  background:var(--fill-surface-inverse);
-}
-.tooltip-text{
-  font-size:14px;
-  font-weight:500;
-  line-height:20px;
-  color:var(--typo-inverse);
-  white-space:nowrap;
-}
-.tooltip-close{display:flex; padding:2px 0;}
 
 .region-body{
   position:relative;
