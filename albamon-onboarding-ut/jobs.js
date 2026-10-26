@@ -179,6 +179,16 @@
     var b = String(dong || '').replace(/\d*가$/, '').replace(/\d*(동|읍|면|리)$/, '');
     return b.length >= 2 ? b : dong;
   }
+  // 서울 강남구 테헤란로 212 → 테헤란로, 선릉로93길 → 선릉로 (골목 이름은 지점명으로 어색해서 큰길로 줄인다)
+  function roadName(road){
+    var parts = String(road || '').split(' ');
+    for (var i = 0; i < parts.length; i++){
+      var m = parts[i].match(/^(.+?(대로|로))(\d+(번)?길)?$/);
+      if (m) return m[1];
+      if (/길$/.test(parts[i])) return '';
+    }
+    return '';
+  }
   // 서초구 → 서초, 성남시 분당구 → 분당, 중구 → 중구
   function guBase(gu){
     var last = String(gu || '').split(' ').pop();
@@ -259,7 +269,9 @@
       var seen = {};
       var out = found.filter(function(r){
         if (!r || !r.dong) return false;
-        var k = r.gu + '|' + r.dong;
+        // 같은 동이라도 도로가 다르면 다른 지점으로 쓴다(반경이 좁을 때 지점명이 겹치지 않게).
+        r.roadName = roadName(r.road);
+        var k = r.gu + '|' + r.dong + '|' + r.roadName;
         if (seen[k]) return false;
         seen[k] = true;
         return true;
@@ -285,7 +297,8 @@
 
   function makeCard(post, job, place, index, n){
     var name = Array.isArray(post.b) ? post.b[n % post.b.length] : post.b;
-    var base = branchBase(place.dong || guBase(place.gu));
+    // 같은 프랜차이즈를 다시 쓸 때는 도로명으로 지점명을 붙인다(스타벅스 역삼점 → 스타벅스 테헤란로점).
+    var base = n % 2 === 1 && place.roadName ? place.roadName : branchBase(place.dong || guBase(place.gu));
     var branchName = base + '점';
     var gu = guBase(place.gu || '');
     var title = post.t.replace('{점}', branchName).replace('{구}', gu || base);
