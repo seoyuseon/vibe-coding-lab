@@ -221,8 +221,9 @@
   var groupTouched = false;
   var orderTouched = false;
 
+  // 노션 UT 계획서 배정표와 같다: P1 지역·A, P2 근처·B, P3 근처·A, P4 지역·B, P5 지역·A, P6 근처·B
   function defaultGroup(n){ return n % 2 === 1 ? 'a' : 'b'; }
-  // 순서는 2명 단위로 뒤집어(기본·반대·반대·기본…) 6명이면 3:3이 되고, 완료 화면 그룹과도 겹치지 않는다.
+  // 순서는 2명 단위로 뒤집어(지역·근처·근처·지역…) 6명이면 3:3이 되고, 완료 화면 그룹과도 겹치지 않는다.
   function defaultOrder(n){ return ['list-first', 'nearby-first', 'nearby-first', 'list-first'][(n - 1) % 4]; }
   function participant(){
     var n = parseInt(numInput.value, 10);
@@ -256,7 +257,7 @@
     var line = document.createElement('p');
     if (session){
       line.innerHTML = '<b>진행 중</b> P' + session.participant + ' · ' + GROUP_NAME[session.group] + ' · ' + (ORDER_NAME[session.order] || ORDER_NAME['list-first']) + (session.test ? ' · 연습' : '') +
-        '<br><span>' + minutes(Date.now() - session.startedAt) + ' 경과 · 기록 ' + (session.seq || 0) + '건</span>';
+        '<br><span>' + minutes(Date.now() - session.startedAt) + ' 경과 · 기록 ' + (session.seq || 0) + '건' + (session.task2 ? ' · 다른 지역 방식 체험 중' : '') + '</span>';
       currentEl.className = 'mod-current is-active';
     } else {
       line.innerHTML = '<b>진행 중인 세션 없음</b><br><span>세션을 시작해야 기록돼요</span>';
@@ -282,6 +283,7 @@
       statusEl.appendChild(p);
     });
     $('mod-end').disabled = !session;
+    $('mod-task2').disabled = !session;
     $('mod-preview').disabled = !!session;
   }
 
@@ -323,6 +325,15 @@
       closePanel();
       if (window.onboarding) window.onboarding.restart();
       startSession(n, g, o, test);
+    });
+    // T2: 같은 세션에서 STEP 0으로 돌려보내 다른 지역 방식을 체험하게 한다.
+    $('mod-task2').addEventListener('click', function(){
+      if (!session) return;
+      closePanel();
+      session.task2 = true;
+      save(KEY_SESSION, session);
+      log('task2_start', { from: screen });
+      if (window.onboarding && window.onboarding.jumpToIntro) window.onboarding.jumpToIntro();
     });
     $('mod-end').addEventListener('click', function(){
       endSession('manual');

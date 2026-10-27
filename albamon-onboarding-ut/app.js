@@ -550,6 +550,8 @@
       return id;
     },
     defaultPlace: function(){ return Object.assign({}, DEFAULT_PLACE); },
+    // 진행자 메뉴 T2: 선택값은 두고 STEP 0으로 돌아간다(다른 지역 방식 체험).
+    jumpToIntro: function(){ go('intro'); },
     // 진행자 메뉴 '처음부터': 온보딩 상태를 비우고 로그인으로 돌아간다.
     restart: function(){
       try {

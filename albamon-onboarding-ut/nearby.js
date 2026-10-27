@@ -607,7 +607,7 @@
   window.addEventListener('onboarding:screen', function(e){
     var name = e.detail.name;
     if (name === 'nearby') renderNearby();
-    if (name === 'login'){
+    if (name === 'login' || name === 'intro'){
       hideAllOverlays();
       draft = null;
       consentBusy = false;

@@ -81,6 +81,17 @@
   color:#fff;
 }
 
+.mod-secondary{
+  height:44px;
+  margin-top:-8px;
+  border-radius:12px;
+  background:#2a3036;
+  font-size:14px;
+  font-weight:600;
+  color:#ffd2b5;
+}
+.mod-secondary:disabled{opacity:.35; cursor:default;}
+
 .mod-status{display:flex; flex-direction:column; gap:6px; padding:12px 14px; border-radius:12px; background:#15181b;}
 .mod-status p{display:flex; justify-content:space-between; gap:12px; font-size:13px;}
 .mod-status span{flex:none; color:#7d868e;}

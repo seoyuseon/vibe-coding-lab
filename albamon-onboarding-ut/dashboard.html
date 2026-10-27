@@ -291,7 +291,7 @@ table.data thead th.num{text-align:right;}
       <div class="card-head">
         <div>
           <h2 id="funnel-title">내 근처 위치 설정 흐름</h2>
-          <p>STEP 0에서 위치 권한까지 남은 참가자 수</p>
+          <p>내 근처 경로를 거친 참가자 기준 (첫 선택 + 다른 방식 체험)</p>
         </div>
         <button class="toggle-table" type="button" data-toggle="funnel">표로 보기</button>
       </div>
@@ -395,9 +395,15 @@ table.data thead th.num{text-align:right;}
 
   /* ============ 세션 요약 ============ */
   function summarize(sid){
-    var evs = eventsBySid[sid] || [];
+    // T1(첫 진행)과 T2(진행자가 STEP 0으로 돌려보낸 뒤 다른 지역 방식 체험)를 나눠 본다. 기본 지표는 T1 기준이다.
+    var evsAll = eventsBySid[sid] || [];
+    var cut = -1;
+    for (var ci = 0; ci < evsAll.length; ci++) if (evsAll[ci].type === 'task2_start'){ cut = ci; break; }
+    var evs = cut < 0 ? evsAll : evsAll.slice(0, cut);
+    var evs2 = cut < 0 ? [] : evsAll.slice(cut);
     var doc = sessionDocs[sid] || {};
-    var head = evs[0] || {};
+    var head = evsAll[0] || {};
+    var firstIn = function(list, type, pred){ for (var i = 0; i < list.length; i++) if (list[i].type === type && (!pred || pred(list[i]))) return list[i]; return null; };
     var first = function(type, pred){ for (var i = 0; i < evs.length; i++) if (evs[i].type === type && (!pred || pred(evs[i]))) return evs[i]; return null; };
     var all = function(type){ return evs.filter(function(e){ return e.type === type; }); };
     var d = function(e){ return (e && e.data) || {}; };
@@ -408,10 +414,10 @@ table.data thead th.num{text-align:right;}
       group: doc.group || head.group,
       order: doc.order || head.order || 'list-first',
       test: doc.test != null ? !!doc.test : !!head.test,
-      status: doc.status || (first('session_end') ? 'ended' : 'active'),
+      status: doc.status || (firstIn(evsAll, 'session_end') ? 'ended' : 'active'),
       startedAt: doc.startedAt || (head.at ? head.at - head.t : null),
       standalone: doc.standalone,
-      events: evs
+      events: evsAll
     };
     var login = first('login');
     var done = first('onboarding_complete');
@@ -435,12 +441,26 @@ table.data thead th.num{text-align:right;}
 
     var choice = first('intro_choice');
     r.choice = choice ? d(choice).choice : null;
+    var rd1 = first('region_done');
+    r.pathMs = choice && rd1 ? rd1.t - choice.t : null;
+    var c2 = firstIn(evs2, 'intro_choice');
+    var rd2 = firstIn(evs2, 'region_done');
+    r.t2 = cut < 0 ? null : {
+      choice: c2 ? d(c2).choice : null,
+      pathMs: c2 && rd2 ? rd2.t - c2.t : null,
+      radius: rd2 && d(rd2).mode === 'nearby' ? d(rd2).radius : null,
+      regions: rd2 && d(rd2).mode === 'list' ? (d(rd2).regions || []).length : null,
+      done: !!rd2
+    };
+    // 내 근처 경로는 T1 또는 T2에서 거친다. 동의·권한 응답은 둘 중 처음 거친 쪽에서 본다.
+    r.nearbyTried = evsAll.some(function(e){ return e.type === 'intro_choice' && d(e).choice === 'nearby'; });
+    r.nearbyIn = r.choice === 'nearby' ? 'T1' : (r.t2 && r.t2.choice === 'nearby' ? 'T2' : null);
     r.mode = r.done.mode || r.choice;
     var consent = first('consent_agree', isIntro) || first('consent_later', isIntro) || first('consent_dismiss', isIntro);
     // 가장 먼저 일어난 동의 응답
-    var answers = evs.filter(function(e){ return CONSENT[e.type] && d(e).context === 'intro'; });
+    var answers = evsAll.filter(function(e){ return CONSENT[e.type] && d(e).context === 'intro'; });
     r.consent = answers.length ? answers[0].type : (consent ? consent.type : null);
-    var geo = first('geo_result', isIntro);
+    var geo = firstIn(evsAll, 'geo_result', isIntro);
     r.geo = geo ? d(geo).result : null;
     r.geoMs = geo ? d(geo).ms : null;
     r.permissionBefore = geo ? d(geo).permissionBefore : null;
@@ -531,7 +551,8 @@ table.data thead th.num{text-align:right;}
       return ORDER_NAME[o] + ' ' + chose.filter(function(r){ return r.choice === 'nearby'; }).length + '/' + chose.length;
     }).join(' · ');
     box.appendChild(tile('STEP 0에서 내 근처 선택', String(nearby.length), '/ ' + list.filter(function(r){ return r.choice; }).length + '명', '버튼 순서별 ' + byOrder));
-    box.appendChild(tile('동의 후 위치 권한 허용', String(granted.length), '/ ' + agreed.length + '명', '서비스 동의 ' + agreed.length + ' · 다음에 ' + nearby.filter(function(r){ return r.consent === 'consent_later'; }).length + ' · 거부 ' + agreed.filter(function(r){ return r.geo && r.geo !== 'granted'; }).length));
+    var tried = list.filter(function(r){ return r.nearbyTried; });
+    box.appendChild(tile('동의 후 위치 권한 허용', String(granted.length), '/ ' + agreed.length + '명', '내 근처 경로 ' + tried.length + '명 중 동의 ' + agreed.length + ' · 다음에 ' + tried.filter(function(r){ return r.consent === 'consent_later'; }).length + ' · 거부 ' + agreed.filter(function(r){ return r.geo && r.geo !== 'granted'; }).length));
   }
 
   // A/B: 완료 화면 첫 행동까지 걸린 시간 점 그래프 + 비교표
@@ -692,46 +713,55 @@ table.data thead th.num{text-align:right;}
     box.appendChild(h('p', { class: 'bar-note', text: '이전 버튼으로 돌아간 횟수 ' + backs + '회 · 화면 밀어서 뒤로 가기 시도 ' + swipes + '회' }));
   }
 
+  // 내 근처 경로를 거친 참가자(T1 첫 선택 + T2 다른 방식 체험) 기준
   function renderFunnel(list){
     var box = $('funnel');
     box.textContent = '';
     if (!list.length){ box.appendChild(h('p', { class: 'empty', text: '아직 기록이 없어요.' })); return; }
-    var chose = list.filter(function(r){ return r.choice; });
-    var nearby = chose.filter(function(r){ return r.choice === 'nearby'; });
-    var agreed = nearby.filter(function(r){ return r.consent === 'consent_agree'; });
+    var tried = list.filter(function(r){ return r.nearbyTried; });
+    var agreed = tried.filter(function(r){ return r.consent === 'consent_agree'; });
     var granted = agreed.filter(function(r){ return r.geo === 'granted'; });
-    var base = chose.length;
+    var base = tried.length;
     var stages = [
-      ['STEP 0에서 고름', chose],
-      ['내 근처 선택하기', nearby],
+      ['내 근처 경로를 본 참가자', tried],
       ['동의할게요', agreed],
       ['브라우저 위치 허용', granted]
     ];
-    var items = stages.map(function(s){
-      return { label: s[0], value: s[1].length, sub: pct(s[1].length, base), tip: [s[1].length + '명 (' + pct(s[1].length, base) + ')', s[0], s[1].map(function(r){ return 'P' + r.participant; }).join(' · ')] };
+    var items = stages.map(function(st){
+      return { label: st[0], value: st[1].length, sub: pct(st[1].length, base), tip: [st[1].length + '명 (' + pct(st[1].length, base) + ')', st[0], st[1].map(function(r){ return 'P' + r.participant + '(' + r.nearbyIn + ')'; }).join(' · ')] };
     });
     if (tableView.funnel){
-      box.appendChild(simpleTable(['단계', '인원', '비율', '참가자'], items.map(function(it, i){ return [it.label, it.value + '명', it.sub, stages[i][1].map(function(r){ return 'P' + r.participant; }).join(', ') || '–']; })));
+      box.appendChild(simpleTable(['단계', '인원', '비율', '참가자'], items.map(function(it, i){ return [it.label, it.value + '명', it.sub, stages[i][1].map(function(r){ return 'P' + r.participant + '(' + r.nearbyIn + ')'; }).join(', ') || '–']; })));
     } else {
       box.appendChild(barChart(items, function(v){ return v + '명'; }));
     }
-    var later = nearby.filter(function(r){ return r.consent === 'consent_later'; }).length;
-    var dismissed = nearby.filter(function(r){ return r.consent === 'consent_dismiss'; }).length;
+    var inT1 = tried.filter(function(r){ return r.nearbyIn === 'T1'; }).length;
+    var later = tried.filter(function(r){ return r.consent === 'consent_later'; }).length;
+    var dismissed = tried.filter(function(r){ return r.consent === 'consent_dismiss'; }).length;
     var denied = agreed.filter(function(r){ return r.geo && r.geo !== 'granted'; });
     var geoMs = mean(agreed.map(function(r){ return r.geoMs; }));
-    box.appendChild(h('p', { class: 'bar-note', text: '다음에 ' + later + '명 · 바깥 눌러 닫음 ' + dismissed + '명 · 권한 거부·실패 ' + denied.length + '명 · 권한 응답까지 평균 ' + sec(geoMs) }));
+    box.appendChild(h('p', { class: 'bar-note', text: '첫 선택(T1)으로 ' + inT1 + '명 · 다른 방식 체험(T2)으로 ' + (tried.length - inT1) + '명 · 다음에 ' + later + ' · 닫음 ' + dismissed + ' · 권한 거부·실패 ' + denied.length + ' · 권한 응답까지 평균 ' + sec(geoMs) }));
   }
 
   /* ============ 참가자 표 + 타임라인 ============ */
   function consentText(r){
-    if (r.choice !== 'nearby') return r.choice === 'list' ? '–' : '';
+    if (!r.nearbyTried) return r.choice ? '–' : '';
     var c = CONSENT[r.consent] || '응답 없음';
     return c + (r.consent === 'consent_agree' ? ' → ' + (GEO[r.geo] || '대기') : '');
   }
   function regionText(r){
-    if (r.mode === 'nearby') return '내 근처 ' + (r.radius ? r.radius + 'km' : '');
-    if (r.mode === 'list') return '지역 목록 ' + ((r.done.regions || []).length ? (r.done.regions || []).length + '곳' : '');
+    var time = r.pathMs != null ? ' · ' + sec(r.pathMs) : '';
+    if (r.mode === 'nearby') return '내 근처 ' + (r.radius ? r.radius + 'km' : '') + time;
+    if (r.mode === 'list') return '지역 목록 ' + ((r.done.regions || []).length ? (r.done.regions || []).length + '곳' : '') + time;
     return '–';
+  }
+  function t2Text(r){
+    if (!r.t2) return '–';
+    if (!r.t2.choice) return '진행 중';
+    var name = r.t2.choice === 'nearby' ? '내 근처' : '지역 목록';
+    if (!r.t2.done) return name + ' · 진행 중';
+    var detail = r.t2.choice === 'nearby' ? (r.t2.radius ? r.t2.radius + 'km' : '') : (r.t2.regions ? r.t2.regions + '곳' : '');
+    return name + ' ' + detail + ' · ' + sec(r.t2.pathMs);
   }
   function coachText(r){
     if (!r.homeEntered) return '–';
@@ -747,8 +777,8 @@ table.data thead th.num{text-align:right;}
       box.appendChild(h('p', { class: 'empty', text: '아직 기록이 없어요. 프로토타입 왼쪽 위를 길게 눌러 진행자 메뉴에서 세션을 시작하면 여기에 바로 보여요.' }));
       return;
     }
-    var cols = ['참가자', '그룹', '버튼 순서', '시작', '지역 설정', '위치 동의 → 권한', '온보딩 시간', 'STEP 1', 'STEP 2', 'STEP 3', '이전', '완료 화면 첫 행동', '목록까지', '코치마크', '공고뷰', '과제 종료', '기록'];
-    var numeric = { 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, 14: 1, 16: 1 };
+    var cols = ['참가자', '그룹', '버튼 순서', '시작', 'T1 지역 설정', 'T2 다른 방식', '위치 동의 → 권한', '온보딩 시간', 'STEP 1', 'STEP 2', 'STEP 3', '이전', '완료 화면 첫 행동', '목록까지', '코치마크', '공고뷰', '과제 종료', '기록'];
+    var numeric = { 7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 15: 1, 17: 1 };
     var table = h('table', { class: 'data' });
     table.appendChild(h('thead', null, [h('tr', null, cols.map(function(c, i){ return h('th', { scope: 'col', class: numeric[i] ? 'num' : null, text: c }); }))]));
     var body = h('tbody');
@@ -761,6 +791,7 @@ table.data thead th.num{text-align:right;}
         h('td', { text: ORDER_NAME[r.order] || '–' }),
         h('td', null, [h('span', { class: 'status-dot' + (r.status === 'active' ? ' is-live' : '') }), dateText(r.startedAt)]),
         h('td', { text: regionText(r) }),
+        h('td', { text: t2Text(r) }),
         h('td', { text: consentText(r) }),
         h('td', { class: 'num', text: r.completed ? sec(r.onboardingMs) : '미완료' }),
         h('td', { class: 'num', text: step1 ? sec(step1) : '–' }),
@@ -848,6 +879,7 @@ table.data thead th.num{text-align:right;}
       case 'home_reach_list': return '공고 목록까지 내려감' + (d.auto ? ' (자동 이동)' : '') + ' (' + sec(d.ms) + ')';
       case 'home_tap': return '누름: ' + actionName(d.target) + (d.title ? ' “' + d.title + '”' : '');
       case 'home_leave': return '완료 화면 나감 (' + sec(d.ms) + ')';
+      case 'task2_start': return '━━ 진행자: STEP 0으로 돌려보냄 (T2 다른 지역 방식 체험 시작) ━━';
       case 'browser_back': return '화면 밀어서 뒤로 가기' + ({ 'detail-close': ' → 공고뷰 닫힘', 'step2-prev': ' → STEP 1로', 'step3-prev': ' → STEP 2로', 'addr-close': ' → 주소검색 닫힘', 'mapsheet-close': ' → 탐색위치 시트 닫힘', 'consent-close': ' → 동의 시트 닫힘' }[d.action] || ' (반응 없음)');
       case 'flow_restore': return '앱이 다시 열려 이어서 진행 (' + (SCREEN_NAME[d.screen] || d.screen) + ', ' + sec(d.awayMs) + ' 만에)';
       case 'home_restore': return '완료 화면 되살림 (연출 없이)';
@@ -896,9 +928,9 @@ table.data thead th.num{text-align:right;}
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   $('csv-sessions').addEventListener('click', function(){
-    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'map_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events'];
+    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'path_ms', 't2_choice', 't2_path_ms', 't2_radius_km', 't2_regions', 'nearby_in', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'map_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events'];
     var lines = [head].concat(rows().map(function(r){
-      return [r.participant, r.group, r.order, r.test, r.sid, r.startedAt ? new Date(r.startedAt).toISOString() : '', r.loginMethod, r.choice, r.mode, CONSENT[r.consent] || '', r.geo, r.geoMs, r.radius, (r.done.regions || []).join(' / '), r.done.remote, PERIOD[r.done.period] || '', (r.done.jobs || []).map(function(id){ return JOB_NAME[id] || id; }).join(' / '), r.onboardingMs,
+      return [r.participant, r.group, r.order, r.test, r.sid, r.startedAt ? new Date(r.startedAt).toISOString() : '', r.loginMethod, r.choice, r.mode, r.pathMs, r.t2 && r.t2.choice, r.t2 && r.t2.pathMs, r.t2 && r.t2.radius, r.t2 && r.t2.regions, r.nearbyIn, CONSENT[r.consent] || '', r.geo, r.geoMs, r.radius, (r.done.regions || []).join(' / '), r.done.remote, PERIOD[r.done.period] || '', (r.done.jobs || []).map(function(id){ return JOB_NAME[id] || id; }).join(' / '), r.onboardingMs,
         r.screenMs.login, r.screenMs.intro, r.screenMs.step1, r.screenMs.nearby, r.screenMs.step2, r.screenMs.step3, r.backs, r.browserBack, r.regionToggles, r.limitHits, r.radiusChanges, r.mapOpens, r.mapDrags, r.addrSearches, r.addrPicks, r.firstActionMs, r.firstAction, r.reachList, r.reachAuto, r.coach, r.homeTaps, r.detailUnique, r.detailMs, r.taskEnd, r.taskEndMs, r.events.length];
     }));
     download('onboarding-ut-participants.csv', lines);
