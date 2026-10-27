@@ -222,10 +222,9 @@
   var groupTouched = false;
   var orderTouched = false;
 
-  // 노션 UT 계획서 배정표와 같다: P1 지역·A, P2 근처·B, P3 근처·A, P4 지역·B, P5 지역·A, P6 근처·B
+  // 노션 UT 계획서 배정표와 같다: 홀수 = 지역 선택하기 위 · A 코치마크, 짝수 = 내 근처 선택하기 위 · B 하이라이트
   function defaultGroup(n){ return n % 2 === 1 ? 'a' : 'b'; }
-  // 순서는 2명 단위로 뒤집어(지역·근처·근처·지역…) 6명이면 3:3이 되고, 완료 화면 그룹과도 겹치지 않는다.
-  function defaultOrder(n){ return ['list-first', 'nearby-first', 'nearby-first', 'list-first'][(n - 1) % 4]; }
+  function defaultOrder(n){ return n % 2 === 1 ? 'list-first' : 'nearby-first'; }
   function participant(){
     var n = parseInt(numInput.value, 10);
     return isNaN(n) || n < 1 ? 1 : Math.min(n, 99);
@@ -335,6 +334,24 @@
       save(KEY_SESSION, session);
       log('task2_start', { from: screen });
       if (window.onboarding && window.onboarding.jumpToIntro) window.onboarding.jumpToIntro();
+    });
+    // 기기 초기화: 리허설 뒤 실제 UT 전에 쓴다. 진행 중인 세션을 기록 없이 버리고, 참가자 번호를 1부터 다시 시작한다.
+    $('mod-reset').addEventListener('click', function(){
+      var msg = session
+        ? '진행 중인 P' + session.participant + (session.test ? '(연습)' : '') + ' 세션을 기록 없이 지우고, 참가자 번호를 1부터 다시 시작할까요?'
+        : '참가자 번호를 1부터 다시 시작할까요?';
+      if (!window.confirm(msg)) return;
+      var sid = session && session.sid;
+      if (sid){
+        queue = queue.filter(function(it){ return it.id !== sid && !(it.data && it.data.sid === sid); });
+        save(KEY_QUEUE, queue);
+      }
+      session = null;
+      save(KEY_SESSION, null);
+      save(KEY_NEXT, null);
+      try { localStorage.removeItem('obut:flow'); } catch (e) {}
+      if (window.onboarding) window.onboarding.restart();
+      openPanel();
     });
     $('mod-end').addEventListener('click', function(){
       endSession('manual');
