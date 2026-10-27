@@ -427,6 +427,20 @@
     homeToast.classList.remove('is-visible');
   });
 
+  // 앱이 다시 열렸을 때(app.js) 완료 화면을 연출 없이 되살린다. '처음 ~' 기록은 다시 남기지 않는다.
+  ob.restoreHome = function(){
+    prepareFeed().then(function(){
+      ob.go('home');
+      fillCards();
+      reset();
+      logging = true;
+      enteredAt = Date.now();
+      firstAction = firstScroll = reachedList = true;
+      maxScroll = 0;
+      ut.log('home_restore', { cards: cards.length });
+    });
+  };
+
   // 진행자 메뉴 '완료 화면 미리보기' · 링크 ?done&v=a|b → 기본 조건으로 바로 연다. (기록하지 않음)
   ob.previewHome = function(group){
     if (!ob.getState().jobs.length) ob.applyPreset();

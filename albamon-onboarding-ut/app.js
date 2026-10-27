@@ -136,6 +136,8 @@
 
     ut.screen(name, from);
     window.dispatchEvent(new CustomEvent('onboarding:screen', { detail: { name: name, from: from } }));
+    if (name === 'login') clearFlow();
+    else saveFlow();
   }
 
   document.addEventListener('click', function(e){
@@ -478,16 +480,50 @@
     };
   }
 
-  /* ============ 브라우저 뒤로 가기 막기 ============ */
-  // Safari에서 화면 가장자리를 밀어 뒤로 가면 프로토타입을 벗어나므로, 기록만 남기고 현재 화면에 머문다.
+  /* ============ 화면 밀어서 뒤로 가기 ============ */
+  // 페이지를 벗어나지 않게 막고, 화면에 '뒤로'가 있는 곳에서만 그 동작으로 바꾼다.
+  // 바텀시트·공고뷰는 nearby.js·detail.js가 'onboarding:back'을 받아 닫는다. STEP 2·3은 '이전'과 같다. 나머지는 그대로 둔다.
   try {
     history.replaceState({ ob: 0 }, '');
     history.pushState({ ob: 1 }, '');
     window.addEventListener('popstate', function(){
       history.pushState({ ob: 1 }, '');
-      ut.log('browser_back', { screen: current });
+      var where = current;
+      var back = new CustomEvent('onboarding:back', { cancelable: true, detail: { action: null } });
+      var action = 'none';
+      if (!window.dispatchEvent(back)) action = back.detail.action || 'overlay';
+      else if (current === 'step2'){ action = 'step2-prev'; go(state.mode === 'nearby' ? 'nearby' : 'step1'); }
+      else if (current === 'step3'){ action = 'step3-prev'; go('step2'); }
+      ut.log('browser_back', { screen: where, action: action });
     });
   } catch (e) {}
+
+  /* ============ 앱이 다시 열렸을 때 이어서 보기 ============ */
+  // iOS 홈 화면 앱은 잠깐 벗어났다 돌아오면 새로 열리기도 한다. 세션 중이면 마지막 화면과 선택값을 되살린다.
+  var FLOW_KEY = 'obut:flow';
+  function saveFlow(){
+    var s = ut.session && ut.session();
+    if (!s) return;
+    try { localStorage.setItem(FLOW_KEY, JSON.stringify({ sid: s.sid, screen: current, state: state, at: Date.now() })); } catch (e) {}
+  }
+  function clearFlow(){
+    try { localStorage.removeItem(FLOW_KEY); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden && current !== 'login') saveFlow(); });
+  window.addEventListener('pagehide', function(){ if (current !== 'login') saveFlow(); });
+  function restoreFlow(){
+    var s = ut.session && ut.session();
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(FLOW_KEY)); } catch (e) {}
+    if (!s || !saved || saved.sid !== s.sid || !saved.screen || saved.screen === 'login') return;
+    if (new URLSearchParams(location.search).has('done')) return;
+    state = Object.assign(initialState(), saved.state, { query: '' });
+    ut.log('flow_restore', { screen: saved.screen, awayMs: Date.now() - saved.at });
+    if (saved.screen === 'home' && window.onboarding.restoreHome) window.onboarding.restoreHome();
+    else go(saved.screen);
+  }
+  // nearby.js·home.js까지 읽힌 뒤에 되살린다.
+  document.addEventListener('DOMContentLoaded', restoreFlow);
 
   /* ============ 모바일 viewport ============ */
   var root = document.documentElement;

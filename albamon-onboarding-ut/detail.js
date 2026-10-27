@@ -167,6 +167,12 @@
     taskEnd.hidden = true;
   });
 
+  // 화면 밀어서 뒤로 가기: 과제 종료 팝업이 떠 있으면 그대로 두고, 공고뷰면 닫는다.
+  window.addEventListener('onboarding:back', function(e){
+    if (!taskEnd.hidden){ e.detail.action = 'task-end-open'; e.preventDefault(); return; }
+    if (!detail.hidden){ e.detail.action = 'detail-close'; e.preventDefault(); close('swipe'); }
+  });
+
   // 화면이 바뀌면(홈 다시 열기·처음부터 등) 바로 닫는다.
   window.addEventListener('onboarding:screen', hideNow);
 

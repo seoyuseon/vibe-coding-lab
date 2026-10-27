@@ -588,6 +588,21 @@
     addrResults.scrollTop = 0;
   }
 
+  /* ============ 화면 밀어서 뒤로 가기 ============ */
+  // 맨 위에 열린 바텀시트를 닫는다. (위치 권한 응답을 기다리는 중에는 그대로 둔다)
+  window.addEventListener('onboarding:back', function(e){
+    if (!addrEl.hidden){ e.detail.action = 'addr-close'; e.preventDefault(); closeAddr('swipe'); return; }
+    if (!consentEl.hidden){
+      e.preventDefault();
+      if (consentBusy){ e.detail.action = 'consent-busy'; return; }
+      e.detail.action = 'consent-close';
+      ut.log('consent_dismiss', { context: consentContext, via: 'swipe' });
+      hideOverlay(consentEl);
+      return;
+    }
+    if (!mapSheetEl.hidden){ e.detail.action = 'mapsheet-close'; e.preventDefault(); closeMapSheet('swipe'); }
+  });
+
   /* ============ 화면 연결 ============ */
   window.addEventListener('onboarding:screen', function(e){
     var name = e.detail.name;
