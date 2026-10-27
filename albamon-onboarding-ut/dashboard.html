@@ -466,8 +466,8 @@ table.data thead th.num{text-align:right;}
     r.permissionBefore = geo ? d(geo).permissionBefore : null;
     r.radius = r.done.radius;
     r.radiusChanges = all('radius_change').length;
-    r.mapOpens = all('mapsheet_open').length;
-    r.mapDrags = all('mapsheet_confirm').concat(all('mapsheet_close')).reduce(function(sum, e){ return sum + (d(e).drags || 0); }, 0);
+    r.searchOpens = all('search_open').length;
+    r.mapDrags = all('map_drag').length;
     r.addrSearches = all('addr_search').length;
     r.addrPicks = all('addr_pick').length;
     r.regionToggles = all('region_toggle').length;
@@ -854,14 +854,16 @@ table.data thead th.num{text-align:right;}
       case 'region_search': return '지역 검색 “' + d.q + '” (' + d.count + '건)';
       case 'region_reset': return '선택 지역 초기화';
       case 'remote_toggle': return '재택 포함 ' + (d.on ? '체크' : '해제');
-      case 'region_done': return d.mode === 'nearby' ? '내 근처 설정 완료: ' + d.address + ' · ' + d.radius + 'km' : '지역 선택 완료 (' + (d.regions || []).length + '곳)';
+      case 'region_done': return d.mode === 'nearby' ? '내 근처 설정 완료: ' + d.address + ' · ' + d.radius + 'km (' + ({ gps: '현재 위치', map: '지도 이동', search: '주소 검색', default: '기본 위치 시청역' }[d.placeSource] || d.placeSource) + ')' : '지역 선택 완료 (' + (d.regions || []).length + '곳)';
       case 'radius_change': return '반경 ' + d.from + 'km → ' + d.km + 'km';
       case 'mapsheet_open': return '알바 탐색위치 시트 열림 (' + ({ map: '지도 누름', title: '주소 누름', consent_later: '다음에 이후' }[d.via] || d.via) + ')';
       case 'mapsheet_confirm': return '탐색위치 확인: ' + d.address + ' (' + ({ map: '지도 이동', search: '주소 검색', gps: '현재 위치', default: '기본 위치' }[d.source] || d.source) + ', 지도 이동 ' + d.drags + '회)';
       case 'mapsheet_close': return '탐색위치 시트 닫음 (' + ({ dim: '바깥', swipe: '밀어서 뒤로' }[d.via] || 'X') + ')';
-      case 'map_drag': return null;
+      case 'map_drag': return d.count === 1 ? '지도를 처음 움직임' : null;
       case 'map_zoom': return null;
       case 'locate_tap': return '현재 위치 버튼 누름';
+      case 'search_open': return '지도 화면에서 검색창 누름 (검색 상태)';
+      case 'search_close': return '검색 상태 닫음 (' + ({ pick: '결과 선택', blur: '검색어 없이 키보드 닫음', swipe: '밀어서 뒤로' }[d.via] || d.via) + ')';
       case 'addr_open': return '주소검색 열림';
       case 'addr_search': return '주소 검색 “' + d.q + '” (' + d.count + '건)';
       case 'addr_pick': return '검색 결과 선택: ' + (d.road || d.jibun);
@@ -880,7 +882,7 @@ table.data thead th.num{text-align:right;}
       case 'home_tap': return '누름: ' + actionName(d.target) + (d.title ? ' “' + d.title + '”' : '');
       case 'home_leave': return '완료 화면 나감 (' + sec(d.ms) + ')';
       case 'task2_start': return '━━ 진행자: STEP 0으로 돌려보냄 (T2 다른 지역 방식 체험 시작) ━━';
-      case 'browser_back': return '화면 밀어서 뒤로 가기' + ({ 'detail-close': ' → 공고뷰 닫힘', 'step2-prev': ' → STEP 1로', 'step3-prev': ' → STEP 2로', 'addr-close': ' → 주소검색 닫힘', 'mapsheet-close': ' → 탐색위치 시트 닫힘', 'consent-close': ' → 동의 시트 닫힘' }[d.action] || ' (반응 없음)');
+      case 'browser_back': return '화면 밀어서 뒤로 가기' + ({ 'detail-close': ' → 공고뷰 닫힘', 'step2-prev': ' → STEP 1로', 'step3-prev': ' → STEP 2로', 'search-close': ' → 검색 상태 닫힘', 'consent-close': ' → 동의 시트 닫힘' }[d.action] || ' (반응 없음)');
       case 'flow_restore': return '앱이 다시 열려 이어서 진행 (' + (SCREEN_NAME[d.screen] || d.screen) + ', ' + sec(d.awayMs) + ' 만에)';
       case 'home_restore': return '완료 화면 되살림 (연출 없이)';
       case 'detail_open': return '공고뷰 열림: “' + d.title + '” (' + d.index + '번째 공고)';
@@ -928,10 +930,10 @@ table.data thead th.num{text-align:right;}
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   $('csv-sessions').addEventListener('click', function(){
-    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'path_ms', 't2_choice', 't2_path_ms', 't2_radius_km', 't2_regions', 'nearby_in', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'map_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events'];
+    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'path_ms', 't2_choice', 't2_path_ms', 't2_radius_km', 't2_regions', 'nearby_in', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'search_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events'];
     var lines = [head].concat(rows().map(function(r){
       return [r.participant, r.group, r.order, r.test, r.sid, r.startedAt ? new Date(r.startedAt).toISOString() : '', r.loginMethod, r.choice, r.mode, r.pathMs, r.t2 && r.t2.choice, r.t2 && r.t2.pathMs, r.t2 && r.t2.radius, r.t2 && r.t2.regions, r.nearbyIn, CONSENT[r.consent] || '', r.geo, r.geoMs, r.radius, (r.done.regions || []).join(' / '), r.done.remote, PERIOD[r.done.period] || '', (r.done.jobs || []).map(function(id){ return JOB_NAME[id] || id; }).join(' / '), r.onboardingMs,
-        r.screenMs.login, r.screenMs.intro, r.screenMs.step1, r.screenMs.nearby, r.screenMs.step2, r.screenMs.step3, r.backs, r.browserBack, r.regionToggles, r.limitHits, r.radiusChanges, r.mapOpens, r.mapDrags, r.addrSearches, r.addrPicks, r.firstActionMs, r.firstAction, r.reachList, r.reachAuto, r.coach, r.homeTaps, r.detailUnique, r.detailMs, r.taskEnd, r.taskEndMs, r.events.length];
+        r.screenMs.login, r.screenMs.intro, r.screenMs.step1, r.screenMs.nearby, r.screenMs.step2, r.screenMs.step3, r.backs, r.browserBack, r.regionToggles, r.limitHits, r.radiusChanges, r.searchOpens, r.mapDrags, r.addrSearches, r.addrPicks, r.firstActionMs, r.firstAction, r.reachList, r.reachAuto, r.coach, r.homeTaps, r.detailUnique, r.detailMs, r.taskEnd, r.taskEndMs, r.events.length];
     }));
     download('onboarding-ut-participants.csv', lines);
   });

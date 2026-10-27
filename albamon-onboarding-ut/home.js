@@ -124,7 +124,7 @@
     var s = ob.getState();
     var location;
     if (s.mode === 'nearby'){
-      location = (s.place.dong || s.place.gu || '내 근처') + ' ' + s.radius + 'km';
+      location = (s.place.label || s.place.dong || s.place.gu || '내 근처') + ' ' + s.radius + 'km';
     } else {
       var place = '서초구';
       if (s.selected.length){

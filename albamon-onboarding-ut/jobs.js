@@ -205,7 +205,7 @@
   }
   function fallbackPlaces(s){
     if (s.mode === 'nearby'){
-      var sido = String(s.place.address || '').split(' ')[0] || '서울';
+      var sido = s.place.sido || String(s.place.address || '').split(' ')[0] || '서울';
       return [{ sido: sido, gu: s.place.gu || '', dong: s.place.dong || '' }];
     }
     var keys = s.selected.length ? s.selected : ['서울|서초구'];

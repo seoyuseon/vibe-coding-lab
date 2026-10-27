@@ -15,22 +15,19 @@
     7: { icon: 'bike', strong: '자전거 20분' },
     10: { icon: 'bike', strong: '자전거 30분' }
   };
-  var SHEET_LEVEL = 4;
   var GEO_OPTIONS = { enableHighAccuracy: false, timeout: 12000, maximumAge: 0 };
 
   /* ============ DOM ============ */
   var $ = function(id){ return document.getElementById(id); };
   var consentEl = $('consent');
   var agreeBtn = $('consent-agree');
-  var mapSheetEl = $('mapsheet');
-  var addrEl = $('addrsheet');
-  var addrInput = $('addr-input');
-  var addrWrap = $('addr-input-wrap');
-  var addrClear = $('addr-clear');
-  var addrTip = $('addr-tip');
-  var addrResults = $('addr-results');
+  var screenEl = document.querySelector('.screen.nearby');
+  var input = $('nb-search-input');
+  var clearBtn = $('nb-search-clear');
+  var emptyEl = $('nb-empty');
+  var resultsEl = $('nb-results');
+  var nextBtn = $('nearby-next');
   var radiusTab = $('radius-tab');
-  var fieldText = $('addr-field-text');
 
   function el(tag, cls, text){
     var node = document.createElement(tag);
@@ -98,6 +95,7 @@
           var addr = result[0].address;
           resolve({
             address: shortAddr(road ? road.address_name : (addr ? addr.address_name : '')),
+            sido: addr ? shortAddr(addr.region_1depth_name) : '',
             jibun: shortAddr(addr ? addr.address_name : ''),
             dong: addr ? addr.region_3depth_name : (road ? road.region_3depth_name : ''),
             gu: addr ? addr.region_2depth_name : (road ? road.region_2depth_name : '')
@@ -140,7 +138,7 @@
     return Promise.race([promise, new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, ms); })]);
   }
 
-  /* ============ 오버레이 (바텀시트) ============ */
+  /* ============ 오버레이 (위치 동의 바텀시트) ============ */
   function showOverlay(node){
     node.hidden = false;
     void node.offsetWidth;
@@ -149,10 +147,6 @@
   function hideOverlay(node){
     node.classList.remove('is-open');
     setTimeout(function(){ if (!node.classList.contains('is-open')) node.hidden = true; }, 260);
-  }
-  function hideAllOverlays(){
-    [consentEl, mapSheetEl, addrEl].forEach(function(n){ n.classList.remove('is-open'); n.hidden = true; });
-    addrInput.blur();
   }
 
   /* ============ 브라우저 위치 권한 ============ */
@@ -189,8 +183,8 @@
     });
   }
 
-  /* ============ 위치 동의 (4610:325447) ============ */
-  // context: 'intro'(STEP 0 내 근처 선택하기) | 'locate'(지도 시트의 현재 위치 버튼)
+  /* ============ 위치 동의 (4722:376496) ============ */
+  // context: 'intro'(STEP 0 내 근처 선택하기) | 'locate'(지도의 현재 위치 버튼)
   var consentContext = 'intro';
   var consentBusy = false;
   function openConsent(context){
@@ -202,6 +196,7 @@
   }
   window.addEventListener('onboarding:nearby', function(){ openConsent('intro'); });
 
+  // 동의할게요 → 브라우저 권한 → 허용이면 현재 위치, 거부·실패면 기본 위치(시청역)
   agreeBtn.addEventListener('click', function(){
     if (consentBusy) return;
     consentBusy = true;
@@ -219,7 +214,7 @@
         });
       }
       finishConsent();
-      if (pos) moveSheetTo(pos.lat, pos.lng, 'gps');
+      if (pos) moveTo(pos.lat, pos.lng, 'gps');
     });
   });
   function finishConsent(){
@@ -227,14 +222,14 @@
     agreeBtn.classList.remove('is-loading');
     hideOverlay(consentEl);
   }
-  // 다음에 → 동의 없이 지도 시트에서 직접 위치를 정한다. (Figma 연결: 위치 동의 '다음에' → 알바 탐색위치)
+  // 다음에 → 동의 없이 기본 위치(시청역)로 지도 화면을 연다. (Figma: 위치 미동의 → 기본 위치 → 시청)
   $('consent-later').addEventListener('click', function(){
     if (consentBusy) return;
     ut.log('consent_later', { context: consentContext });
     hideOverlay(consentEl);
     if (consentContext === 'intro'){
+      state().place = ob.defaultPlace();
       enterNearby();
-      openMapSheet('consent_later');
     }
   });
   consentEl.querySelector('[data-dismiss]').addEventListener('click', function(){
@@ -254,12 +249,13 @@
     });
   }
 
-  /* ============ STEP 1-2 · 내 근처 (4610:342023) ============ */
+  /* ============ STEP 1-2 · 지도 상태 ============ */
   function enterNearby(){
     state().mode = 'nearby';
     ob.go('nearby');
   }
-
+  // 검색창에는 지금 위치의 이름을 보여준다. (기본 위치는 '시청역', 검색으로 고른 곳은 짧은 도로명)
+  function placeText(p){ return p.display || p.address || '현재 위치'; }
   function renderRadius(){
     var r = state().radius;
     radiusTab.querySelectorAll('[data-radius]').forEach(function(b){
@@ -270,43 +266,62 @@
     $('radius-strong').textContent = info.strong;
   }
   function renderNearby(){
-    var s = state();
-    $('nearby-address-text').textContent = s.place.address || '현재 위치';
+    setSearching(false, true);
+    input.value = placeText(state().place);
+    syncClear();
     renderRadius();
     loadKakao().then(function(){
-      ensurePreview();
-      fitPreview(false);
+      ensureMap();
+      fitMap(false);
     }).catch(function(){});
   }
 
-  // 미리보기 지도: 직접 움직이지 않고, 누르면 '알바 탐색위치' 시트가 열린다. (Figma 연결: img_map → 지도 위치 변경)
-  var preview = null;
-  function ensurePreview(){
-    if (preview) return preview;
+  var map = null;
+  var circle = null;
+  var geoToken = 0;
+  var dragCount = 0;
+  var lastDragLog = 0;
+  var lastDragEnd = 0;   // 손으로 끌어서 옮긴 뒤에만 탐색 위치를 바꾼다(축척 맞춤·검색 이동은 제외)
+  function ensureMap(){
+    if (map) return map;
     var K = kakao.maps;
     var s = state();
     var center = new K.LatLng(s.place.lat, s.place.lng);
-    var map = new K.Map($('preview-map'), { center: center, level: 5, draggable: false, scrollwheel: false, disableDoubleClick: true, disableDoubleClickZoom: true, keyboardShortcuts: false });
-    map.setZoomable(false);
-    map.setDraggable(false);
-    // 반경 원 (Figma Group 1948757614: #FF6D12 채움 10% · 1px 선)
-    var circle = new K.Circle({ center: center, radius: s.radius * 1000, strokeWeight: 1, strokeColor: '#FF6D12', strokeOpacity: 1, strokeStyle: 'solid', fillColor: '#FF6D12', fillOpacity: 0.1 });
+    map = new K.Map($('nearby-map'), { center: center, level: 5 });
+    // 반경 원 (#FF6D12 채움 10% · 1px 선). 지도를 움직이는 동안 가운데를 따라온다.
+    circle = new K.Circle({ center: center, radius: s.radius * 1000, strokeWeight: 1, strokeColor: '#FF6D12', strokeOpacity: 1, strokeStyle: 'solid', fillColor: '#FF6D12', fillOpacity: 0.1 });
     circle.setMap(map);
-    preview = { map: map, circle: circle };
-    return preview;
+    K.event.addListener(map, 'center_changed', function(){ circle.setPosition(map.getCenter()); });
+    K.event.addListener(map, 'dragend', function(){
+      lastDragEnd = Date.now();
+      // 관성으로 조금 더 미끄러진 뒤의 가운데까지 반영한다.
+      setTimeout(onIdle, 450);
+      dragCount++;
+      var now = Date.now();
+      if (now - lastDragLog > 600){
+        lastDragLog = now;
+        ut.log('map_drag', { count: dragCount });
+      }
+    });
+    K.event.addListener(map, 'zoom_changed', function(){
+      if (!zooming) ut.log('map_zoom', { level: map.getLevel() });
+    });
+    K.event.addListener(map, 'idle', onIdle);
+    return map;
   }
   // 반경 원이 지도 카드 안에 들어오는 가장 가까운 축척으로 맞춘다.
-  function fitPreview(animate){
-    if (!preview) return;
+  var zooming = false;
+  function fitMap(animate){
+    if (!map) return;
     var K = kakao.maps;
     var s = state();
     var center = new K.LatLng(s.place.lat, s.place.lng);
-    var map = preview.map;
+    zooming = true;
     map.relayout();
-    preview.circle.setPosition(center);
-    preview.circle.setRadius(s.radius * 1000);
+    circle.setRadius(s.radius * 1000);
+    circle.setPosition(center);
     var before = map.getLevel();
-    map.setBounds(preview.circle.getBounds(), 20, 20, 20, 20);
+    map.setBounds(circle.getBounds(), 20, 20, 20, 20);
     var target = map.getLevel();
     map.setCenter(center);
     if (animate && before !== target){
@@ -314,6 +329,37 @@
       map.setCenter(center);
       map.setLevel(target, { animate: { duration: 260 } });
     }
+    setTimeout(function(){ zooming = false; }, 320);
+  }
+  // 지도가 멈추면 가운데 좌표를 탐색 위치로 삼고 검색창의 주소를 바꾼다.
+  function onIdle(){
+    if (!map || searching || Date.now() - lastDragEnd > 2500) return;
+    var c = map.getCenter();
+    var lat = c.getLat();
+    var lng = c.getLng();
+    var s = state();
+    if (Math.abs(lat - s.place.lat) < 1e-6 && Math.abs(lng - s.place.lng) < 1e-6) return;
+    s.place = { lat: lat, lng: lng, source: 'map', address: '', jibun: '', dong: '', gu: '' };
+    var token = ++geoToken;
+    addressAt(lat, lng).then(function(a){
+      if (token !== geoToken || !a) return;
+      Object.assign(state().place, a);
+      if (!searching) input.value = placeText(state().place);
+    });
+  }
+  function moveTo(lat, lng, source, info){
+    var s = state();
+    s.place = Object.assign({ lat: lat, lng: lng, source: source, address: '', jibun: '', dong: '', gu: '' }, info || {});
+    var token = ++geoToken;
+    input.value = placeText(s.place);
+    if (!info || !info.address){
+      addressAt(lat, lng).then(function(a){
+        if (token !== geoToken || !a) return;
+        Object.assign(state().place, a);
+        if (!searching) input.value = placeText(state().place);
+      });
+    }
+    if (map) map.setCenter(new kakao.maps.LatLng(lat, lng));
   }
 
   radiusTab.addEventListener('click', function(e){
@@ -325,180 +371,94 @@
     ut.log('radius_change', { km: r, from: s.radius });
     s.radius = r;
     renderRadius();
-    fitPreview(true);
+    fitMap(true);
   });
-  $('map-hit').addEventListener('click', function(){ openMapSheet('map'); });
-  $('nearby-address').addEventListener('click', function(){ openMapSheet('title'); });
-  $('nearby-next').addEventListener('click', function(){
-    var s = state();
-    s.mode = 'nearby';
-    ut.log('region_done', { mode: 'nearby', address: s.place.address, placeSource: s.place.source, radius: s.radius, remote: s.remote });
-    ob.go('step2');
-  });
-
-  /* ============ 알바 탐색위치 시트 (4638:342798) ============ */
-  var sheetMap = null;
-  var draft = null;           // 시트에서 고르는 중인 위치 (확인을 눌러야 반영)
-  var geoToken = 0;
-  var dragCount = 0;
-  var lastDragLog = 0;
-
-  function ensureSheetMap(){
-    if (sheetMap) return sheetMap;
-    var K = kakao.maps;
-    sheetMap = new K.Map($('sheet-map'), { center: new K.LatLng(draft.lat, draft.lng), level: SHEET_LEVEL });
-    K.event.addListener(sheetMap, 'dragend', function(){
-      dragCount++;
-      var now = Date.now();
-      if (now - lastDragLog > 600){
-        lastDragLog = now;
-        ut.log('map_drag', { count: dragCount });
-      }
-    });
-    K.event.addListener(sheetMap, 'zoom_changed', function(){
-      if (!mapSheetEl.hidden) ut.log('map_zoom', { level: sheetMap.getLevel() });
-    });
-    K.event.addListener(sheetMap, 'idle', onSheetIdle);
-    return sheetMap;
-  }
-  // 지도가 멈추면 가운데 좌표의 주소를 검색창에 보여준다.
-  function onSheetIdle(){
-    if (!draft || mapSheetEl.hidden) return;
-    var c = sheetMap.getCenter();
-    var lat = c.getLat();
-    var lng = c.getLng();
-    // 프로그램으로 옮긴 중심은 좌표 변환 오차가 있어 6m 안쪽은 같은 위치로 본다.
-    if (Math.abs(lat - draft.lat) < 6e-5 && Math.abs(lng - draft.lng) < 6e-5) return;
-    draft = { lat: lat, lng: lng, source: 'map', address: '', jibun: '', dong: '', gu: '' };
-    var token = ++geoToken;
-    addressAt(lat, lng).then(function(a){
-      if (token !== geoToken || !a) return;
-      Object.assign(draft, a);
-      fieldText.textContent = a.address;
-    });
-  }
-  function moveSheetTo(lat, lng, source, info){
-    draft = Object.assign({ lat: lat, lng: lng, source: source, address: '', jibun: '', dong: '', gu: '' }, info || {});
-    var token = ++geoToken;
-    if (info && info.address) fieldText.textContent = info.address;
-    else {
-      addressAt(lat, lng).then(function(a){
-        if (token !== geoToken || !a) return;
-        Object.assign(draft, a);
-        fieldText.textContent = a.address;
-      });
-    }
-    if (sheetMap) sheetMap.setCenter(new kakao.maps.LatLng(lat, lng));
-  }
-
-  function openMapSheet(via){
-    var s = state();
-    draft = Object.assign({}, s.place);
-    dragCount = 0;
-    fieldText.textContent = draft.address || '';
-    showOverlay(mapSheetEl);
-    ut.log('mapsheet_open', { via: via });
-    loadKakao().then(function(){
-      var m = ensureSheetMap();
-      m.relayout();
-      m.setLevel(SHEET_LEVEL);
-      m.setCenter(new kakao.maps.LatLng(draft.lat, draft.lng));
-      // 시트가 올라오는 동안 크기가 바뀌므로 한 번 더 맞춘다.
-      setTimeout(function(){ m.relayout(); m.setCenter(new kakao.maps.LatLng(draft.lat, draft.lng)); }, 280);
-    }).catch(function(){});
-  }
-  function closeMapSheet(via){
-    ut.log('mapsheet_close', { via: via, drags: dragCount });
-    draft = null;
-    hideOverlay(mapSheetEl);
-  }
-  $('mapsheet-confirm').addEventListener('click', function(){
-    var s = state();
-    var prev = s.place;
-    var next = draft || prev;
-    s.place = Object.assign({}, next, { address: next.address || prev.address });
-    ut.log('mapsheet_confirm', { address: s.place.address, source: s.place.source, moved: Math.round(distance(prev, s.place)), drags: dragCount });
-    draft = null;
-    hideOverlay(mapSheetEl);
-    s.mode = 'nearby';
-    renderNearby();
-  });
-  mapSheetEl.querySelector('[data-close]').addEventListener('click', function(){ closeMapSheet('close'); });
-  mapSheetEl.querySelector('[data-dismiss]').addEventListener('click', function(){ closeMapSheet('dim'); });
-
   // 현재 위치 버튼: 서비스 안 동의가 없으면 동의부터 받는다.
   $('locate-btn').addEventListener('click', function(){
     var s = state();
     ut.log('locate_tap', { consent: s.consent, geo: s.geo });
     if (!s.consent){ openConsent('locate'); return; }
-    requestGeo('locate').then(function(pos){
-      if (pos && !mapSheetEl.hidden) moveSheetTo(pos.lat, pos.lng, 'gps');
-    });
+    requestGeo('locate').then(function(pos){ if (pos) moveTo(pos.lat, pos.lng, 'gps'); });
+  });
+  nextBtn.addEventListener('click', function(){
+    if (searching) return;
+    var s = state();
+    s.mode = 'nearby';
+    ut.log('region_done', { mode: 'nearby', address: s.place.address, placeSource: s.place.source, radius: s.radius, remote: s.remote, drags: dragCount });
+    ob.go('step2');
   });
 
-  function distance(a, b){
-    var R = 6371000;
-    var toRad = Math.PI / 180;
-    var dLat = (b.lat - a.lat) * toRad;
-    var dLng = (b.lng - a.lng) * toRad;
-    var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * toRad) * Math.cos(b.lat * toRad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
-
-  /* ============ 주소검색 (4638:343037 / 4638:343173) ============ */
+  /* ============ STEP 1-2 · 검색 상태 (4739:101834 / 4739:102125) ============ */
+  // 검색창을 누르면 같은 화면에서 타이틀이 펼쳐지고 지도 자리에 검색 결과가 나온다.
+  var searching = false;
   var searchTimer = null;
   var searchLogTimer = null;
   var searchToken = 0;
   var lastQuery = '';
   var lastCount = 0;
-
-  $('addr-field').addEventListener('click', function(){
-    addrInput.value = '';
-    syncAddrInput();
-    showAddrTip();
-    showOverlay(addrEl);
-    addrInput.focus();
-    ut.log('addr_open', {});
+  function setSearching(on, instant){
+    searching = on;
+    if (instant) screenEl.classList.add('no-anim');
+    screenEl.classList.toggle('is-searching', on);
+    $('nb-search-view').setAttribute('aria-hidden', on ? 'false' : 'true');
+    nextBtn.disabled = on;
+    if (instant){ void screenEl.offsetWidth; screenEl.classList.remove('no-anim'); }
+  }
+  function syncClear(){ clearBtn.hidden = !searching || input.value === ''; }
+  function showEmpty(){
+    emptyEl.hidden = false;
+    resultsEl.hidden = true;
+    resultsEl.textContent = '';
+  }
+  input.addEventListener('focus', function(){
+    if (searching) return;
+    setSearching(true);
+    input.value = '';
+    lastQuery = '';
+    lastCount = 0;
+    showEmpty();
+    syncClear();
+    ut.log('search_open', {});
   });
-  function closeAddr(via){
-    ut.log('addr_close', { via: via, q: lastQuery, count: lastCount });
-    addrInput.blur();
-    hideOverlay(addrEl);
+  // 검색어 없이 키보드를 닫으면 지도 상태로 돌아간다.
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      if (searching && input.value.trim() === '' && document.activeElement !== input) closeSearch('blur');
+    }, 120);
+  });
+  function closeSearch(via){
+    if (!searching) return;
+    ut.log('search_close', { via: via, q: lastQuery, count: lastCount });
+    input.blur();
+    setSearching(false);
+    input.value = placeText(state().place);
+    syncClear();
+    if (map) setTimeout(function(){ map.relayout(); }, 340);
   }
-  addrEl.querySelector('[data-close]').addEventListener('click', function(){ closeAddr('close'); });
-  addrEl.querySelector('[data-dismiss]').addEventListener('click', function(){ closeAddr('dim'); });
-
-  function syncAddrInput(){
-    var has = addrInput.value !== '';
-    addrClear.hidden = !has;
-    $('addr-search-icon').hidden = has;
-    addrWrap.classList.toggle('is-typing', has);
-  }
-  function showAddrTip(){
-    addrTip.hidden = false;
-    addrResults.hidden = true;
-    addrResults.textContent = '';
-  }
-  addrInput.addEventListener('input', function(){
-    syncAddrInput();
+  input.addEventListener('input', function(){
+    syncClear();
     clearTimeout(searchTimer);
     searchTimer = setTimeout(search, 250);
   });
-  addrInput.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); clearTimeout(searchTimer); search(); addrInput.blur(); }
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); clearTimeout(searchTimer); search(); input.blur(); }
   });
-  addrClear.addEventListener('click', function(){
-    addrInput.value = '';
-    syncAddrInput();
-    showAddrTip();
-    addrInput.focus();
+  $('nb-search-field').addEventListener('click', function(e){
+    if (!e.target.closest('#nb-search-clear')) input.focus();
+  });
+  clearBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  clearBtn.addEventListener('click', function(){
+    input.value = '';
+    syncClear();
+    showEmpty();
+    input.focus();
   });
 
   // 주소(도로명·지번) 검색과 장소(건물명) 검색을 함께 돌려 합친다.
   function search(){
-    var q = addrInput.value.trim();
+    var q = input.value.trim();
     var token = ++searchToken;
-    if (!q){ showAddrTip(); return; }
+    if (!q){ showEmpty(); return; }
     loadKakao().then(function(){
       services();
       return Promise.all([searchAddress(q), searchPlaces(q)]);
@@ -510,7 +470,13 @@
       lastCount = items.length;
       clearTimeout(searchLogTimer);
       searchLogTimer = setTimeout(function(){ ut.log('addr_search', { q: q, count: items.length }); }, 1000);
-    }).catch(function(){ if (token === searchToken) showAddrTip(); });
+    }).catch(function(){ if (token === searchToken) showEmpty(); });
+  }
+  // 서울 서초구 서초대로 301 → 서초대로 301 (시·도와 시·군·구를 뺀 짧은 도로명)
+  function roadOnly(full, r1, r2){
+    var out = String(full || '');
+    [r1, r2].forEach(function(r){ if (r && out.indexOf(r + ' ') === 0) out = out.slice(r.length + 1); });
+    return out;
   }
   function searchAddress(q){
     return new Promise(function(resolve){
@@ -519,14 +485,13 @@
         resolve(result.map(function(r){
           var road = r.road_address;
           var addr = r.address;
-          var dong = addr ? addr.region_3depth_name : (road ? road.region_3depth_name : '');
-          var extra = [road && road.region_3depth_name, road && road.building_name].filter(Boolean).join(', ');
+          var full = road ? shortAddr(road.address_name) : '';
           return {
-            road: shortAddr(road ? road.address_name : ''),
-            roadLabel: road ? shortAddr(road.address_name) + (extra ? ' (' + extra + ')' : '') : '',
+            road: full,
+            short: road ? roadOnly(road.address_name, road.region_1depth_name, road.region_2depth_name) : '',
             jibun: shortAddr(addr ? addr.address_name : r.address_name),
             lat: Number(r.y), lng: Number(r.x),
-            dong: dong,
+            dong: addr ? addr.region_3depth_name : (road ? road.region_3depth_name : ''),
             gu: addr ? addr.region_2depth_name : (road ? road.region_2depth_name : '')
           };
         }));
@@ -539,13 +504,14 @@
         if (status !== kakao.maps.services.Status.OK){ resolve([]); return; }
         resolve(result.map(function(p){
           var parts = (p.address_name || '').split(' ');
-          var dong = parts.length > 2 ? parts[2] : '';
+          var roadParts = (p.road_address_name || '').split(' ');
           return {
             road: shortAddr(p.road_address_name),
-            roadLabel: p.road_address_name ? shortAddr(p.road_address_name) + ' (' + [dong, p.place_name].filter(Boolean).join(', ') + ')' : '',
+            short: roadParts.length > 2 ? roadParts.slice(2).join(' ') : p.road_address_name || '',
             jibun: shortAddr(p.address_name),
+            name: p.place_name,
             lat: Number(p.y), lng: Number(p.x),
-            dong: dong,
+            dong: parts.length > 2 ? parts[2] : '',
             gu: parts.length > 1 ? parts[1] : ''
           };
         }));
@@ -561,37 +527,44 @@
       return it.road || it.jibun;
     }).slice(0, 15);
   }
-  function addrLine(tag, text){
-    var line = el('span', 'addr-line');
-    line.appendChild(el('span', 'addr-tag', tag));
-    line.appendChild(el('span', 'addr-text', text));
+  function resultLine(tag, text){
+    var line = el('span', 'nb-result-line');
+    line.appendChild(el('span', 'nb-badge', tag));
+    line.appendChild(el('span', 'nb-result-text', text));
     return line;
   }
   function renderResults(items){
-    addrResults.textContent = '';
-    if (!items.length){ showAddrTip(); return; }
-    addrTip.hidden = true;
-    addrResults.hidden = false;
+    resultsEl.textContent = '';
+    if (!items.length){ showEmpty(); return; }
+    emptyEl.hidden = true;
+    resultsEl.hidden = false;
     items.forEach(function(it, i){
-      var btn = el('button', 'addr-item');
+      var btn = el('button', 'nb-result');
       btn.type = 'button';
-      if (it.roadLabel) btn.appendChild(addrLine('도로명', it.roadLabel));
-      if (it.jibun) btn.appendChild(addrLine('지번', it.jibun));
-      btn.addEventListener('click', function(){
-        ut.log('addr_pick', { q: addrInput.value.trim(), index: i, road: it.road, jibun: it.jibun });
-        addrInput.blur();
-        hideOverlay(addrEl);
-        moveSheetTo(it.lat, it.lng, 'search', { address: it.road || it.jibun, jibun: it.jibun, dong: it.dong, gu: it.gu });
-      });
-      addrResults.appendChild(btn);
+      if (it.road) btn.appendChild(resultLine('도로명', it.road));
+      if (it.jibun) btn.appendChild(resultLine('지번', it.jibun));
+      // 누르는 순간 키보드가 먼저 닫혀 목록이 밀리지 않게 한다.
+      btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      btn.addEventListener('click', function(){ pick(it, i); });
+      resultsEl.appendChild(btn);
     });
-    addrResults.scrollTop = 0;
+    $('nb-search-view').scrollTop = 0;
+  }
+  // 결과를 고르면 지도 상태로 돌아가 그 위치로 옮긴다. (Figma: 검색결과 반영)
+  function pick(it, i){
+    ut.log('addr_pick', { q: input.value.trim(), index: i, road: it.road, jibun: it.jibun });
+    ut.log('search_close', { via: 'pick', q: lastQuery, count: lastCount });
+    input.blur();
+    setSearching(false);
+    var info = { address: it.road || it.jibun, display: it.short || it.road || it.jibun, jibun: it.jibun, dong: it.dong, gu: it.gu };
+    moveTo(it.lat, it.lng, 'search', info);
+    syncClear();
+    setTimeout(function(){ if (map){ map.relayout(); fitMap(false); } }, 340);
   }
 
   /* ============ 화면 밀어서 뒤로 가기 ============ */
-  // 맨 위에 열린 바텀시트를 닫는다. (위치 권한 응답을 기다리는 중에는 그대로 둔다)
+  // 동의 시트를 닫거나, 검색 상태면 지도 상태로 돌아간다. (위치 권한 응답을 기다리는 중에는 그대로 둔다)
   window.addEventListener('onboarding:back', function(e){
-    if (!addrEl.hidden){ e.detail.action = 'addr-close'; e.preventDefault(); closeAddr('swipe'); return; }
     if (!consentEl.hidden){
       e.preventDefault();
       if (consentBusy){ e.detail.action = 'consent-busy'; return; }
@@ -600,16 +573,17 @@
       hideOverlay(consentEl);
       return;
     }
-    if (!mapSheetEl.hidden){ e.detail.action = 'mapsheet-close'; e.preventDefault(); closeMapSheet('swipe'); }
+    if (searching){ e.detail.action = 'search-close'; e.preventDefault(); closeSearch('swipe'); }
   });
 
   /* ============ 화면 연결 ============ */
   window.addEventListener('onboarding:screen', function(e){
     var name = e.detail.name;
     if (name === 'nearby') renderNearby();
+    else if (searching){ searching = false; screenEl.classList.remove('is-searching'); }
     if (name === 'login' || name === 'intro'){
-      hideAllOverlays();
-      draft = null;
+      consentEl.classList.remove('is-open');
+      consentEl.hidden = true;
       consentBusy = false;
       agreeBtn.classList.remove('is-loading');
     }

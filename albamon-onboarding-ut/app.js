@@ -50,8 +50,8 @@
     ]
   };
 
-  // 내 근처 기본 위치 (Figma STEP 1-2 디폴트 · 위치 권한이 없을 때)
-  var DEFAULT_PLACE = { lat: 37.4943310255324, lng: 127.014509432433, address: '서울 서초구 서초대로 301', jibun: '', dong: '서초동', gu: '서초구', source: 'default' };
+  // 내 근처 기본 위치 (Figma 20261027 '위치 미동의 → 기본 위치 → 시청': 동의하지 않거나 위치 권한이 없을 때)
+  var DEFAULT_PLACE = { lat: 37.56572, lng: 126.97722, address: '시청역', display: '시청역', label: '시청역', jibun: '', sido: '서울', dong: '', gu: '중구', source: 'default' };
 
   /* ============ 상태 ============ */
   function initialState(){

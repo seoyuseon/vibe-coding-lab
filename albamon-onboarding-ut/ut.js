@@ -142,7 +142,8 @@
       seq: 0
     };
     save(KEY_SESSION, session);
-    save(KEY_NEXT, { participant: participant + 1 });
+    // 연습(리허설) 세션은 다음 참가자 번호를 올리지 않는다.
+    if (!test) save(KEY_NEXT, { participant: participant + 1 });
     enqueue({
       col: COL_SESSIONS,
       id: session.sid,

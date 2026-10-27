@@ -12,11 +12,11 @@
 <meta name="format-detection" content="telephone=no">
 <title>알바몬 - 온보딩 UT</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261027-2">
-<link rel="stylesheet" href="nearby.css?v=20261027-2">
-<link rel="stylesheet" href="home.css?v=20261027-2">
-<link rel="stylesheet" href="detail.css?v=20261027-2">
-<link rel="stylesheet" href="ut.css?v=20261027-2">
+<link rel="stylesheet" href="style.css?v=20261027-3">
+<link rel="stylesheet" href="nearby.css?v=20261027-3">
+<link rel="stylesheet" href="home.css?v=20261027-3">
+<link rel="stylesheet" href="detail.css?v=20261027-3">
+<link rel="stylesheet" href="ut.css?v=20261027-3">
 </head>
 <body>
 
@@ -207,51 +207,69 @@
       </div>
     </section>
 
-    <!-- ============ STEP 1-2 · 내 근처 (4610:342023) ============ -->
+    <!-- ============ STEP 1-2 · 내 근처 (20261027 수정 4722:375626 · 검색 4739:101834 / 4739:102125) ============ -->
+    <!-- 지도 상태: 검색창 + 반경 + 지도(바로 움직임) / 검색 상태: 타이틀이 생기고 지도 자리에 검색 결과 -->
     <section class="screen nearby" data-screen="nearby" aria-label="내 근처 지역 설정" hidden>
       <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
-      <div class="nearby-body">
-        <div class="nearby-head">
-          <button class="nearby-address" id="nearby-address" type="button" aria-label="탐색 위치 변경">
-            <span class="nearby-address-text" id="nearby-address-text">서울 서초구 서초대로 301</span>
-            <img src="assets/ut/icon-edit.svg" width="20" height="20" alt="">
-          </button>
-          <p class="nearby-sub">지도를 움직여 원하는 위치를 찾고, 반경을 설정해 보세요.</p>
+      <div class="nb-title" aria-hidden="true"><div class="nb-title-inner"><h1 class="title">어디서 일하고 싶으세요?</h1></div></div>
+      <div class="search-row nb-search-row">
+        <div class="search-field nb-search-field" id="nb-search-field">
+          <input class="search-input" id="nb-search-input" type="search" placeholder="지번, 도로명, 건물명으로 검색" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="지번, 도로명, 건물명으로 검색">
+          <span class="search-icons">
+            <button class="search-clear" id="nb-search-clear" type="button" aria-label="검색어 지우기" hidden>
+              <img src="assets/icon-circle-close-fill.svg" width="24" height="24" alt="">
+            </button>
+            <img src="assets/icon-search.svg" width="24" height="24" alt="">
+          </span>
         </div>
-
-        <div class="pill-tab" id="radius-tab" role="tablist" aria-label="반경">
-          <button type="button" role="tab" data-radius="1" aria-selected="true">1km</button>
-          <button type="button" role="tab" data-radius="3" aria-selected="false">3km</button>
-          <button type="button" role="tab" data-radius="7" aria-selected="false">7km</button>
-          <button type="button" role="tab" data-radius="10" aria-selected="false">10km</button>
-        </div>
-
-        <div class="map-card" id="map-card">
-          <div class="map-canvas" id="preview-map"></div>
-          <p class="map-fallback">지도는 배포 주소(https)에서 보여요</p>
-          <div class="place-pin" aria-hidden="true">
-            <img class="place-pin-shadow" src="assets/ut/pin-ellipse-1204.svg" width="14" height="7" alt="">
-            <img class="place-pin-dot" src="assets/ut/pin-ellipse-1203.svg" width="21" height="21" alt="">
-            <img class="place-pin-shape" src="assets/ut/pin-place.svg" width="38.834" height="45.3321" alt="">
-          </div>
-          <div class="radius-label" id="radius-label">
-            <span class="radius-icon" data-icon="walk">
-              <img class="ic-walk" src="assets/ut/radius-walk.svg" width="12.9001" height="20.0567" alt="">
-              <img class="ic-run" src="assets/ut/radius-run.svg" width="19.5" height="18.1044" alt="">
-              <img class="ic-bike" src="assets/ut/radius-bike.svg" width="21.9999" height="15.0265" alt="">
-            </span>
-            <span class="radius-text"><b id="radius-strong">걸어서 15분</b> 이내 알바</span>
-          </div>
-          <button class="map-hit" id="map-hit" type="button" aria-label="지도에서 탐색 위치 변경"></button>
-        </div>
-
-        <button class="remote-check nearby-remote" type="button" role="checkbox" aria-checked="false" data-remote="nearby">
+        <button class="remote-check" type="button" role="checkbox" aria-checked="false" data-remote="nearby">
           <span class="checkbox"><img src="assets/icon-checkbox-check.svg" width="20" height="20" alt=""></span>
           <span class="remote-label">재택 포함</span>
         </button>
       </div>
-      <div class="bottom-bar">
-        <button class="btn btn-primary" id="nearby-next" type="button">다음</button>
+
+      <div class="nb-stage">
+        <div class="nb-map-view" id="nb-map-view">
+          <div class="pill-tab" id="radius-tab" role="tablist" aria-label="반경">
+            <button type="button" role="tab" data-radius="1" aria-selected="true">1km</button>
+            <button type="button" role="tab" data-radius="3" aria-selected="false">3km</button>
+            <button type="button" role="tab" data-radius="7" aria-selected="false">7km</button>
+            <button type="button" role="tab" data-radius="10" aria-selected="false">10km</button>
+          </div>
+          <div class="map-card" id="map-card">
+            <div class="map-canvas" id="nearby-map"></div>
+            <p class="map-fallback">지도는 배포 주소(https)에서 보여요</p>
+            <div class="nb-pin" aria-hidden="true">
+              <div class="radius-label" id="radius-label">
+                <div class="radius-bubble">
+                  <span class="radius-icon" data-icon="walk">
+                    <img class="ic-walk" src="assets/ut/radius-walk-v2.svg" width="8.60008" height="13.3711" alt="">
+                    <img class="ic-run" src="assets/ut/radius-run.svg" width="13" height="12.07" alt="">
+                    <img class="ic-bike" src="assets/ut/radius-bike.svg" width="14.67" height="10.02" alt="">
+                  </span>
+                  <span class="radius-text"><b id="radius-strong">걸어서 15분</b> 이내 알바</span>
+                </div>
+                <img class="radius-arrow" src="assets/ut/bubble-arrow.svg" width="46" height="8" alt="">
+              </div>
+              <img class="nb-pin-img" src="assets/ut/pin-v2.svg" width="52" height="52" alt="">
+            </div>
+            <button class="locate-btn" id="locate-btn" type="button" aria-label="현재 위치로 이동"><img src="assets/ut/icon-crosshair.svg" width="20" height="20" alt=""></button>
+          </div>
+        </div>
+        <div class="nb-search-view" id="nb-search-view" aria-hidden="true">
+          <div class="nb-empty" id="nb-empty">
+            <p class="nb-empty-title">도로명 또는 지번으로 검색해 보세요</p>
+            <p class="nb-empty-desc">(예시) 서초대로 301, 서초동 1692-1</p>
+          </div>
+          <div class="nb-results" id="nb-results" hidden></div>
+        </div>
+      </div>
+
+      <div class="nb-bottom">
+        <p class="nb-hint">지도를 움직여 원하는 위치를 찾고, 반경을 설정해 보세요.</p>
+        <div class="bottom-bar">
+          <button class="btn btn-primary" id="nearby-next" type="button">다음</button>
+        </div>
       </div>
     </section>
 
@@ -503,63 +521,6 @@
     </div>
   </div>
 
-  <!-- ============ 알바 탐색위치 (4638:342798) ============ -->
-  <div class="overlay" id="mapsheet" hidden>
-    <div class="overlay-dim" data-dismiss></div>
-    <div class="bsheet map-sheet" role="dialog" aria-modal="true" aria-labelledby="mapsheet-title">
-      <div class="sheet-title">
-        <div class="sheet-title-text">
-          <h2 id="mapsheet-title">알바 탐색위치</h2>
-          <p>지도를 움직이거나 주소를 검색해서 설정하세요.</p>
-        </div>
-        <button class="sheet-close" type="button" data-close aria-label="닫기"><img src="assets/ut/icon-close.svg" width="16" height="16" alt=""></button>
-      </div>
-      <div class="sheet-map">
-        <div class="map-canvas" id="sheet-map"></div>
-        <p class="map-fallback">지도는 배포 주소(https)에서 보여요</p>
-        <div class="picker" aria-hidden="true">
-          <div class="picker-tip"><span>이 위치에서 알바를 찾아드릴게요</span><img src="assets/ut/tooltip-point.svg" width="8" height="6" alt=""></div>
-          <div class="picker-pin">
-            <img class="picker-shape" src="assets/ut/my-pin.svg" width="42" height="46" alt="">
-            <img class="picker-icon" src="assets/ut/my-pin-icon.svg" width="20" height="20" alt="">
-          </div>
-        </div>
-        <button class="locate-btn" id="locate-btn" type="button" aria-label="현재 위치로 이동"><img src="assets/ut/icon-location.svg" width="19.9998" height="20" alt=""></button>
-      </div>
-      <div class="sheet-search-row">
-        <button class="addr-field" id="addr-field" type="button">
-          <span class="addr-field-text" id="addr-field-text">서울 서초구 서초대로 301</span>
-          <img src="assets/ut/icon-search-24.svg" width="24" height="24" alt="">
-        </button>
-      </div>
-      <div class="sheet-foot"><button class="btn btn-primary" id="mapsheet-confirm" type="button">확인</button></div>
-    </div>
-  </div>
-
-  <!-- ============ 주소검색 (4638:343037 / 4638:343173) ============ -->
-  <div class="overlay" id="addrsheet" hidden>
-    <div class="overlay-dim" data-dismiss></div>
-    <div class="bsheet addr-sheet" role="dialog" aria-modal="true" aria-labelledby="addr-title">
-      <div class="sheet-title">
-        <div class="sheet-title-text"><h2 id="addr-title">주소검색</h2></div>
-        <button class="sheet-close" type="button" data-close aria-label="닫기"><img src="assets/ut/icon-close.svg" width="16" height="16" alt=""></button>
-      </div>
-      <div class="addr-search">
-        <div class="addr-input-wrap" id="addr-input-wrap">
-          <input class="addr-input" id="addr-input" type="search" placeholder="지번, 도로명, 건물명으로 검색" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="지번, 도로명, 건물명으로 검색">
-          <button class="addr-clear" id="addr-clear" type="button" aria-label="검색어 지우기" hidden><img src="assets/ut/icon-clear.svg" width="16" height="16" alt=""></button>
-          <span class="addr-search-icon" id="addr-search-icon"><img src="assets/ut/icon-search-line.svg" width="18.75" height="17.75" alt=""></span>
-        </div>
-      </div>
-      <div class="addr-body">
-        <div class="addr-tip" id="addr-tip">
-          <p class="addr-tip-title">정확한 검색 결과를 위한 팁!</p>
-          <p class="addr-tip-desc">도로명 또는 지번으로 검색하세요.<br>예) 서초대로 301, 서초동 1692-1</p>
-        </div>
-        <div class="addr-results" id="addr-results" hidden></div>
-      </div>
-    </div>
-  </div>
 </div>
 </div>
 
@@ -627,11 +588,11 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="ut.js?v=20261027-2"></script>
-<script src="app.js?v=20261027-2"></script>
-<script src="nearby.js?v=20261027-2"></script>
-<script src="jobs.js?v=20261027-2"></script>
-<script src="detail.js?v=20261027-2"></script>
-<script src="home.js?v=20261027-2"></script>
+<script src="ut.js?v=20261027-3"></script>
+<script src="app.js?v=20261027-3"></script>
+<script src="nearby.js?v=20261027-3"></script>
+<script src="jobs.js?v=20261027-3"></script>
+<script src="detail.js?v=20261027-3"></script>
+<script src="home.js?v=20261027-3"></script>
 </body>
 </html>
