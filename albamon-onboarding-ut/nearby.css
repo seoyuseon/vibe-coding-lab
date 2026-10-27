@@ -272,7 +272,8 @@ body.no-map .map-canvas{display:none;}
   text-align:center;
   transition:opacity .2s ease;
 }
-.nearby.is-searching .nb-hint{opacity:0;}
+/* 검색 상태에서는 아래 안내 문구와 다음 버튼을 숨긴다(검색 결과가 화면 아래까지 이어진다). */
+.nearby.is-searching .nb-bottom{display:none;}
 
 /* ============ 바텀시트 공통 ============ */
 .overlay{position:absolute; inset:0; z-index:50; overflow:hidden;}

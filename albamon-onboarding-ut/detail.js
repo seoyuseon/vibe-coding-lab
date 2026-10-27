@@ -123,6 +123,7 @@
     maxScroll = 0;
     void detail.offsetWidth;
     detail.classList.add('is-open');
+    if (ob.navPush) ob.navPush('detail');
     openedAt = Date.now();
     ut.screen('detail', 'home');
     ut.log('detail_open', { index: index + 1, job: card.job, title: card.title, company: card.company });
@@ -132,6 +133,7 @@
     var depth = scroller.scrollHeight - scroller.clientHeight;
     ut.log('detail_close', { via: via, ms: Date.now() - openedAt, scrollPct: depth > 0 ? Math.round(maxScroll / depth * 100) : 100, title: current && current.title });
     ut.screen('home', 'detail');
+    if (via !== 'swipe' && ob.navPop) ob.navPop('detail');
     detail.classList.remove('is-open');
     setTimeout(function(){ if (!detail.classList.contains('is-open')) detail.hidden = true; }, 320);
   }
@@ -167,10 +169,12 @@
     taskEnd.hidden = true;
   });
 
-  // 화면 밀어서 뒤로 가기: 과제 종료 팝업이 떠 있으면 그대로 두고, 공고뷰면 닫는다.
+  // 화면 밀어서 뒤로 가기: 공고뷰를 닫는다(과제 종료 팝업이 떠 있었다면 함께 닫는다).
   window.addEventListener('onboarding:back', function(e){
-    if (!taskEnd.hidden){ e.detail.action = 'task-end-open'; e.preventDefault(); return; }
-    if (!detail.hidden){ e.detail.action = 'detail-close'; e.preventDefault(); close('swipe'); }
+    if (e.detail.kind !== 'detail') return;
+    e.detail.action = taskEnd.hidden ? 'detail-close' : 'detail-close-with-task-end';
+    taskEnd.hidden = true;
+    close('swipe');
   });
 
   // 화면이 바뀌면(홈 다시 열기·처음부터 등) 바로 닫는다.

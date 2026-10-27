@@ -192,6 +192,7 @@
     consentBusy = false;
     agreeBtn.classList.remove('is-loading');
     showOverlay(consentEl);
+    if (ob.navPush) ob.navPush('consent');
     ut.log('consent_open', { context: context });
   }
   window.addEventListener('onboarding:nearby', function(){ openConsent('intro'); });
@@ -220,13 +221,18 @@
   function finishConsent(){
     consentBusy = false;
     agreeBtn.classList.remove('is-loading');
+    closeConsent();
+  }
+  // 버튼으로 닫을 때는 쌓아 둔 뒤로 가기 기록도 함께 지운다.
+  function closeConsent(){
     hideOverlay(consentEl);
+    if (ob.navPop) ob.navPop('consent');
   }
   // 다음에 → 동의 없이 기본 위치(시청역)로 지도 화면을 연다. (Figma: 위치 미동의 → 기본 위치 → 시청)
   $('consent-later').addEventListener('click', function(){
     if (consentBusy) return;
     ut.log('consent_later', { context: consentContext });
-    hideOverlay(consentEl);
+    closeConsent();
     if (consentContext === 'intro'){
       state().place = ob.defaultPlace();
       enterNearby();
@@ -235,7 +241,7 @@
   consentEl.querySelector('[data-dismiss]').addEventListener('click', function(){
     if (consentBusy) return;
     ut.log('consent_dismiss', { context: consentContext });
-    hideOverlay(consentEl);
+    closeConsent();
   });
   $('consent-terms').addEventListener('click', function(){
     ut.log('consent_terms', { context: consentContext });
@@ -405,6 +411,10 @@
     if (instant){ void screenEl.offsetWidth; screenEl.classList.remove('no-anim'); }
   }
   function syncClear(){ clearBtn.hidden = !searching || input.value === ''; }
+  // iOS는 키보드를 띄울 때 화면을 밀어 올리기도 해서, 닫을 때 원래 위치로 되돌린다.
+  function resetScroll(){
+    setTimeout(function(){ try { window.scrollTo(0, 0); } catch (e) {} }, 60);
+  }
   function showEmpty(){
     emptyEl.hidden = false;
     resultsEl.hidden = true;
@@ -412,6 +422,7 @@
   }
   input.addEventListener('focus', function(){
     if (searching) return;
+    if (ob.navPush) ob.navPush('search');
     setSearching(true);
     input.value = '';
     lastQuery = '';
@@ -429,8 +440,10 @@
   function closeSearch(via){
     if (!searching) return;
     ut.log('search_close', { via: via, q: lastQuery, count: lastCount });
+    if (via !== 'swipe' && ob.navPop) ob.navPop('search');
     input.blur();
     setSearching(false);
+    resetScroll();
     input.value = placeText(state().place);
     syncClear();
     if (map) setTimeout(function(){ map.relayout(); }, 340);
@@ -554,8 +567,10 @@
   function pick(it, i){
     ut.log('addr_pick', { q: input.value.trim(), index: i, road: it.road, jibun: it.jibun });
     ut.log('search_close', { via: 'pick', q: lastQuery, count: lastCount });
+    if (ob.navPop) ob.navPop('search');
     input.blur();
     setSearching(false);
+    resetScroll();
     var info = { address: it.road || it.jibun, display: it.short || it.road || it.jibun, jibun: it.jibun, dong: it.dong, gu: it.gu };
     moveTo(it.lat, it.lng, 'search', info);
     syncClear();
@@ -563,17 +578,23 @@
   }
 
   /* ============ 화면 밀어서 뒤로 가기 ============ */
-  // 동의 시트를 닫거나, 검색 상태면 지도 상태로 돌아간다. (위치 권한 응답을 기다리는 중에는 그대로 둔다)
+  // app.js가 쌓아 둔 기록 종류(kind)를 알려 준다. 검색 상태면 지도 상태로, 동의 시트면 닫는다.
   window.addEventListener('onboarding:back', function(e){
-    if (!consentEl.hidden){
-      e.preventDefault();
-      if (consentBusy){ e.detail.action = 'consent-busy'; return; }
+    var kind = e.detail.kind;
+    if (kind === 'search'){
+      e.detail.action = 'search-close';
+      closeSearch('swipe');
+    } else if (kind === 'consent'){
+      if (consentBusy){
+        // 위치 권한 응답을 기다리는 중에는 시트를 그대로 두고 기록을 다시 쌓는다.
+        e.detail.action = 'consent-busy';
+        if (ob.navPush) ob.navPush('consent');
+        return;
+      }
       e.detail.action = 'consent-close';
       ut.log('consent_dismiss', { context: consentContext, via: 'swipe' });
       hideOverlay(consentEl);
-      return;
     }
-    if (searching){ e.detail.action = 'search-close'; e.preventDefault(); closeSearch('swipe'); }
   });
 
   /* ============ 화면 연결 ============ */

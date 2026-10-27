@@ -882,7 +882,7 @@ table.data thead th.num{text-align:right;}
       case 'home_tap': return '누름: ' + actionName(d.target) + (d.title ? ' “' + d.title + '”' : '');
       case 'home_leave': return '완료 화면 나감 (' + sec(d.ms) + ')';
       case 'task2_start': return '━━ 진행자: STEP 0으로 돌려보냄 (T2 다른 지역 방식 체험 시작) ━━';
-      case 'browser_back': return '화면 밀어서 뒤로 가기' + ({ 'detail-close': ' → 공고뷰 닫힘', 'step2-prev': ' → STEP 1로', 'step3-prev': ' → STEP 2로', 'search-close': ' → 검색 상태 닫힘', 'consent-close': ' → 동의 시트 닫힘' }[d.action] || ' (반응 없음)');
+      case 'browser_back': return '화면 밀어서 뒤로 가기' + ({ 'detail-close': ' → 공고뷰 닫힘', 'step2-prev': ' → STEP 1로', 'step3-prev': ' → STEP 2로', 'search-close': ' → 검색 상태 닫힘', 'detail-close-with-task-end': ' → 공고뷰·과제 종료 팝업 닫힘', 'consent-busy': ' (권한 응답 대기 중이라 그대로)', 'consent-close': ' → 동의 시트 닫힘' }[d.action] || ' (반응 없음)');
       case 'flow_restore': return '앱이 다시 열려 이어서 진행 (' + (SCREEN_NAME[d.screen] || d.screen) + ', ' + sec(d.awayMs) + ' 만에)';
       case 'home_restore': return '완료 화면 되살림 (연출 없이)';
       case 'detail_open': return '공고뷰 열림: “' + d.title + '” (' + d.index + '번째 공고)';

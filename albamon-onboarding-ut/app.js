@@ -111,11 +111,13 @@
   /* ============ 화면 전환 ============ */
   // 화면이 바뀌면 'onboarding:screen'을 보내 nearby.js·home.js가 각자 화면을 준비·정리한다.
   var current = 'login';
-  function go(name){
+  function go(name, opts){
     if (name === 'step3') prepareJobs();
     if (name === 'login') state = initialState();
     var from = current;
     current = name;
+    // 브라우저 기록을 화면 이동에 맞춘다. 새 화면을 그리기 전에 쌓아야 밀어서 뒤로 갈 때 앞 화면이 보인다.
+    if (!(opts && opts.fromPop)) syncHistory(name, from);
 
     screens.forEach(function(s){ s.hidden = s.dataset.screen !== name; });
     phone.dataset.screen = name;
@@ -481,19 +483,60 @@
   }
 
   /* ============ 화면 밀어서 뒤로 가기 ============ */
-  // 페이지를 벗어나지 않게 막고, 화면에 '뒤로'가 있는 곳에서만 그 동작으로 바꾼다.
-  // 바텀시트·공고뷰는 nearby.js·detail.js가 'onboarding:back'을 받아 닫는다. STEP 2·3은 '이전'과 같다. 나머지는 그대로 둔다.
+  // iOS는 밀어서 뒤로 갈 때 '앞 기록'의 화면 스냅샷을 보여준다. 그래서 뒤로 갈 수 있는 곳에서만 기록을 쌓는다.
+  //   검색 상태 · 공고뷰 · 위치 동의 시트(nearby.js·detail.js가 쌓고 지움), STEP 2·3(이전과 같음)
+  // 나머지 화면은 기록이 없어 홈 화면 앱에서는 밀어도 아무 일이 없다.
+  // Safari 브라우저로 열었을 때만 맨 아래에 막이 기록을 하나 두어 프로토타입을 벗어나지 않게 한다.
+  var standalone = !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+  var navStack = [];
+  var navIgnore = 0;
+  function navPush(kind){
+    try { history.pushState({ ob: kind }, ''); navStack.push(kind); } catch (e) {}
+  }
+  // 화면 안 버튼으로 닫았을 때 그 기록(과 그 위)을 지운다.
+  function navPop(kind){
+    var i = navStack.lastIndexOf(kind);
+    if (i < 0) return;
+    var n = navStack.length - i;
+    navStack.length = i;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function navReset(){
+    var n = navStack.length;
+    if (!n) return;
+    navStack.length = 0;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function syncHistory(name, from){
+    if (name === 'step2' && (from === 'step1' || from === 'nearby')) navPush('step2');
+    else if (name === 'step3' && from === 'step2') navPush('step3');
+    else if (name === 'step2' && from === 'step3') navPop('step3');
+    else if ((name === 'step1' || name === 'nearby') && from === 'step2') navPop('step2');
+    else if (name === 'home' || name === 'login' || name === 'intro') navReset();
+  }
   try {
-    history.replaceState({ ob: 0 }, '');
-    history.pushState({ ob: 1 }, '');
+    if (standalone) history.replaceState({ ob: 'base' }, '');
+    else {
+      history.replaceState({ ob: 'guard' }, '');
+      history.pushState({ ob: 'base' }, '');
+    }
     window.addEventListener('popstate', function(){
-      history.pushState({ ob: 1 }, '');
+      if (navIgnore > 0){ navIgnore--; return; }
       var where = current;
-      var back = new CustomEvent('onboarding:back', { cancelable: true, detail: { action: null } });
+      var kind = navStack.pop();
       var action = 'none';
-      if (!window.dispatchEvent(back)) action = back.detail.action || 'overlay';
-      else if (current === 'step2'){ action = 'step2-prev'; go(state.mode === 'nearby' ? 'nearby' : 'step1'); }
-      else if (current === 'step3'){ action = 'step3-prev'; go('step2'); }
+      if (!kind){
+        // 맨 아래(막이 기록)까지 왔다면 다시 막는다.
+        if (!standalone) history.pushState({ ob: 'base' }, '');
+      } else if (kind === 'step2'){ action = 'step2-prev'; go(state.mode === 'nearby' ? 'nearby' : 'step1', { fromPop: true }); }
+      else if (kind === 'step3'){ action = 'step3-prev'; go('step2', { fromPop: true }); }
+      else {
+        var back = new CustomEvent('onboarding:back', { cancelable: true, detail: { kind: kind, action: null } });
+        window.dispatchEvent(back);
+        action = back.detail.action || kind;
+      }
       ut.log('browser_back', { screen: where, action: action });
     });
   } catch (e) {}
@@ -552,6 +595,9 @@
     defaultPlace: function(){ return Object.assign({}, DEFAULT_PLACE); },
     // 진행자 메뉴 T2: 선택값은 두고 STEP 0으로 돌아간다(다른 지역 방식 체험).
     jumpToIntro: function(){ go('intro'); },
+    // nearby.js·detail.js가 뒤로 갈 수 있는 상태(검색·공고뷰·동의 시트)를 열고 닫을 때 쓴다.
+    navPush: navPush,
+    navPop: navPop,
     // 진행자 메뉴 '처음부터': 온보딩 상태를 비우고 로그인으로 돌아간다.
     restart: function(){
       try {
