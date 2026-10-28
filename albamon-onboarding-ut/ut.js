@@ -16,6 +16,7 @@
   var KEY_SESSION = 'obut:session';
   var KEY_QUEUE = 'obut:queue';
   var KEY_NEXT = 'obut:next';
+  var KEY_DOCK = 'obut:mod-dock';   // PC에서 왼쪽 메뉴를 접어 두면 'off'
   var LONG_PRESS_MS = 1500;
   var GROUP_NAME = { a: 'A 코치마크', b: 'B 하이라이트' };
   // STEP 0 버튼 순서: list-first = Figma 그대로(지역 선택하기 위), nearby-first = 내 근처 선택하기 위
@@ -199,6 +200,7 @@
   try {
     navigator.permissions.query({ name: 'geolocation' }).then(function(st){
       permission = st.state;
+      if (noteEl && !session) noteEl.open = permission !== 'prompt';
       renderStatus();
       st.onchange = function(){
         permission = st.state;
@@ -264,8 +266,15 @@
     var m = Math.floor(ms / 60000);
     return m < 1 ? '1분 미만' : m + '분';
   }
+  var shownSid;
   function renderStatus(){
     if (!mod || mod.hidden) return;
+    // 세션이 시작·종료되면 준비 칸을 다음 참가자 번호로 다시 채운다(PC에 붙여 둔 메뉴는 닫히지 않으므로).
+    var sid = session ? session.sid : null;
+    if (sid !== shownSid){
+      if (shownSid !== undefined) resetSetup();
+      shownSid = sid;
+    }
     currentEl.innerHTML = '';
     var line = document.createElement('p');
     if (session){
@@ -312,9 +321,8 @@
     $('mod-preview').hidden = !!session;
   }
 
-  function openPanel(){
-    if (!mod) return;
-    // 진행 중인 세션은 위 상자에 보여주고, 입력칸은 다음 참가자 번호로 채워 둔다.
+  // 진행 중인 세션은 위 상자에 보여주고, 입력칸은 다음 참가자 번호로 채워 둔다.
+  function resetSetup(){
     var next = load(KEY_NEXT);
     groupTouched = false;
     orderTouched = false;
@@ -323,15 +331,41 @@
     setupOpen = false;
     // 위치 권한이 '묻기'가 아니면 초기화 방법을 펼쳐 둔다.
     noteEl.open = !session && permission !== 'prompt';
+  }
+  function openPanel(){
+    if (!mod) return;
+    if (canDock()) save(KEY_DOCK, null);
+    resetSetup();
     mod.hidden = false;
+    syncDock();
     renderStatus();
     flush();
   }
-  function closePanel(){ if (mod) mod.hidden = true; }
+  // PC에 붙여 둔 메뉴는 버튼(세션 시작·T2 등)을 눌러도 닫지 않는다.
+  function closePanel(){ if (mod && !docked()) mod.hidden = true; }
+
+  /* ---- PC: 메뉴를 화면 왼쪽에 붙여 둔다. 터치 기기·좁은 화면은 지금처럼 길게 눌러 연다. ---- */
+  var dockMq = window.matchMedia ? window.matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)') : null;
+  var dockTab = $('mod-dock-tab');
+  function canDock(){ return !!(mod && dockMq && dockMq.matches); }
+  function docked(){ return canDock() && load(KEY_DOCK) !== 'off'; }
+  function syncDock(){
+    var on = docked() && !mod.hidden;
+    mod.classList.toggle('is-docked', on);
+    document.body.classList.toggle('mod-docked', on);
+    mod.querySelector('.mod-panel').setAttribute('aria-modal', on ? 'false' : 'true');
+    if (dockTab) dockTab.hidden = !canDock() || on;
+  }
+  // × 를 누르면 접고, 왼쪽 위 '진행자 메뉴' 버튼으로 다시 편다.
+  function collapseDock(){
+    save(KEY_DOCK, 'off');
+    mod.hidden = true;
+    syncDock();
+  }
 
   if (mod){
     mod.addEventListener('click', function(e){
-      if (e.target.closest('[data-mod-close]')) closePanel();
+      if (e.target.closest('[data-mod-close]')){ if (docked()) collapseDock(); else closePanel(); }
       var step = e.target.closest('[data-num]');
       if (step) setNumber(Math.max(1, Math.min(99, participant() + Number(step.dataset.num))));
       var g = e.target.closest('[data-group]');
@@ -425,7 +459,11 @@
   document.addEventListener('pointerup', cancelPress, true);
   document.addEventListener('pointercancel', cancelPress, true);
   document.addEventListener('keydown', function(e){
-    if (e.altKey && e.code === 'KeyM'){ e.preventDefault(); openPanel(); }
+    if (e.altKey && e.code === 'KeyM'){
+      e.preventDefault();
+      if (docked() && !mod.hidden) collapseDock();
+      else openPanel();
+    }
   });
 
   /* ============ 공개 API ============ */
@@ -449,6 +487,16 @@
     openPanel: openPanel
   };
 
-  if (new URLSearchParams(location.search).has('mod')) setTimeout(openPanel, 0);
+  if (dockTab) dockTab.addEventListener('click', openPanel);
+  if (dockMq){
+    var onDockChange = function(){
+      if (docked()) openPanel();
+      else { if (mod.classList.contains('is-docked')) mod.hidden = true; syncDock(); }
+    };
+    if (dockMq.addEventListener) dockMq.addEventListener('change', onDockChange);
+    else if (dockMq.addListener) dockMq.addListener(onDockChange);
+  }
+  if (docked() || new URLSearchParams(location.search).has('mod')) setTimeout(openPanel, 0);
+  else if (mod) syncDock();
   if (queue.length) scheduleFlush(500);
 })();

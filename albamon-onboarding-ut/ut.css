@@ -142,3 +142,34 @@
   .mod{align-items:center;}
   .mod-panel{border-radius:20px;}
 }
+
+/* PC: 화면 왼쪽에 붙여 둔다 (ut.js가 is-docked를 붙임). 폰 프레임은 남은 공간 가운데로 옮긴다. */
+:root{--mod-dock-w:360px;}
+.mod.is-docked{
+  inset:24px auto 24px 24px;
+  width:var(--mod-dock-w);
+  display:block;
+}
+.mod.is-docked .mod-dim{display:none;}
+.mod.is-docked .mod-panel{
+  max-width:none;
+  height:100%;
+  max-height:none;
+  border-radius:20px;
+  box-shadow:0 12px 40px rgba(10,12,16,.22);
+}
+body.mod-docked .page-bg{padding-left:calc(var(--mod-dock-w) + 48px);}
+.mod-dock-tab{
+  position:fixed;
+  left:24px;
+  top:24px;
+  z-index:1000;
+  height:40px;
+  padding:0 16px;
+  border-radius:12px;
+  background:#1d2125;
+  font-size:13px;
+  font-weight:600;
+  color:#f1f3f5;
+  box-shadow:0 6px 20px rgba(10,12,16,.2);
+}
