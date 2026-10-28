@@ -265,6 +265,8 @@
 .home-chip.is-selected .chev-off{display:none;}
 
 /* ---- 공고 카드 (JobPostingCard) ---- */
+/* A 자동 스크롤 뒤 첫 카드가 고정 필터 배경(64px)에 덜 가리도록 11px 띄운다 (Figma 4766:110281) */
+.job-list{padding-top:11px;}
 .job-list > .job-post + .job-post{border-top:1px solid var(--home-separator);}
 .job-post{
   position:relative;
@@ -412,7 +414,7 @@
   100%{opacity:0; transform:scale(1.06); box-shadow:0 0 0 10px rgba(255,109,18,0);}
 }
 
-/* B · DS 토스트 (Figma Toast 4598:286585) */
+/* A·B · DS 토스트 (Figma Toast 4598:286585 · 4779:127326) */
 .home-toast{
   position:absolute;
   left:50%;
@@ -437,6 +439,10 @@
 }
 .home-toast.is-visible{opacity:1; transform:translate(-50%, 0);}
 .home-toast img{flex:none;}
+/* A 스크롤 안내: 토스트 자체가 버튼. 화살표만 살짝 움직인다. */
+.scroll-hint.is-visible{pointer-events:auto;}
+.scroll-hint img{animation:hint-bounce 1s ease-in-out infinite;}
+@keyframes hint-bounce{0%,100%{transform:translateY(-1px);} 50%{transform:translateY(2px);}}
 
 /* A · 코치마크 (Figma 4598:284332 · 4598:287708) */
 .coach{position:absolute; inset:0; z-index:30;}
@@ -496,6 +502,7 @@
   .coach-tip,
   .coach-arrow,
   .home-toast{transition:none;}
+  .scroll-hint img{animation:none;}
 }
 
 /* ============ Mobile ============ */

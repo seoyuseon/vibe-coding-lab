@@ -876,6 +876,9 @@ table.data thead th.num{text-align:right;}
       case 'coach_next': return '코치마크 ' + d.step + '단계 다음 (' + sec(d.ms) + ')';
       case 'coach_skip': return '코치마크 ' + d.step + '단계에서 건너뛰기 (' + sec(d.ms) + ')';
       case 'coach_done': return "코치마크 '홈에서 알바찾기' (" + sec(d.ms) + ')';
+      case 'scroll_hint_show': return "안내 토스트 '내려서 맞춤 공고 더 보기' 표시";
+      case 'scroll_hint_tap': return "안내 토스트 누름 (" + sec(d.ms) + ')';
+      case 'scroll_hint_hide': return '안내 토스트 사라짐 (직접 스크롤, ' + sec(d.ms) + ')';
       case 'home_first_action': return '완료 화면 첫 행동: ' + actionName(d.target) + ' (' + sec(d.ms) + ')';
       case 'home_scroll_first': return '처음 스크롤 (' + sec(d.ms) + ')';
       case 'home_reach_list': return '공고 목록까지 내려감' + (d.auto ? ' (자동 이동)' : '') + ' (' + sec(d.ms) + ')';

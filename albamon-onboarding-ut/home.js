@@ -25,6 +25,7 @@
   var chipPeriod = $('chip-period');
   var jobList = $('job-list');
   var homeToast = $('home-toast');
+  var hint = $('scroll-hint');
   var rec = $('rec');
   var coach = $('coach');
   var spot = $('coach-spot');
@@ -158,6 +159,7 @@
     var stuck = y > 0 && gap <= .5;
     filterBar.classList.toggle('is-stuck', stuck);
     trackScroll(y, stuck);
+    if (hintOn && !autoScrolling() && Math.abs(y - hintY) > 8) hideHint('scroll');
   }
   scroller.addEventListener('scroll', onScroll, { passive: true });
 
@@ -188,6 +190,7 @@
     coach.hidden = true;
     coach.classList.remove('is-entering');
     homeToast.classList.remove('is-visible');
+    hideHint();
     [locBtn, chipJob, chipPeriod].forEach(function(n){ n.classList.remove('is-pulsing'); });
     scroller.scrollTop = 0;
     filterScroll.scrollLeft = 0;
@@ -200,7 +203,7 @@
     return rec.offsetTop + filterBar.offsetTop - header.offsetHeight;
   }
   var scrollRaf = 0;
-  function animateScroll(to, dur){
+  function animateScroll(to, dur, done){
     var from = scroller.scrollTop;
     var t0 = performance.now();
     cancelAnimationFrame(scrollRaf);
@@ -209,6 +212,7 @@
       var e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
       scroller.scrollTop = from + (to - from) * e;
       if (p < 1) scrollRaf = requestAnimationFrame(step);
+      else if (done) done();
     }
     scrollRaf = requestAnimationFrame(step);
   }
@@ -382,11 +386,39 @@
       if (logging) ut.log('coach_done', { ms: Date.now() - coachAt });
       closeCoach(function(){
         autoUntil = Date.now() + 800;
-        animateScroll(stickyTop(), 600);
+        animateScroll(stickyTop(), 600, function(){ later(showHint, 150); });
       });
     }
   });
   function playCoach(){ later(openCoach, 450); }
+
+  // 스크롤이 끝나면 '내려서 맞춤 공고 더 보기' 안내를 띄운다 (Figma 4766:110281, C 시안 토스트).
+  // 직접 스크롤하면 사라지고, 누르면 공고 두 개만큼 내려 준다. '건너뛰기'로 닫으면 띄우지 않는다.
+  var hintOn = false;
+  var hintY = 0;
+  function showHint(){
+    hintOn = true;
+    hintY = scroller.scrollTop;
+    hint.classList.add('is-visible');
+    if (logging) ut.log('scroll_hint_show', { ms: since() });
+  }
+  function hideHint(via){
+    if (!hintOn) return;
+    hintOn = false;
+    hint.classList.remove('is-visible');
+    if (via && logging) ut.log('scroll_hint_hide', { via: via, ms: since() });
+  }
+  hint.addEventListener('click', function(){
+    if (!hintOn) return;
+    if (logging){
+      ut.log('scroll_hint_tap', { ms: since() });
+      markFirst('hint', 'tap');
+    }
+    hideHint();
+    var card = jobList.firstElementChild;
+    autoUntil = Date.now() + 700;
+    animateScroll(scroller.scrollTop + (card ? card.offsetHeight * 2 : 300), 500);
+  });
 
   /* ============ B · 하이라이트 (토스트 Figma 4598:286585) ============ */
   // 반영된 조건(상단 지역·칩)을 동시에 세 번 반짝이고, 하단 토스트로 알린다.
@@ -425,6 +457,7 @@
     stopAll();
     coach.hidden = true;
     homeToast.classList.remove('is-visible');
+    hideHint();
   });
 
   // 앱이 다시 열렸을 때(app.js) 완료 화면을 연출 없이 되살린다. '처음 ~' 기록은 다시 남기지 않는다.
