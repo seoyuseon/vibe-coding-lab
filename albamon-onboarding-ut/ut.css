@@ -26,6 +26,7 @@
   font-size:14px;
   line-height:20px;
 }
+.mod-panel > *{flex:none;}   /* 내용이 화면보다 길어도 버튼이 눌려 작아지지 않게 (패널은 스크롤) */
 .mod-head{display:flex; align-items:center; justify-content:space-between;}
 .mod-head strong{font-size:17px; line-height:24px;}
 .mod-x{width:32px; height:32px; font-size:24px; line-height:1; color:#9aa3ab;}
@@ -69,7 +70,7 @@
 }
 .mod-seg button[aria-checked="true"]{background:#ff6d12; color:#fff;}
 .mod-hint{font-size:12px; line-height:18px; color:#7d868e;}
-.mod-check{display:flex; align-items:center; gap:8px; color:#c5ccd2;}
+.mod-check{align-self:flex-start; display:flex; align-items:center; gap:8px; color:#c5ccd2;}   /* 누르는 범위를 글자까지로 */
 .mod-check input{width:18px; height:18px; accent-color:#ff6d12;}
 
 .mod-primary{
@@ -91,6 +92,22 @@
   color:#ffd2b5;
 }
 .mod-secondary:disabled{opacity:.35; cursor:default;}
+
+/* 세션 상태에 따라 보이는 묶음 */
+.mod-live,
+.mod-setup{display:flex; flex-direction:column; gap:16px;}
+.mod-live.is-t2 #mod-end{order:-1;}   /* T2 중에는 세션 종료가 먼저 */
+.mod-toggle{
+  align-self:flex-start;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  font-weight:600;
+  color:#e6e9ec;
+}
+.mod-toggle::before{content:'▸'; font-size:11px; transition:transform .15s;}
+.mod-toggle[aria-expanded="true"]::before{transform:rotate(90deg);}
 
 .mod-status{display:flex; flex-direction:column; gap:6px; padding:12px 14px; border-radius:12px; background:#15181b;}
 .mod-status p{display:flex; justify-content:space-between; gap:12px; font-size:13px;}

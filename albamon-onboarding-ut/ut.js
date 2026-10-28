@@ -217,10 +217,18 @@
   var testCheck = $('mod-test');
   var statusEl = $('mod-status');
   var currentEl = $('mod-current');
+  var liveEl = $('mod-live');
+  var setupEl = $('mod-setup');
+  var toggleEl = $('mod-setup-toggle');
+  var noteEl = $('mod-perm-note');
+  var startBtn = $('mod-start');
+  var task2Btn = $('mod-task2');
+  var endBtn = $('mod-end');
   var group = 'a';
   var order = 'list-first';
   var groupTouched = false;
   var orderTouched = false;
+  var setupOpen = false;   // 세션 중 '다른 참가자로 새로 시작'을 펼쳤는지
 
   // 노션 UT 계획서 배정표와 같다: 홀수 = 지역 선택하기 위 · A 코치마크, 짝수 = 내 근처 선택하기 위 · B 하이라이트
   function defaultGroup(n){ return n % 2 === 1 ? 'a' : 'b'; }
@@ -245,6 +253,11 @@
     numInput.value = n;
     if (!groupTouched) setGroup(defaultGroup(n));
     if (!orderTouched) setOrder(defaultOrder(n));
+    renderStart();
+  }
+  // 시작 버튼에 번호와 연습 여부를 함께 보여준다(연습 체크를 잘못 켜도 바로 보이게).
+  function renderStart(){
+    startBtn.textContent = 'P' + participant() + (testCheck.checked ? ' 연습' : '') + ' 세션 시작';
   }
 
   function minutes(ms){
@@ -257,7 +270,7 @@
     var line = document.createElement('p');
     if (session){
       line.innerHTML = '<b>진행 중</b> P' + session.participant + ' · ' + GROUP_NAME[session.group] + ' · ' + (ORDER_NAME[session.order] || ORDER_NAME['list-first']) + (session.test ? ' · 연습' : '') +
-        '<br><span>' + minutes(Date.now() - session.startedAt) + ' 경과 · 기록 ' + (session.seq || 0) + '건' + (session.task2 ? ' · 다른 지역 방식 체험 중' : '') + '</span>';
+        '<br><span>' + (session.task2 ? 'T2 진행 중 (다른 지역 방식)' : 'T1 진행 중') + ' · ' + minutes(Date.now() - session.startedAt) + ' 경과 · 기록 ' + (session.seq || 0) + '건</span>';
       currentEl.className = 'mod-current is-active';
     } else {
       line.innerHTML = '<b>진행 중인 세션 없음</b><br><span>세션을 시작해야 기록돼요</span>';
@@ -282,9 +295,21 @@
       p.appendChild(v);
       statusEl.appendChild(p);
     });
-    $('mod-end').disabled = !session;
-    $('mod-task2').disabled = !session;
-    $('mod-preview').disabled = !!session;
+    renderMode();
+  }
+  // 세션이 없으면 다음 참가자 준비, 세션 중이면 지금 할 일(T1 → T2 시작, T2 → 세션 종료)을 크게 보여준다.
+  function renderMode(){
+    var t2 = !!(session && session.task2);
+    liveEl.hidden = !session;
+    liveEl.classList.toggle('is-t2', t2);
+    task2Btn.className = t2 ? 'mod-secondary' : 'mod-primary';
+    task2Btn.textContent = t2 ? 'STEP 0으로 다시 보내기' : 'T2 시작 · 같은 세션에서 STEP 0으로';
+    endBtn.className = t2 ? 'mod-primary' : 'mod-secondary';
+    toggleEl.hidden = !session;
+    toggleEl.setAttribute('aria-expanded', setupOpen ? 'true' : 'false');
+    setupEl.hidden = !!session && !setupOpen;
+    noteEl.hidden = !!session;
+    $('mod-preview').hidden = !!session;
   }
 
   function openPanel(){
@@ -293,8 +318,11 @@
     var next = load(KEY_NEXT);
     groupTouched = false;
     orderTouched = false;
-    setNumber(next && next.participant ? next.participant : 1);
     testCheck.checked = false;
+    setNumber(next && next.participant ? next.participant : 1);
+    setupOpen = false;
+    // 위치 권한이 '묻기'가 아니면 초기화 방법을 펼쳐 둔다.
+    noteEl.open = !session && permission !== 'prompt';
     mod.hidden = false;
     renderStatus();
     flush();
@@ -314,6 +342,12 @@
     numInput.addEventListener('input', function(){
       if (!groupTouched) setGroup(defaultGroup(participant()));
       if (!orderTouched) setOrder(defaultOrder(participant()));
+      renderStart();
+    });
+    testCheck.addEventListener('change', renderStart);
+    toggleEl.addEventListener('click', function(){
+      setupOpen = !setupOpen;
+      renderMode();
     });
     // 화면을 먼저 처음으로 되돌려(이전 세션에 기록) 두고 새 세션을 연다.
     $('mod-start').addEventListener('click', function(){
@@ -354,7 +388,11 @@
       openPanel();
     });
     $('mod-end').addEventListener('click', function(){
+      if (!session) return;
+      // T2 전에는 세션 종료가 보조 버튼이라 한 번 더 묻는다.
+      if (!session.task2 && !window.confirm('아직 T2 전이에요. P' + session.participant + ' 세션을 종료할까요?')) return;
       endSession('manual');
+      setupOpen = false;
       renderStatus();
     });
     $('mod-preview').addEventListener('click', function(){
