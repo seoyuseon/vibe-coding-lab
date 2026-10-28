@@ -25,38 +25,46 @@
   var ALL = '*';
   var MAX_REGIONS = 10;
 
-  // STEP 2에서 '한 달 이내'면 단기 업직종(4488:78079), 그 외는 장기 업직종(4488:78228)
+  // STEP 2에서 '한 달 이내'면 단기 업직종(4607:318149), 그 외는 장기 업직종(4607:318319)
   var JOBS = {
     short: [
-      ['promotion', '행사·판촉', '이벤트·스텝·전단지배포'],
-      ['info', '전시·안내', '컨벤션·세미나·안내데스크'],
-      ['delivery-box', '물류·배송', '입출고·창고관리·상하차'],
-      ['shopping-bag', '매장·판매', '매장관리·유통점·마트'],
-      ['serving', '음식점·서빙', '서빙·레스토랑'],
-      ['factory', '제조·생산', '포장·품질검사·조립'],
-      ['security', '청소·경비', '미화·보안·경비·경호']
+      ['promotion', '행사·판촉', '행사 모객·준비·진행'],
+      ['info', '전시·안내', '전시장 안내·운영'],
+      ['delivery-box', '물류·배송', '물건 분류·포장·배송'],
+      ['shopping-bag', '매장·판매', '매장관리·고객응대'],
+      ['serving', '음식점·서빙', '음식주문·서빙·홀정리'],
+      ['factory', '제조·생산', '제품 조립·포장·검수'],
+      ['security', '청소·경비', '매장 및 건물 청소·안전 관리']
     ],
     long: [
-      ['shopping-bag', '매장·판매', '매장관리·백화점·쇼핑몰'],
-      ['serving', '음식점·서빙', '일반음식점'],
-      ['staff-badge', '행사·안내', '이벤트·스텝·안내데스크'],
-      ['cafe', '카페·디저트', '커피전문점·베이커리·떡'],
-      ['cooking', '주방·조리', '주방보조·설거지·조리사'],
+      ['shopping-bag', '매장·판매', '매장관리·고객응대·편의점'],
+      ['serving', '음식점·서빙', '음식주문·서빙·홀정리'],
+      ['staff-badge', '행사·안내', '행사 준비·진행·리셉션'],
+      ['cafe', '카페·디저트', '음료 및 디저트 제조·판매'],
+      ['cooking', '주방·조리', '음식조리·설거지'],
       ['office', '사무직', '사무보조·문서작성'],
-      ['factory', '제조·생산', '포장·품질검사·조립'],
-      ['delivery-box', '물류·배송', '입출고·창고관리·택배'],
-      ['education', '교육·학원', '입시·학원·보조교사'],
-      ['customer-service', '고객상담', '인/아웃바운드·텔레마케팅']
+      ['factory', '제조·생산', '제품 조립·포장·검수'],
+      ['delivery-box', '물류·배송', '물건 분류·포장·기사'],
+      ['education', '교육·학원', '학생지도·채점·학원운영'],
+      ['customer-service', '고객상담', '전화·채팅상담']
     ]
   };
+
+  // 내 근처 기본 위치 (Figma 20261027 '위치 미동의 → 기본 위치 → 시청': 동의하지 않거나 위치 권한이 없을 때)
+  var DEFAULT_PLACE = { lat: 37.56572, lng: 126.97722, address: '시청역', display: '시청역', label: '시청역', jibun: '', sido: '서울', dong: '', gu: '중구', source: 'default' };
 
   /* ============ 상태 ============ */
   function initialState(){
     return {
+      mode: null,            // STEP 0에서 고른 지역 설정 방식: 'list'(지역 선택) | 'nearby'(내 근처)
       region: '서울',
       selected: [],          // 'region|district' (district '*' = 전체), 선택 순서 유지
       remote: false,
       query: '',
+      place: Object.assign({}, DEFAULT_PLACE),  // 내 근처 탐색 위치
+      radius: 1,             // 내 근처 반경(km)
+      consent: false,        // 서비스 안 위치 동의
+      geo: null,             // 브라우저 위치 권한 결과
       period: null,
       periodConfirmed: false, // STEP 3까지 진행한 뒤 돌아오면 '다음' 버튼 노출
       jobsFor: null,
@@ -66,6 +74,7 @@
   var state = initialState();
 
   /* ============ DOM ============ */
+  var ut = window.ut || { log: function(){}, screen: function(){} };
   var $ = function(id){ return document.getElementById(id); };
   var phone = document.querySelector('.phone');
   var screens = document.querySelectorAll('.screen');
@@ -76,7 +85,7 @@
   var results = $('search-results');
   var input = $('region-search');
   var clearBtn = $('search-clear');
-  var remoteCheck = $('remote-check');
+  var remoteChecks = document.querySelectorAll('[data-remote]');
   var step1Bar = $('step1-bar');
   var sheet = $('select-sheet');
   var chipRow = $('chip-row');
@@ -100,29 +109,72 @@
   }
 
   /* ============ 화면 전환 ============ */
-  function go(name){
+  // 화면이 바뀌면 'onboarding:screen'을 보내 nearby.js·home.js가 각자 화면을 준비·정리한다.
+  var current = 'login';
+  function go(name, opts){
     if (name === 'step3') prepareJobs();
     if (name === 'login') state = initialState();
+    var from = current;
+    current = name;
+    // 브라우저 기록을 화면 이동에 맞춘다. 새 화면을 그리기 전에 쌓아야 밀어서 뒤로 갈 때 앞 화면이 보인다.
+    if (!(opts && opts.fromPop)) syncHistory(name, from);
 
     screens.forEach(function(s){ s.hidden = s.dataset.screen !== name; });
     phone.dataset.screen = name;
+    document.body.dataset.screen = name;
     hideToast();
 
     if (name === 'login') resetStep1View();
+    if (name === 'intro') applyIntroOrder();
     if (name === 'step1') renderStep1();
     if (name === 'step2') renderPeriod();
     if (name === 'step3'){
       state.periodConfirmed = true;
       renderJobs();
     }
+    syncRemote();
     var scroller = document.querySelector('.screen[data-screen="' + name + '"] .content-scroll, .screen[data-screen="' + name + '"] .login-scroll');
     if (scroller && name !== 'step1') scroller.scrollTop = 0;
+
+    ut.screen(name, from);
+    window.dispatchEvent(new CustomEvent('onboarding:screen', { detail: { name: name, from: from } }));
+    if (name === 'login') clearFlow();
+    else saveFlow();
   }
 
   document.addEventListener('click', function(e){
     var target = e.target.closest('[data-go]');
-    if (target && !target.disabled) go(target.dataset.go);
+    if (!target || target.disabled) return;
+    if (target.dataset.login) ut.log('login', { method: target.dataset.login });
+    if (target.id === 'step1-next') logRegionDone();
+    go(target.dataset.go);
   });
+
+  /* ============ STEP 0 · 도입부 ============ */
+  // '지역 선택하기' → STEP 1-1 목록 / '내 근처 선택하기' → 위치 동의(nearby.js)
+  // 버튼 순서는 진행자 메뉴에서 참가자마다 정한다(순서 효과를 나눠 보기 위해).
+  var introActions = document.querySelector('.intro-actions');
+  var introList = $('intro-list');
+  var introNearby = $('intro-nearby');
+  function introOrder(){ return ut.order ? ut.order() : 'list-first'; }
+  function applyIntroOrder(){
+    if (introOrder() === 'nearby-first') introActions.insertBefore(introNearby, introList);
+    else introActions.insertBefore(introList, introNearby);
+  }
+  function introPosition(btn){ return Array.prototype.indexOf.call(introActions.children, btn) + 1; }
+  introList.addEventListener('click', function(){
+    state.mode = 'list';
+    ut.log('intro_choice', { choice: 'list', order: introOrder(), position: introPosition(introList) });
+    go('step1');
+  });
+  introNearby.addEventListener('click', function(){
+    ut.log('intro_choice', { choice: 'nearby', order: introOrder(), position: introPosition(introNearby) });
+    window.dispatchEvent(new CustomEvent('onboarding:nearby'));
+  });
+
+  function logRegionDone(){
+    ut.log('region_done', { mode: 'list', regions: state.selected.slice(), remote: state.remote });
+  }
 
   /* ============ STEP 1 · 지역 선택 ============ */
   function key(region, district){ return region + '|' + district; }
@@ -140,11 +192,12 @@
   }
 
   // '전체'와 개별 시·군·구는 함께 담지 않는다.
-  function toggle(region, district){
+  function toggle(region, district, via){
     var k = key(region, district);
     var idx = state.selected.indexOf(k);
     if (idx > -1){
       state.selected.splice(idx, 1);
+      ut.log('region_toggle', { key: k, on: false, via: via || 'list', count: state.selected.length });
       renderStep1();
       return;
     }
@@ -154,11 +207,13 @@
       return district === ALL ? false : p[1] !== ALL;
     });
     if (next.length + 1 > MAX_REGIONS){
+      ut.log('region_limit', { key: k });
       showToast();
       return;
     }
     next.push(k);
     state.selected = next;
+    ut.log('region_toggle', { key: k, on: true, via: via || (state.query.trim() ? 'search' : 'list'), count: next.length });
     renderStep1();
     chipRow.scrollLeft = chipRow.scrollWidth;
   }
@@ -255,7 +310,7 @@
       chip.appendChild(img('assets/icon-chip-close.svg', 14, 14));
       chip.addEventListener('click', function(){
         var p = k.split('|');
-        toggle(p[0], p[1]);
+        toggle(p[0], p[1], 'chip');
       });
       chipRow.appendChild(chip);
     });
@@ -268,7 +323,7 @@
     regionCols.hidden = searching;
     results.hidden = !searching;
     clearBtn.hidden = state.query === '';
-    remoteCheck.setAttribute('aria-checked', state.remote ? 'true' : 'false');
+    syncRemote();
     renderDepth1();
     renderDepth2();
     renderSearch();
@@ -283,12 +338,18 @@
     step1.classList.remove('is-keyboard');
   }
 
-  // 검색
+  // 검색 (입력이 멈춘 뒤의 검색어만 기록한다)
+  var searchLogTimer = null;
   input.addEventListener('input', function(){
     var wasSearching = state.query.trim() !== '';
     state.query = input.value;
     if (wasSearching !== (state.query.trim() !== '')) results.scrollTop = 0;
     renderStep1();
+    clearTimeout(searchLogTimer);
+    searchLogTimer = setTimeout(function(){
+      var q = state.query.trim();
+      if (q) ut.log('region_search', { q: q, count: results.children.length });
+    }, 1200);
   });
   input.addEventListener('focus', function(){ step1.classList.add('is-keyboard'); });
   input.addEventListener('blur', function(){ step1.classList.remove('is-keyboard'); });
@@ -308,14 +369,21 @@
   document.querySelector('.keyboard').addEventListener('mousedown', function(e){ e.preventDefault(); });
   $('keyboard-done').addEventListener('click', function(){ input.blur(); });
 
-  // 재택 근무
-  remoteCheck.addEventListener('click', function(){
-    state.remote = !state.remote;
-    remoteCheck.setAttribute('aria-checked', state.remote ? 'true' : 'false');
+  // 재택 포함: STEP 1-1·1-2 체크박스가 같은 값을 쓴다.
+  function syncRemote(){
+    remoteChecks.forEach(function(b){ b.setAttribute('aria-checked', state.remote ? 'true' : 'false'); });
+  }
+  remoteChecks.forEach(function(b){
+    b.addEventListener('click', function(){
+      state.remote = !state.remote;
+      syncRemote();
+      ut.log('remote_toggle', { on: state.remote, where: b.dataset.remote });
+    });
   });
 
   // 초기화
   $('select-reset').addEventListener('click', function(){
+    ut.log('region_reset', { count: state.selected.length });
     state.selected = [];
     renderStep1();
   });
@@ -344,9 +412,14 @@
     if (!btn) return;
     // 처음 선택하거나, STEP 3에서 돌아와 다른 기간을 고르면 바로 STEP 3으로 이동한다.
     // 이미 고른 기간을 다시 누르면 그대로 두고 '다음'으로 이동한다.
+    ut.log('period_pick', { period: btn.dataset.period, again: state.periodConfirmed, same: btn.dataset.period === state.period });
     if (state.periodConfirmed && btn.dataset.period === state.period) return;
     state.period = btn.dataset.period;
     go('step3');
+  });
+  // 이전: STEP 0에서 고른 방식(지역 목록 / 내 근처)으로 돌아간다.
+  $('step2-prev').addEventListener('click', function(){
+    go(state.mode === 'nearby' ? 'nearby' : 'step1');
   });
 
   /* ============ STEP 3 · 업직종 ============ */
@@ -378,16 +451,122 @@
         else state.jobs.push(id);
         card.setAttribute('aria-pressed', i > -1 ? 'false' : 'true');
         step3Next.disabled = state.jobs.length === 0;
+        ut.log('job_toggle', { id: id, on: i < 0, count: state.jobs.length });
       });
       jobGrid.appendChild(card);
     });
     step3Next.disabled = state.jobs.length === 0;
   }
 
-  // 온보딩 완료 화면은 시안에 없어 처음(로그인)으로 돌아가 다시 체험할 수 있게 한다.
+  // 온보딩 완료 → 홈(완료 화면)은 home.js가 그룹별(A/B) 연출과 함께 이어받는다.
   step3Next.addEventListener('click', function(){
-    if (!step3Next.disabled) go('login');
+    if (step3Next.disabled) return;
+    ut.log('onboarding_complete', summary());
+    window.dispatchEvent(new CustomEvent('onboarding:complete'));
   });
+
+  // 기록용 최종 선택값
+  function summary(){
+    var nearby = state.mode === 'nearby';
+    return {
+      mode: state.mode,
+      regions: nearby ? [] : state.selected.slice(),
+      address: nearby ? state.place.address : null,
+      placeSource: nearby ? state.place.source : null,
+      radius: nearby ? state.radius : null,
+      remote: state.remote,
+      consent: state.consent,
+      geo: state.geo,
+      period: state.period,
+      jobs: state.jobs.slice()
+    };
+  }
+
+  /* ============ 화면 밀어서 뒤로 가기 ============ */
+  // iOS는 밀어서 뒤로 갈 때 '앞 기록'의 화면 스냅샷을 보여준다. 그래서 뒤로 갈 수 있는 곳에서만 기록을 쌓는다.
+  //   검색 상태 · 공고뷰 · 위치 동의 시트(nearby.js·detail.js가 쌓고 지움), STEP 2·3(이전과 같음)
+  // 나머지 화면은 기록이 없어 홈 화면 앱에서는 밀어도 아무 일이 없다.
+  // Safari 브라우저로 열었을 때만 맨 아래에 막이 기록을 하나 두어 프로토타입을 벗어나지 않게 한다.
+  var standalone = !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+  var navStack = [];
+  var navIgnore = 0;
+  function navPush(kind){
+    try { history.pushState({ ob: kind }, ''); navStack.push(kind); } catch (e) {}
+  }
+  // 화면 안 버튼으로 닫았을 때 그 기록(과 그 위)을 지운다.
+  function navPop(kind){
+    var i = navStack.lastIndexOf(kind);
+    if (i < 0) return;
+    var n = navStack.length - i;
+    navStack.length = i;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function navReset(){
+    var n = navStack.length;
+    if (!n) return;
+    navStack.length = 0;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function syncHistory(name, from){
+    if (name === 'step2' && (from === 'step1' || from === 'nearby')) navPush('step2');
+    else if (name === 'step3' && from === 'step2') navPush('step3');
+    else if (name === 'step2' && from === 'step3') navPop('step3');
+    else if ((name === 'step1' || name === 'nearby') && from === 'step2') navPop('step2');
+    else if (name === 'home' || name === 'login' || name === 'intro') navReset();
+  }
+  try {
+    if (standalone) history.replaceState({ ob: 'base' }, '');
+    else {
+      history.replaceState({ ob: 'guard' }, '');
+      history.pushState({ ob: 'base' }, '');
+    }
+    window.addEventListener('popstate', function(){
+      if (navIgnore > 0){ navIgnore--; return; }
+      var where = current;
+      var kind = navStack.pop();
+      var action = 'none';
+      if (!kind){
+        // 맨 아래(막이 기록)까지 왔다면 다시 막는다.
+        if (!standalone) history.pushState({ ob: 'base' }, '');
+      } else if (kind === 'step2'){ action = 'step2-prev'; go(state.mode === 'nearby' ? 'nearby' : 'step1', { fromPop: true }); }
+      else if (kind === 'step3'){ action = 'step3-prev'; go('step2', { fromPop: true }); }
+      else {
+        var back = new CustomEvent('onboarding:back', { cancelable: true, detail: { kind: kind, action: null } });
+        window.dispatchEvent(back);
+        action = back.detail.action || kind;
+      }
+      ut.log('browser_back', { screen: where, action: action });
+    });
+  } catch (e) {}
+
+  /* ============ 앱이 다시 열렸을 때 이어서 보기 ============ */
+  // iOS 홈 화면 앱은 잠깐 벗어났다 돌아오면 새로 열리기도 한다. 세션 중이면 마지막 화면과 선택값을 되살린다.
+  var FLOW_KEY = 'obut:flow';
+  function saveFlow(){
+    var s = ut.session && ut.session();
+    if (!s) return;
+    try { localStorage.setItem(FLOW_KEY, JSON.stringify({ sid: s.sid, screen: current, state: state, at: Date.now() })); } catch (e) {}
+  }
+  function clearFlow(){
+    try { localStorage.removeItem(FLOW_KEY); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden && current !== 'login') saveFlow(); });
+  window.addEventListener('pagehide', function(){ if (current !== 'login') saveFlow(); });
+  function restoreFlow(){
+    var s = ut.session && ut.session();
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(FLOW_KEY)); } catch (e) {}
+    if (!s || !saved || saved.sid !== s.sid || !saved.screen || saved.screen === 'login') return;
+    if (new URLSearchParams(location.search).has('done')) return;
+    state = Object.assign(initialState(), saved.state, { query: '' });
+    ut.log('flow_restore', { screen: saved.screen, awayMs: Date.now() - saved.at });
+    if (saved.screen === 'home' && window.onboarding.restoreHome) window.onboarding.restoreHome();
+    else go(saved.screen);
+  }
+  // nearby.js·home.js까지 읽힌 뒤에 되살린다.
+  document.addEventListener('DOMContentLoaded', restoreFlow);
 
   /* ============ 모바일 viewport ============ */
   var root = document.documentElement;
@@ -403,5 +582,44 @@
     window.visualViewport.addEventListener('scroll', fitViewport);
   }
 
+  /* ============ nearby.js · home.js · ut.js와 공유 ============ */
+  window.onboarding = {
+    getState: function(){ return state; },
+    go: go,
+    current: function(){ return current; },
+    jobName: function(id){
+      var all = JOBS.short.concat(JOBS.long);
+      for (var i = 0; i < all.length; i++) if (all[i][0] === id) return all[i][1];
+      return id;
+    },
+    defaultPlace: function(){ return Object.assign({}, DEFAULT_PLACE); },
+    // 진행자 메뉴 T2: 선택값은 두고 STEP 0으로 돌아간다(다른 지역 방식 체험).
+    jumpToIntro: function(){ go('intro'); },
+    // nearby.js·detail.js가 뒤로 갈 수 있는 상태(검색·공고뷰·동의 시트)를 열고 닫을 때 쓴다.
+    navPush: navPush,
+    navPop: navPop,
+    // 진행자 메뉴 '처음부터': 온보딩 상태를 비우고 로그인으로 돌아간다.
+    restart: function(){
+      try {
+        var u = new URL(location.href);
+        u.searchParams.delete('done');
+        history.replaceState({ ob: 1 }, '', u);
+      } catch (e) {}
+      go('login');
+    },
+    // 완료 화면을 바로 열 때 쓰는 기본 조건 (Figma 메인 화면과 같은 서초구 · 한 달 이상 · 카페 3개)
+    applyPreset: function(){
+      state = initialState();
+      state.mode = 'list';
+      state.selected = ['서울|서초구'];
+      state.region = '서울';
+      state.period = 'over-month';
+      state.periodConfirmed = true;
+      state.jobsFor = 'long';
+      state.jobs = ['cafe', 'serving', 'shopping-bag'];
+    }
+  };
+
+  document.body.dataset.screen = 'login';
   renderStep1();
 })();

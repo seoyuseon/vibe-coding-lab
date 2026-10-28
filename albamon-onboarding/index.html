@@ -5,11 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>알바몬 - 온보딩 (탐색구조 Track)</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261022">
+<link rel="stylesheet" href="style.css?v=20261027-1">
+<link rel="stylesheet" href="nearby.css?v=20261027-1">
+<link rel="stylesheet" href="home.css?v=20261027-1">
 </head>
 <body>
 
 <div class="page-bg">
+<div class="variant-bar" aria-label="완료 화면 시안">
+  <div class="variant-switch" id="variant-switch" role="tablist"></div>
+  <button class="variant-replay" type="button" data-replay><img src="assets/icon-redo.svg" width="16" height="16" alt="">다시 보기</button>
+  <button class="variant-replay variant-restart" type="button" data-restart>처음부터</button>
+</div>
 <div class="phone" data-screen="login">
 
   <!-- iPhone-status-bar(upper) · 모바일에서는 숨김 -->
@@ -27,11 +34,11 @@
 
   <div class="screens">
 
-    <!-- ============ 로그인 (4389:66019) ============ -->
+    <!-- ============ 로그인 (4607:317687) ============ -->
     <section class="screen login" data-screen="login" aria-label="로그인">
       <div class="login-scroll">
         <div class="mobile-header">
-          <button class="btn-close" type="button" data-go="step1" aria-label="닫기">
+          <button class="btn-close" type="button" data-go="intro" data-login="close" aria-label="닫기">
             <img src="assets/icon-close-24.svg" width="24" height="24" alt="">
           </button>
         </div>
@@ -95,19 +102,19 @@
 
         <div class="login-actions">
           <div class="sns-list">
-            <button class="sns-btn is-kakao" type="button" data-go="step1">
+            <button class="sns-btn is-kakao" type="button" data-go="intro" data-login="kakao">
               <span class="sns-icon"><img class="kakao" src="assets/sns-kakao.svg" width="13.1724" height="13.1724" alt=""></span>카카오로 계속하기
             </button>
-            <button class="sns-btn" type="button" data-go="step1">
+            <button class="sns-btn" type="button" data-go="intro" data-login="naver">
               <span class="sns-icon"><img class="full" src="assets/sns-naver.svg" width="16" height="16" alt=""></span>네이버로 계속하기
             </button>
-            <button class="sns-btn" type="button" data-go="step1">
+            <button class="sns-btn" type="button" data-go="intro" data-login="google">
               <span class="sns-icon"><img class="google" src="assets/sns-google.svg" width="12.0019" height="12.2478" alt=""></span>구글로 계속하기
             </button>
-            <button class="sns-btn" type="button" data-go="step1">
+            <button class="sns-btn" type="button" data-go="intro" data-login="apple">
               <span class="sns-icon"><img class="apple" src="assets/sns-apple.svg" width="10.6673" height="13.5107" alt=""></span>애플로 계속하기
             </button>
-            <button class="sns-btn" type="button" data-go="step1">
+            <button class="sns-btn" type="button" data-go="intro" data-login="facebook">
               <span class="sns-icon"><img class="full" src="assets/sns-facebook.svg" width="16" height="16" alt=""></span>페이스북으로 계속하기
             </button>
           </div>
@@ -120,7 +127,22 @@
       </div>
     </section>
 
-    <!-- ============ STEP 1 · 지역 선택 (4389:66043 외) ============ -->
+    <!-- ============ STEP 0 · 도입부 (4607:325387) ============ -->
+    <section class="screen intro" data-screen="intro" aria-label="시작" hidden>
+      <div class="intro-body">
+        <div class="intro-text">
+          <h1 class="intro-title">나에게 딱 맞는 일을<br>안전하게 찾아드릴게요!</h1>
+          <p class="intro-sub"><span class="intro-em">지역 설정</span>부터 시작해 볼까요?</p>
+        </div>
+        <div class="intro-actions">
+          <button class="btn btn-outline" id="intro-list" type="button"><img src="assets/ut/icon-map.svg" width="20" height="20" alt="">지역 선택하기</button>
+          <button class="btn btn-outline" id="intro-nearby" type="button"><img src="assets/ut/icon-pin-line.svg" width="20" height="20" alt="">내 근처 선택하기</button>
+        </div>
+      </div>
+      <div class="intro-art" aria-hidden="true"><img src="assets/ut/intro-mascot.png" width="1024" height="1536" alt=""></div>
+    </section>
+
+    <!-- ============ STEP 1-1 · 지역 선택 (4607:317716 외) ============ -->
     <section class="screen step1" data-screen="step1" aria-label="지역 선택" hidden>
       <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
       <div class="title-block"><h1 class="title">어디서 일하고 싶으세요?</h1></div>
@@ -136,7 +158,7 @@
           </span>
         </div>
 
-        <button class="remote-check" id="remote-check" type="button" role="checkbox" aria-checked="false">
+        <button class="remote-check" type="button" role="checkbox" aria-checked="false" data-remote="step1">
           <span class="checkbox"><img src="assets/icon-checkbox-check.svg" width="20" height="20" alt=""></span>
           <span class="remote-label">재택 포함</span>
         </button>
@@ -164,7 +186,7 @@
           </div>
           <div class="chip-row" id="chip-row"></div>
           <div class="bottom-bar">
-            <button class="btn btn-primary" type="button" data-go="step2">다음</button>
+            <button class="btn btn-primary" id="step1-next" type="button" data-go="step2">다음</button>
           </div>
         </div>
 
@@ -181,7 +203,73 @@
       </div>
     </section>
 
-    <!-- ============ STEP 2 · 근무기간 선택 (4389:71936 / 4433:74682) ============ -->
+    <!-- ============ STEP 1-2 · 내 근처 (20261027 수정 4722:375626 · 검색 4739:101834 / 4739:102125) ============ -->
+    <!-- 지도 상태: 검색창 + 반경 + 지도(바로 움직임) / 검색 상태: 타이틀이 생기고 지도 자리에 검색 결과 -->
+    <section class="screen nearby" data-screen="nearby" aria-label="내 근처 지역 설정" hidden>
+      <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
+      <div class="nb-title" aria-hidden="true"><div class="nb-title-inner"><h1 class="title">어디서 일하고 싶으세요?</h1></div></div>
+      <div class="search-row nb-search-row">
+        <div class="search-field nb-search-field" id="nb-search-field">
+          <input class="search-input" id="nb-search-input" type="search" placeholder="지번, 도로명, 건물명으로 검색" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="지번, 도로명, 건물명으로 검색">
+          <span class="search-icons">
+            <button class="search-clear" id="nb-search-clear" type="button" aria-label="검색어 지우기" hidden>
+              <img src="assets/icon-circle-close-fill.svg" width="24" height="24" alt="">
+            </button>
+            <img src="assets/icon-search.svg" width="24" height="24" alt="">
+          </span>
+        </div>
+        <button class="remote-check" type="button" role="checkbox" aria-checked="false" data-remote="nearby">
+          <span class="checkbox"><img src="assets/icon-checkbox-check.svg" width="20" height="20" alt=""></span>
+          <span class="remote-label">재택 포함</span>
+        </button>
+      </div>
+
+      <div class="nb-stage">
+        <div class="nb-map-view" id="nb-map-view">
+          <div class="pill-tab" id="radius-tab" role="tablist" aria-label="반경">
+            <button type="button" role="tab" data-radius="1" aria-selected="true">1km</button>
+            <button type="button" role="tab" data-radius="3" aria-selected="false">3km</button>
+            <button type="button" role="tab" data-radius="7" aria-selected="false">7km</button>
+            <button type="button" role="tab" data-radius="10" aria-selected="false">10km</button>
+          </div>
+          <div class="map-card" id="map-card">
+            <div class="map-canvas" id="nearby-map"></div>
+            <p class="map-fallback">지도는 배포 주소(https)에서 보여요</p>
+            <div class="nb-pin" aria-hidden="true">
+              <div class="radius-label" id="radius-label">
+                <div class="radius-bubble">
+                  <span class="radius-icon" data-icon="walk">
+                    <img class="ic-walk" src="assets/ut/radius-walk-v2.svg" width="8.60008" height="13.3711" alt="">
+                    <img class="ic-run" src="assets/ut/radius-run.svg" width="13" height="12.07" alt="">
+                    <img class="ic-bike" src="assets/ut/radius-bike.svg" width="14.67" height="10.02" alt="">
+                  </span>
+                  <span class="radius-text"><b id="radius-strong">걸어서 15분</b> 이내 알바</span>
+                </div>
+                <img class="radius-arrow" src="assets/ut/bubble-arrow.svg" width="46" height="8" alt="">
+              </div>
+              <img class="nb-pin-img" src="assets/ut/pin-v2.svg" width="52" height="52" alt="">
+            </div>
+            <button class="locate-btn" id="locate-btn" type="button" aria-label="현재 위치로 이동"><img src="assets/ut/icon-crosshair.svg" width="20" height="20" alt=""></button>
+          </div>
+        </div>
+        <div class="nb-search-view" id="nb-search-view" aria-hidden="true">
+          <div class="nb-empty" id="nb-empty">
+            <p class="nb-empty-title">도로명 또는 지번으로 검색해 보세요</p>
+            <p class="nb-empty-desc">(예시) 서초대로 301, 서초동 1692-1</p>
+          </div>
+          <div class="nb-results" id="nb-results" hidden></div>
+        </div>
+      </div>
+
+      <div class="nb-bottom">
+        <p class="nb-hint">지도를 움직여 원하는 위치를 찾고, 반경을 설정해 보세요.</p>
+        <div class="bottom-bar">
+          <button class="btn btn-primary" id="nearby-next" type="button">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2 · 근무기간 선택 (4607:317774 / 4607:317796) ============ -->
     <section class="screen step2" data-screen="step2" aria-label="근무기간 선택" hidden>
       <div class="stepper" aria-label="3단계 중 2단계"><div class="stepper-track"><span class="is-done"></span><span class="is-done"></span><span></span></div></div>
       <div class="content-scroll">
@@ -193,13 +281,13 @@
         </div>
       </div>
       <div class="bottom-bar">
-        <button class="btn btn-secondary" type="button" data-go="step1">이전</button>
+        <button class="btn btn-secondary" id="step2-prev" type="button">이전</button>
         <button class="btn btn-primary" id="step2-next" type="button" data-go="step3" hidden>다음</button>
       </div>
     </section>
 
-    <!-- ============ STEP 3 · 업직종 선택 (4488:78079 / 4488:78228) ============ -->
-    <section class="screen step3" data-screen="step3" aria-label="업직종 선택" hidden>
+    <!-- ============ STEP 3 · 하는 일 선택 (4607:318149 / 4607:318319) ============ -->
+    <section class="screen step3" data-screen="step3" aria-label="하는 일 선택" hidden>
       <div class="stepper" aria-label="3단계 중 3단계"><div class="stepper-track"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span></div></div>
       <div class="content-scroll">
         <div class="title-block">
@@ -214,10 +302,204 @@
       </div>
     </section>
 
+    <!-- ============ 온보딩 완료 · 홈 (4542:208564 / 스크롤 4542:209700) ============ -->
+    <section class="screen home" data-screen="home" aria-label="홈" hidden>
+      <div class="home-scroll" id="home-scroll">
+        <div class="home-content">
+          <div class="home-bg" aria-hidden="true"></div>
+
+          <header class="home-header" id="home-header">
+            <div class="home-header-bar">
+              <button class="home-location" id="home-location" type="button">
+                <span class="home-location-text">
+                  <img src="assets/home/header-location-pin.svg" width="20" height="20" alt="">
+                  <span id="home-location-label">서초구 10km</span>
+                </span>
+                <img src="assets/home/header-chevron-down.svg" width="20" height="20" alt="">
+              </button>
+              <button class="home-menu" type="button" aria-label="메뉴">
+                <img src="assets/home/header-menu.svg" width="24" height="24" alt="">
+              </button>
+            </div>
+          </header>
+
+          <div class="home-search">
+            <div class="home-search-glow" aria-hidden="true"><img src="assets/home/search-bg.svg" alt=""></div>
+            <div class="home-search-row">
+              <button class="home-search-field" type="button">
+                <span>어떤 알바를 찾으세요?</span>
+                <img src="assets/home/search-icon.svg" width="22" height="22" alt="">
+              </button>
+            </div>
+          </div>
+
+          <nav class="quickmenu" aria-label="퀵메뉴">
+            <div class="quickmenu-row">
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-albaz" src="assets/home/qm-albaz.svg" alt=""></span>제트</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-passassay" src="assets/home/qm-passassay.svg" alt=""></span>맞춤</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-place" src="assets/home/qm-place.svg" alt=""></span>지역별</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-date-calendar" src="assets/home/qm-date-calendar.svg" alt=""><img class="qm-date-clock" src="assets/home/qm-date-clock.svg" alt=""></span>단기</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-emergency" src="assets/home/qm-emergency.svg" alt=""></span>급구</button>
+            </div>
+            <div class="quickmenu-row">
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-beginner" src="assets/home/qm-beginner.svg" width="25.787" height="25.787" alt=""></span>초보가능</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-calendar2" src="assets/home/qm-calendar2.svg" width="30" height="28" alt=""><img class="qm-calendar2-30" src="assets/home/qm-calendar2-30.svg" width="20.034" height="7.992" alt=""></span>한달이상</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-home" src="assets/home/qm-home.svg" width="30" height="29" alt=""></span>재택</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="fill" src="assets/home/qm-money-bag.svg" alt=""></span>고시급</button>
+              <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-quick-start" src="assets/home/qm-quick-start.svg" alt=""></span>바로출근</button>
+            </div>
+          </nav>
+
+          <section class="rec" id="rec" aria-labelledby="rec-title">
+            <h2 class="rec-title" id="rec-title">
+              <span class="ai-signifier"><img src="assets/home/ai-signifier.svg" alt=""></span>
+              <span>나를 위한 <em>실시간 추천 알바</em></span>
+            </h2>
+            <div class="filter-bar" id="filter-bar">
+              <div class="filter-scroll">
+                <button class="filter-btn" type="button" aria-label="필터"><img src="assets/home/filter-sliders.svg" width="18" height="18" alt=""></button>
+                <button class="chip home-chip is-selected" id="chip-job" type="button"><span class="chip-label">바리스타 외 2</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" id="chip-period" type="button"><span class="chip-label">일하는 기간</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">일하는 요일</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">일하는 시간</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">키워드</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">초보 가능</span></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">브랜드 알바</span></button>
+              </div>
+            </div>
+
+            <!-- B · 공고 영역에서 맞춤 공고 준비 -->
+            <div class="rec-loader" id="rec-loader" hidden>
+              <div class="setup-card" role="status" aria-live="polite">
+                <div class="setup-head">
+                  <span class="setup-spark" aria-hidden="true"><img src="assets/home/ai-signifier.svg" alt=""></span>
+                  <p class="setup-title" id="setup-title">선택한 조건으로 맞춤 공고를 준비하고 있어요</p>
+                </div>
+                <div class="setup-chips">
+                  <span class="setup-chip" data-row="location"><img src="assets/home/header-location-pin.svg" width="16" height="16" alt=""><span class="loader-value"></span><img class="setup-check" src="assets/icon-check-brand.svg" width="16" height="16" alt=""></span>
+                  <span class="setup-chip" data-row="job"><span class="loader-value"></span><img class="setup-check" src="assets/icon-check-brand.svg" width="16" height="16" alt=""></span>
+                  <span class="setup-chip" data-row="period"><span class="loader-value"></span><img class="setup-check" src="assets/icon-check-brand.svg" width="16" height="16" alt=""></span>
+                </div>
+                <div class="setup-progress" aria-hidden="true"><span id="setup-bar"></span></div>
+              </div>
+            </div>
+
+            <div class="job-list" id="job-list"></div>
+          </section>
+        </div>
+      </div>
+
+      <nav class="tabbar" aria-label="탭바">
+        <div class="tabbar-tabs">
+          <button class="tab" type="button" aria-current="page"><span class="tab-icon"><img src="assets/home/tab-home.svg" width="20" height="20" alt=""></span>홈</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-community.svg" width="20" height="20" alt=""></span>커뮤니티</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-map.svg" width="15.6771" height="15.3319" alt=""></span>지도</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-chat.svg" width="14.5829" height="14.5833" alt=""></span>채팅</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-my.svg" width="20" height="20" alt=""></span>MY</button>
+        </div>
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+      </nav>
+
+      <!-- D · 적용 토스트 -->
+      <div class="home-toast" id="home-toast" role="status" aria-live="polite">
+        <img src="assets/home/toast-check.svg" width="16" height="16" alt="">
+        <span>선택한 조건을 적용했어요</span>
+      </div>
+
+      <!-- E · 스크롤 힌트 -->
+      <button class="home-toast scroll-hint" id="scroll-hint" type="button">
+        <span>내려서 맞춤 공고 더 보기</span>
+        <img src="assets/home/toast-chevron-down.svg" width="16" height="16" alt="">
+      </button>
+
+      <!-- A · 코치마크 -->
+      <div class="coach" id="coach" hidden>
+        <div class="coach-spot" id="coach-spot"></div>
+        <div class="coach-clone" id="coach-clone" aria-hidden="true" hidden></div>
+        <div class="coach-tip" id="coach-tip" role="dialog" aria-live="polite">
+          <img class="coach-arrow" src="assets/home/coach-arrow.svg" width="54" height="8" alt="">
+          <div class="coach-box">
+            <p class="coach-text" id="coach-text"></p>
+            <div class="coach-foot">
+              <span class="coach-step" id="coach-step"></span>
+              <span class="coach-actions">
+                <button class="coach-skip" id="coach-skip" type="button">건너뛰기</button>
+                <button class="coach-next" id="coach-next" type="button"></button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D · 팝업 -->
+      <div class="popup" id="popup" hidden>
+        <div class="popup-dim"></div>
+        <div class="popup-modal" role="dialog" aria-modal="true" aria-labelledby="popup-title">
+          <div class="popup-head">
+            <button class="popup-close" id="popup-close" type="button" aria-label="닫기"><img src="assets/home/modal-close.svg" width="22" height="22" alt=""></button>
+          </div>
+          <div class="popup-image"><img src="assets/home/modal-image.png" width="240" height="582" alt=""></div>
+          <div class="popup-contents">
+            <p class="popup-title" id="popup-title">모니님께 딱 맞는 알바를<br>메인에 모아뒀어요</p>
+          </div>
+          <div class="popup-badges"><div class="popup-badge-track" id="popup-badges"></div></div>
+          <div class="popup-foot">
+            <button class="popup-cta" id="popup-cta" type="button">새로워진 홈에서 알바보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
-</div>
+
+  <!-- A · 조건 착지용 레이어 -->
+  <div class="fly-layer" id="fly-layer" aria-hidden="true"></div>
+
+  <!-- ============ 위치 동의 (4610:325447) ============ -->
+  <div class="overlay" id="consent" hidden>
+    <div class="overlay-dim" data-dismiss></div>
+    <div class="bsheet consent-sheet" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+      <div class="consent-art-wrap">
+        <div class="consent-art" aria-hidden="true">
+          <img class="ca-e995" src="assets/ut/consent-ellipse-995.svg" width="162" height="61.3829" alt="">
+          <img class="ca-e991" src="assets/ut/consent-ellipse-991.svg" width="98.7189" height="34.1719" alt="">
+          <img class="ca-e994" src="assets/ut/consent-ellipse-994.svg" width="46.8282" height="11.3906" alt="">
+          <img class="ca-e996" src="assets/ut/consent-ellipse-996.svg" width="7.225" height="3.11682" alt="">
+          <span class="ca-76256"><img src="assets/ut/consent-76256.png" alt=""></span>
+          <img class="ca-76252" src="assets/ut/consent-76252.png" alt="">
+          <img class="ca-76253" src="assets/ut/consent-76253.png" alt="">
+          <img class="ca-76254" src="assets/ut/consent-76254.png" alt="">
+          <span class="ca-76255"><img src="assets/ut/consent-76255.png" alt=""></span>
+        </div>
+      </div>
+      <div class="consent-text">
+        <h2 class="consent-title" id="consent-title">내 근처 알바 찾으려면<br>동의가 필요해요</h2>
+        <button class="consent-terms" id="consent-terms" type="button">(선택) 위치기반서비스 이용약관 보기<img src="assets/ut/consent-arrow.svg" width="16" height="16" alt=""></button>
+      </div>
+      <div class="consent-actions">
+        <button class="btn btn-primary consent-agree" id="consent-agree" type="button"><span>동의할게요</span><i class="btn-spinner" aria-hidden="true"></i></button>
+        <button class="consent-later" id="consent-later" type="button">다음에</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<script src="app.js?v=20261022"></script>
+  <!-- 시안 비교 (완료 화면에서만 노출) -->
+  <button class="variant-fab" id="variant-fab" type="button" aria-expanded="false" aria-controls="variant-sheet">C</button>
+  <button class="variant-backdrop" id="variant-backdrop" type="button" tabindex="-1" aria-label="시안 선택 닫기"></button>
+  <div class="variant-sheet" id="variant-sheet" role="dialog" aria-label="완료 화면 시안">
+    <div class="variant-sheet-head"><span>완료 화면 시안</span><button class="variant-close" id="variant-close" type="button" aria-label="닫기">×</button></div>
+    <div class="variant-options" id="variant-options" role="tablist"></div>
+    <div class="variant-actions">
+      <button class="variant-replay" type="button" data-replay><img src="assets/icon-redo.svg" width="16" height="16" alt="">다시 보기</button>
+      <button class="variant-replay variant-restart" type="button" data-restart>처음부터</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js?v=20261027-1"></script>
+<script src="nearby.js?v=20261027-1"></script>
+<script src="home.js?v=20261027-1"></script>
 </body>
 </html>

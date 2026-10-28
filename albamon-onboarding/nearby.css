@@ -1,0 +1,397 @@
+/* ============ STEP 0 · 도입부 (Figma 4607:325387) ============ */
+.screen.intro{overflow:hidden;}
+.intro-body{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:64px;
+  padding-top:110px;   /* Figma top 154 − 상태바 44 */
+}
+.intro-text{
+  width:252px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  color:var(--typo-default);
+  text-align:center;
+}
+.intro-title{font-size:28px; font-weight:700; line-height:36px; letter-spacing:-.5px;}
+.intro-sub{font-size:16px; font-weight:500; line-height:24px;}
+.intro-em{color:var(--typo-brand);}
+.intro-actions{
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:0 16px;
+}
+.btn-outline{
+  width:100%;
+  border:1px solid var(--border-default);
+  background:var(--fill-default);
+  color:var(--typo-default);
+}
+.btn-outline img{flex:none;}
+/* image 7906: 299×284 상자가 화면 아래로 43px 넘친다. */
+.intro-art{
+  position:absolute;
+  left:calc(50% - .5px);
+  bottom:-43px;
+  width:299px;
+  height:284px;
+  transform:translateX(-50%);
+  overflow:hidden;
+  pointer-events:none;
+}
+.intro-art img{
+  position:absolute;
+  left:-.07%;
+  top:-27.92%;
+  width:100.13%;
+  height:158.33%;
+  max-width:none;
+}
+
+/* ============ STEP 1-2 · 내 근처 (Figma 20261027 수정 4722:375626) ============ */
+/* 지도 상태 ↔ 검색 상태를 한 화면에서 바꾼다. 검색 상태에서는 타이틀이 펼쳐지며 검색창이 아래로 내려오고,
+   지도 자리에 검색 결과가 겹쳐 나타난다. */
+.screen.nearby{overflow:hidden;}
+.nb-title{
+  flex:none;
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1);
+}
+.nb-title-inner{
+  min-height:0;
+  overflow:hidden;
+  padding:0 16px;
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity .24s ease, transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.nb-search-row{
+  padding:0 16px;
+  transition:padding .32s cubic-bezier(.2,.8,.2,1);
+}
+.nearby.is-searching .nb-title{grid-template-rows:1fr;}
+.nearby.is-searching .nb-title-inner{opacity:1; transform:none; transition-delay:.06s;}
+.nearby.is-searching .nb-search-row{padding:24px 16px 12px;}
+
+.nb-stage{position:relative; flex:1; min-height:0;}
+.nb-map-view,
+.nb-search-view{
+  position:absolute;
+  inset:0;
+  transition:opacity .24s ease, transform .32s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s;
+}
+.nb-map-view{display:flex; flex-direction:column;}
+.nb-search-view{
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-8px);
+  transition:opacity .24s ease, transform .32s cubic-bezier(.2,.8,.2,1), visibility 0s linear .32s;
+}
+.nb-search-view::-webkit-scrollbar{display:none;}
+.nearby.is-searching .nb-map-view{
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(16px);
+  pointer-events:none;
+  transition:opacity .2s ease, transform .32s cubic-bezier(.2,.8,.2,1), visibility 0s linear .32s;
+}
+.nearby.is-searching .nb-search-view{opacity:1; visibility:visible; transform:none; transition-delay:.06s, .06s, 0s;}
+
+/* 화면에 들어올 때는 바로 지도 상태로 둔다(전환 효과 없이) */
+.nearby.no-anim,
+.nearby.no-anim *{transition:none !important;}
+
+/* PillTab (Figma 4313:168730) */
+.pill-tab{
+  flex:none;
+  display:flex;
+  margin:16px 16px 0;
+  padding:4px;
+  border-radius:999px;
+  background:var(--fill-surface);
+}
+.pill-tab button{
+  flex:1;
+  min-width:0;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 8px;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:500;
+  line-height:22px;
+  color:var(--typo-subtle);
+  white-space:nowrap;
+  transition:background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.pill-tab button[aria-selected="true"]{
+  background:var(--fill-default);
+  color:var(--typo-default);
+  box-shadow:0 1px 1px rgba(0,0,0,.08), 0 0 1.5px rgba(0,0,0,.02);   /* ❍ shadow/xs */
+}
+
+/* map (Figma 4739:101546) · 358×358 r24, 화면이 낮으면 세로만 줄어든다. 지도는 손으로 바로 움직인다. */
+.map-card{
+  position:relative;
+  isolation:isolate;
+  flex:0 1 auto;
+  aspect-ratio:1 / 1;
+  min-height:180px;
+  margin:16px 16px 0;
+  overflow:hidden;
+  border-radius:24px;
+  background:var(--map-bg, #eef0f2);
+}
+.map-canvas{position:absolute; inset:0;}
+.map-fallback{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0 24px 24px;
+  font-size:13px;
+  line-height:20px;
+  color:var(--typo-subtle);
+  text-align:center;
+}
+body.no-map .map-fallback{display:flex;}
+body.no-map .map-canvas{display:none;}
+
+/* 가운데 핀 + 위쪽 반경 말풍선 (지도를 움직여도 가운데에 그대로 있다) */
+.nb-pin{position:absolute; left:50%; top:50%; z-index:2; width:0; height:0; pointer-events:none;}
+.nb-pin-img{position:absolute; left:-26px; top:-26px; max-width:none;}
+.radius-label{
+  position:absolute;
+  left:0;
+  bottom:26px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.07));
+  white-space:nowrap;
+}
+.radius-bubble{
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:8px 12px;
+  border-radius:32px;
+  background:#fff;
+}
+.radius-arrow{display:block; margin-top:-1px;}
+.radius-icon{position:relative; flex:none; width:16px; height:16px;}
+.radius-icon img{position:absolute; display:none; max-width:none;}
+.radius-icon .ic-walk{left:25%; top:8.33%;}
+.radius-icon .ic-run{left:9.17%; top:12.5%;}
+.radius-icon .ic-bike{left:4.17%; top:18.75%;}
+.radius-icon[data-icon="walk"] .ic-walk,
+.radius-icon[data-icon="run"] .ic-run,
+.radius-icon[data-icon="bike"] .ic-bike{display:block;}
+.radius-text{font-size:12px; font-weight:500; line-height:18px; color:var(--typo-default); opacity:.9;}
+.radius-text b{font-weight:700;}
+
+/* MapIcon (my) — 현재 위치로 */
+.locate-btn{
+  position:absolute;
+  right:10px;
+  bottom:12px;
+  z-index:3;
+  width:40px; height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--dt-line, #e8e8e8);
+  border-radius:100px;
+  background:#fff;
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,.1));
+}
+
+/* 검색 결과 (Figma 4739:102125) */
+.nb-empty{
+  width:224px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:80px 0;
+  color:var(--typo-disabled);
+  text-align:center;
+}
+.nb-empty-title{font-size:16px; font-weight:500; line-height:24px;}
+.nb-empty-desc{font-size:13px; line-height:18px;}
+.nb-results{display:flex; flex-direction:column; padding:16px 20px calc(16px + env(safe-area-inset-bottom));}
+.nb-result{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:16px 0;
+  text-align:left;
+}
+.nb-result:first-child{padding-top:0;}
+.nb-result + .nb-result{border-top:1px solid var(--border-subtle);}
+.nb-result:active{opacity:.6;}
+.nb-result-line{display:flex; align-items:flex-start; gap:16px;}
+.nb-badge{
+  flex:none;
+  min-width:48px;
+  display:flex;
+  justify-content:center;
+  padding:2px 6px;
+  border-radius:4px;
+  background:var(--fill-surface);
+  font-size:12px;
+  font-weight:500;
+  line-height:18px;
+  color:var(--typo-secondary);
+  white-space:nowrap;
+}
+.nb-result-text{flex:1; min-width:0; font-size:14px; font-weight:500; line-height:20px; color:var(--typo-secondary);}
+
+/* 아래 안내 문구 + 다음 */
+.nb-bottom{flex:none; position:relative; z-index:2; background:var(--fill-default);}
+.nb-hint{
+  font-size:14px;
+  font-weight:500;
+  line-height:20px;
+  color:var(--typo-subtle);
+  text-align:center;
+  transition:opacity .2s ease;
+}
+/* 검색 상태에서는 아래 안내 문구와 다음 버튼을 숨긴다(검색 결과가 화면 아래까지 이어진다). */
+.nearby.is-searching .nb-bottom{display:none;}
+
+/* ============ 바텀시트 공통 ============ */
+.overlay{position:absolute; inset:0; z-index:50; overflow:hidden;}
+#consent{z-index:54;}
+.overlay-dim{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.3);
+  opacity:0;
+  transition:opacity .25s ease;
+}
+.overlay.is-open .overlay-dim{opacity:1;}
+.bsheet{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  display:flex;
+  flex-direction:column;
+  border-radius:20px 20px 0 0;
+  background:var(--fill-default);
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.overlay.is-open .bsheet{transform:none;}
+
+/* ============ 위치 동의 (Figma 4610:325447) ============ */
+.consent-sheet{padding:20px 0 env(safe-area-inset-bottom);}
+.consent-art-wrap{
+  height:110px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.consent-art{position:relative; width:162px; height:80px;}
+.consent-art > *{position:absolute; max-width:none;}
+.ca-e995{left:0; top:16.73px;}
+.ca-e991{left:31.64px; top:27.48px;}
+.ca-e994{left:57.59px; top:37.6px;}
+.ca-e996{left:77.43px; top:41.25px;}
+.ca-76256{left:7.89px; top:18.56px; width:34.394px; height:43.75px; overflow:hidden;}
+.ca-76256 img{position:absolute; left:.02%; top:0; width:99.98%; height:100%; max-width:none;}
+.ca-76252{left:42.29px; top:-.11px; width:22.687px; height:24.643px; object-fit:cover;}
+.ca-76253{left:87.99px; top:44.37px; width:24.984px; height:29.255px; object-fit:cover;}
+.ca-76254{left:118.99px; top:9.04px; width:29.829px; height:30.994px; object-fit:cover;}
+.ca-76255{left:63.7px; top:3.49px; width:34.68px; height:36.942px; overflow:hidden;}
+.ca-76255 img{position:absolute; left:0; top:-.8%; width:95.65%; height:99.55%; max-width:none;}
+
+.consent-text{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:12px 20px;
+}
+.consent-title{
+  margin:0;
+  font-size:24px;
+  font-weight:700;
+  line-height:32px;
+  letter-spacing:-.5px;
+  color:var(--text-primary);
+  text-align:center;
+}
+.consent-terms{
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:4px 0;
+  font-size:14px;
+  font-weight:500;
+  line-height:20px;
+  color:var(--text-quaternary);
+  white-space:nowrap;
+}
+.consent-actions{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:16px;
+}
+.consent-actions .btn{width:100%;}
+.consent-later{
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:500;
+  line-height:20px;
+  color:var(--text-quaternary);
+}
+/* 브라우저 위치 권한 응답을 기다리는 동안 */
+.btn-spinner{
+  display:none;
+  width:20px; height:20px;
+  border:2px solid rgba(255,255,255,.45);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:btn-spin .8s linear infinite;
+}
+.btn.is-loading span{display:none;}
+.btn.is-loading .btn-spinner{display:block;}
+@keyframes btn-spin{to{transform:rotate(360deg);}}
+
+@media (prefers-reduced-motion:reduce){
+  .bsheet,
+  .overlay-dim,
+  .pill-tab button,
+  .nb-title,
+  .nb-title-inner,
+  .nb-search-row,
+  .nb-map-view,
+  .nb-search-view{transition:none;}
+}
+
+/* ============ Mobile ============ */
+@media (max-width:520px){
+  /* 화면이 낮은 기기에서 도입부 그림이 버튼을 덮지 않게 위쪽 여백을 줄인다. */
+  @media (max-height:640px){
+    .intro-body{padding-top:64px; gap:40px;}
+  }
+}

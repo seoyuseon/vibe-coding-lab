@@ -59,7 +59,12 @@ body{
   color:var(--typo-default);
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
+  /* 테스트폰에서 길게 눌러도 글자 선택·미리보기가 뜨지 않게 한다. */
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
 }
+input{-webkit-user-select:text; user-select:text;}
 button{
   font:inherit;
   color:inherit;
