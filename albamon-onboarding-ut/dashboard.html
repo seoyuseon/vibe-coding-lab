@@ -190,6 +190,7 @@ table.data thead th.num{text-align:right;}
 .pill{display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:6px; background:var(--surface-2); color:var(--ink-2); font-size:11px; font-weight:600;}
 .pill.is-warn{color:var(--critical);}
 .pill.is-good{color:var(--good);}
+td > .pill, .tl-text .pill{margin-left:6px;}
 .status-dot{display:inline-block; width:8px; height:8px; margin-right:6px; border-radius:50%; background:var(--muted); vertical-align:1px;}
 .status-dot.is-live{background:var(--good);}
 
@@ -384,8 +385,8 @@ table.data thead th.num{text-align:right;}
   }
   function pct(n, d){ return d ? Math.round(n / d * 100) + '%' : '–'; }
   function clock(ms){
-    var s = Math.max(0, Math.round(ms / 1000));
-    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+    var s = Math.round(Math.abs(ms) / 1000);
+    return (ms < 0 && s ? '-' : '') + Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
   }
   function dateText(ms){
     if (!ms) return '';
@@ -417,7 +418,9 @@ table.data thead th.num{text-align:right;}
       status: doc.status || (firstIn(evsAll, 'session_end') ? 'ended' : 'active'),
       startedAt: doc.startedAt || (head.at ? head.at - head.t : null),
       standalone: doc.standalone,
-      events: evsAll
+      events: evsAll,
+      // 세션 시작을 놓친 구간을 녹화본으로 보충한 기록(source: 'video', 세션 시작 전이라 t가 음수)
+      video: evsAll.some(function(e){ return e.source === 'video'; })
     };
     var login = first('login');
     var done = first('onboarding_complete');
@@ -441,6 +444,9 @@ table.data thead th.num{text-align:right;}
 
     var choice = first('intro_choice');
     r.choice = choice ? d(choice).choice : null;
+    // 버튼 순서는 T1에서 실제로 보인 순서로 센다. 세션 없이 진행되면 배정과 달리 기본 순서(지역 먼저)로 뜬다.
+    r.assignedOrder = r.order;
+    if (choice && d(choice).order) r.order = d(choice).order;
     var rd1 = first('region_done');
     r.pathMs = choice && rd1 ? rd1.t - choice.t : null;
     var c2 = firstIn(evs2, 'intro_choice');
@@ -507,7 +513,8 @@ table.data thead th.num{text-align:right;}
     Object.keys(eventsBySid).forEach(function(k){ ids[k] = true; });
     return Object.keys(ids).map(summarize).filter(function(r){
       if (!filter.test && r.test) return false;
-      if (filter.group !== 'all' && r.group !== filter.group) return false;
+      // 그룹은 T1 완료 화면에서 실제로 본 쪽 기준(배정과 다를 수 있다)
+      if (filter.group !== 'all' && (r.homeGroup || r.group) !== filter.group) return false;
       return true;
     }).sort(function(a, b){ return (a.participant - b.participant) || ((a.startedAt || 0) - (b.startedAt || 0)); });
   }
@@ -786,9 +793,9 @@ table.data thead th.num{text-align:right;}
       var open = !!expanded[r.sid];
       var step1 = (r.screenMs.step1 || 0) + (r.screenMs.nearby || 0);
       var tr = h('tr', { class: 'srow', tabindex: '0', 'aria-expanded': open ? 'true' : 'false', onclick: function(){ expanded[r.sid] = !open; render(); }, onkeydown: function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); expanded[r.sid] = !open; render(); } } }, [
-        h('td', null, [h('span', { class: 'pid' }, ['P' + r.participant, r.test ? h('span', { class: 'pill', text: '연습' }) : null])]),
-        h('td', null, [h('span', { class: 'pid' }, [h('i', { class: 'key key-' + r.group }), (r.group || '').toUpperCase()])]),
-        h('td', { text: ORDER_NAME[r.order] || '–' }),
+        h('td', null, [h('span', { class: 'pid' }, ['P' + r.participant, r.test ? h('span', { class: 'pill', text: '연습' }) : null, r.video ? h('span', { class: 'pill', title: 'T1은 세션 시작을 놓쳐 녹화본으로 보충한 기록이에요(자동 기록 아님)', text: '녹화본' }) : null])]),
+        h('td', null, [h('span', { class: 'pid' }, [h('i', { class: 'key key-' + r.group }), (r.group || '').toUpperCase(), r.homeGroup && r.homeGroup !== r.group ? h('span', { class: 'pill', title: '배정과 다른 완료 화면을 T1에서 봤어요. 집계는 T1에서 본 쪽으로 해요', text: 'T1은 ' + r.homeGroup.toUpperCase() }) : null])]),
+        h('td', null, [ORDER_NAME[r.order] || '–', r.assignedOrder && r.assignedOrder !== r.order ? h('span', { class: 'pill', title: '배정: ' + ORDER_NAME[r.assignedOrder] + '. 집계는 T1에서 실제로 보인 순서로 해요', text: '배정과 다름' }) : null]),
         h('td', null, [h('span', { class: 'status-dot' + (r.status === 'active' ? ' is-live' : '') }), dateText(r.startedAt)]),
         h('td', { text: regionText(r) }),
         h('td', { text: t2Text(r) }),
@@ -818,13 +825,23 @@ table.data thead th.num{text-align:right;}
     var del = h('button', { class: 'danger', type: 'button', text: '이 세션 기록 삭제', onclick: function(e){ e.stopPropagation(); removeSession(r); } });
     wrap.appendChild(h('div', { class: 'timeline-head' }, [h('span', { text: meta }), del]));
     var ol = h('ol');
+    // 녹화본 기록이 있으면 그 첫 기록을 0:00으로 둔다(세션 시작 전 구간이라 t가 음수).
+    var base = r.video ? Math.min.apply(null, r.events.map(function(e){ return e.t; })) : 0;
+    var wasVideo = false;
+    function divider(text){
+      ol.appendChild(h('li', null, [h('span', { class: 'tl-time' }), h('span', { class: 'tl-screen' }), h('span', { class: 'tl-text', text: text })]));
+    }
     r.events.forEach(function(e){
       var text = describe(e);
       if (!text) return;
+      var isVideo = e.source === 'video';
+      if (isVideo && !wasVideo) divider('━━ T1 · 녹화본으로 보충한 기록 (세션 시작 전 · 자동 기록 아님) ━━');
+      if (!isVideo && wasVideo) divider('━━ 여기부터 자동 기록 ━━');
+      wasVideo = isVideo;
       ol.appendChild(h('li', null, [
-        h('span', { class: 'tl-time', text: clock(e.t) }),
+        h('span', { class: 'tl-time', text: clock(e.t - base) }),
         h('span', { class: 'tl-screen', text: SCREEN_NAME[e.screen] || e.screen || '' }),
-        h('span', { class: 'tl-text', text: text })
+        h('span', { class: 'tl-text' }, [text, isVideo ? h('span', { class: 'pill', title: e.video ? e.video.file + ' ' + e.video.sec + '초' : null, text: '녹화본' }) : null])
       ]));
     });
     wrap.appendChild(ol);
@@ -933,18 +950,18 @@ table.data thead th.num{text-align:right;}
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
   $('csv-sessions').addEventListener('click', function(){
-    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'path_ms', 't2_choice', 't2_path_ms', 't2_radius_km', 't2_regions', 'nearby_in', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'search_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events'];
+    var head = ['participant', 'group', 'button_order', 'test', 'sid', 'started', 'login', 'choice', 'mode', 'path_ms', 't2_choice', 't2_path_ms', 't2_radius_km', 't2_regions', 'nearby_in', 'consent', 'geo', 'geo_ms', 'radius_km', 'regions', 'remote', 'period', 'jobs', 'onboarding_ms', 'login_ms', 'intro_ms', 'step1_ms', 'nearby_ms', 'step2_ms', 'step3_ms', 'backs', 'browser_back', 'region_toggles', 'limit_hits', 'radius_changes', 'search_opens', 'map_drags', 'addr_searches', 'addr_picks', 'home_first_action_ms', 'home_first_action', 'reach_list', 'reach_auto', 'coach', 'home_taps', 'detail_unique', 'detail_ms', 'task_end', 'task_end_ms', 'events', 'assigned_order', 'home_group', 't1_source'];
     var lines = [head].concat(rows().map(function(r){
       return [r.participant, r.group, r.order, r.test, r.sid, r.startedAt ? new Date(r.startedAt).toISOString() : '', r.loginMethod, r.choice, r.mode, r.pathMs, r.t2 && r.t2.choice, r.t2 && r.t2.pathMs, r.t2 && r.t2.radius, r.t2 && r.t2.regions, r.nearbyIn, CONSENT[r.consent] || '', r.geo, r.geoMs, r.radius, (r.done.regions || []).join(' / '), r.done.remote, PERIOD[r.done.period] || '', (r.done.jobs || []).map(function(id){ return JOB_NAME[id] || id; }).join(' / '), r.onboardingMs,
-        r.screenMs.login, r.screenMs.intro, r.screenMs.step1, r.screenMs.nearby, r.screenMs.step2, r.screenMs.step3, r.backs, r.browserBack, r.regionToggles, r.limitHits, r.radiusChanges, r.searchOpens, r.mapDrags, r.addrSearches, r.addrPicks, r.firstActionMs, r.firstAction, r.reachList, r.reachAuto, r.coach, r.homeTaps, r.detailUnique, r.detailMs, r.taskEnd, r.taskEndMs, r.events.length];
+        r.screenMs.login, r.screenMs.intro, r.screenMs.step1, r.screenMs.nearby, r.screenMs.step2, r.screenMs.step3, r.backs, r.browserBack, r.regionToggles, r.limitHits, r.radiusChanges, r.searchOpens, r.mapDrags, r.addrSearches, r.addrPicks, r.firstActionMs, r.firstAction, r.reachList, r.reachAuto, r.coach, r.homeTaps, r.detailUnique, r.detailMs, r.taskEnd, r.taskEndMs, r.events.length, r.assignedOrder, r.homeGroup, r.video ? 'video' : 'auto'];
     }));
     download('onboarding-ut-participants.csv', lines);
   });
   $('csv-events').addEventListener('click', function(){
-    var lines = [['participant', 'group', 'test', 'sid', 'seq', 't_ms', 'time', 'screen', 'type', 'description', 'data']];
+    var lines = [['participant', 'group', 'test', 'sid', 'seq', 't_ms', 'time', 'screen', 'type', 'description', 'data', 'source']];
     rows().forEach(function(r){
       r.events.forEach(function(e){
-        lines.push([r.participant, r.group, r.test, r.sid, e.seq, e.t, clock(e.t), e.screen, e.type, describe(e) || '', e.data]);
+        lines.push([r.participant, r.group, r.test, r.sid, e.seq, e.t, clock(e.t), e.screen, e.type, describe(e) || '', e.data, e.source || 'auto']);
       });
     });
     download('onboarding-ut-events.csv', lines);
