@@ -1,0 +1,625 @@
+(function(){
+  'use strict';
+
+  /* ============ 데이터 ============ */
+  // 1depth 순서는 Figma 노출 순서(서울~대구)를 따르고, 시안에서 숨김 처리된 나머지 시·도를 뒤에 둔다.
+  var REGIONS = [
+    ['서울', ['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구']],
+    ['경기', ['가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시 소사구','부천시 오정구','부천시 원미구','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시']],
+    ['인천', ['강화군','검단구','계양구','남동구','미추홀구','부평구','서구','연수구','영종구','옹진군','제물포구']],
+    ['강원', ['강릉시','고성군','동해시','삼척시','속초시','양구군','양양군','영월군','원주시','인제군','정선군','철원군','춘천시','태백시','평창군','홍천군','화천군','횡성군']],
+    ['대전', ['대덕구','동구','서구','유성구','중구']],
+    ['세종', []],
+    ['충남', ['계룡시','공주시','금산군','논산시','당진시','보령시','부여군','서산시','서천군','아산시','예산군','천안시 동남구','천안시 서북구','청양군','태안군','홍성군']],
+    ['충북', ['괴산군','단양군','보은군','영동군','옥천군','음성군','제천시','증평군','진천군','청주시 상당구','청주시 서원구','청주시 청원구','청주시 흥덕구','충주시']],
+    ['부산', ['강서구','금정구','기장군','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구']],
+    ['울산', ['남구','동구','북구','울주군','중구']],
+    ['경남', ['거제시','거창군','고성군','김해시','남해군','밀양시','사천시','산청군','양산시','의령군','진주시','창녕군','창원시 마산합포구','창원시 마산회원구','창원시 성산구','창원시 의창구','창원시 진해구','통영시','하동군','함안군','함양군','합천군']],
+    ['경북', ['경산시','경주시','고령군','구미시','김천시','문경시','봉화군','상주시','성주군','안동시','영덕군','영양군','영주시','영천시','예천군','울릉군','울진군','의성군','청도군','청송군','칠곡군','포항시 남구','포항시 북구']],
+    ['대구', ['군위군','남구','달서구','달성군','동구','북구','서구','수성구','중구']],
+    ['광주', ['광산구','남구','동구','북구','서구']],
+    ['전북', ['고창군','군산시','김제시','남원시','무주군','부안군','순창군','완주군','익산시','임실군','장수군','전주시 덕진구','전주시 완산구','정읍시','진안군']],
+    ['전남', ['강진군','고흥군','곡성군','광양시','구례군','나주시','담양군','목포시','무안군','보성군','순천시','신안군','여수시','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군']],
+    ['제주', ['서귀포시','제주시']]
+  ];
+  var ALL = '*';
+  var MAX_REGIONS = 10;
+  var MAX_JOBS = 5;     // STEP 3 업직종 최대 선택 수 (Figma 5054:115512)
+
+  // STEP 2에서 '한 달 이내'면 단기 업직종(4607:318149), 그 외는 장기 업직종(4607:318319)
+  var JOBS = {
+    short: [
+      ['promotion', '행사·판촉', '행사 모객·준비·진행'],
+      ['info', '전시·안내', '전시장 안내·운영'],
+      ['delivery-box', '물류·배송', '물건 분류·포장·배송'],
+      ['shopping-bag', '매장·판매', '매장관리·고객응대'],
+      ['serving', '음식점·서빙', '음식주문·서빙·홀정리'],
+      ['factory', '제조·생산', '제품 조립·포장·검수'],
+      ['security', '청소·경비', '매장 및 건물 청소·안전 관리']
+    ],
+    long: [
+      ['shopping-bag', '매장·판매', '매장관리·고객응대·편의점'],
+      ['serving', '음식점·서빙', '음식주문·서빙·홀정리'],
+      ['staff-badge', '행사·안내', '행사 준비·진행·리셉션'],
+      ['cafe', '카페·디저트', '음료 및 디저트 제조·판매'],
+      ['cooking', '주방·조리', '음식조리·설거지'],
+      ['office', '사무직', '사무보조·문서작성'],
+      ['factory', '제조·생산', '제품 조립·포장·검수'],
+      ['delivery-box', '물류·배송', '물건 분류·포장·기사'],
+      ['education', '교육·학원', '학생지도·채점·학원운영'],
+      ['customer-service', '고객상담', '전화·채팅상담']
+    ]
+  };
+
+  // 내 근처 기본 위치 (Figma 20261027 '위치 미동의 → 기본 위치 → 시청': 동의하지 않거나 위치 권한이 없을 때)
+  var DEFAULT_PLACE = { lat: 37.56572, lng: 126.97722, address: '시청역', display: '시청역', label: '시청역', jibun: '', sido: '서울', dong: '', gu: '중구', source: 'default' };
+
+  /* ============ 상태 ============ */
+  function initialState(){
+    return {
+      mode: null,            // STEP 0에서 고른 지역 설정 방식: 'list'(지역 선택) | 'nearby'(내 근처)
+      region: '서울',
+      selected: [],          // 'region|district' (district '*' = 전체), 선택 순서 유지
+      remote: false,
+      query: '',
+      place: Object.assign({}, DEFAULT_PLACE),  // 내 근처 탐색 위치
+      radius: 1,             // 내 근처 반경(km)
+      consent: false,        // 서비스 안 위치 동의
+      geo: null,             // 브라우저 위치 권한 결과
+      period: null,
+      periodConfirmed: false, // STEP 3까지 진행한 뒤 돌아오면 '다음' 버튼 노출
+      jobsFor: null,
+      jobs: []
+    };
+  }
+  var state = initialState();
+
+  /* ============ DOM ============ */
+  var ut = window.ut || { log: function(){}, screen: function(){} };
+  var $ = function(id){ return document.getElementById(id); };
+  var phone = document.querySelector('.phone');
+  var screens = document.querySelectorAll('.screen');
+  var step1 = document.querySelector('.step1');
+  var depth1 = $('depth1');
+  var depth2 = $('depth2');
+  var regionCols = $('region-cols');
+  var results = $('search-results');
+  var input = $('region-search');
+  var clearBtn = $('search-clear');
+  var remoteChecks = document.querySelectorAll('[data-remote]');
+  var step1Bar = $('step1-bar');
+  var sheet = $('select-sheet');
+  var chipRow = $('chip-row');
+  var countEl = $('select-count');
+  var toast = $('toast');
+  var jobToast = $('job-toast');
+  var periodList = $('period-list');
+  var step2Next = $('step2-next');
+  var jobGrid = $('job-grid');
+  var step3Next = $('step3-next');
+
+  function el(tag, cls, text){
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+  function img(src, w, h, cls){
+    var node = el('img', cls);
+    node.src = src; node.width = w; node.height = h; node.alt = '';
+    return node;
+  }
+
+  /* ============ 화면 전환 ============ */
+  // 화면이 바뀌면 'onboarding:screen'을 보내 nearby.js·home.js가 각자 화면을 준비·정리한다.
+  var current = 'login';
+  function go(name, opts){
+    if (name === 'step3') prepareJobs();
+    if (name === 'login') state = initialState();
+    var from = current;
+    current = name;
+    // 브라우저 기록을 화면 이동에 맞춘다. 새 화면을 그리기 전에 쌓아야 밀어서 뒤로 갈 때 앞 화면이 보인다.
+    if (!(opts && opts.fromPop)) syncHistory(name, from);
+
+    screens.forEach(function(s){ s.hidden = s.dataset.screen !== name; });
+    phone.dataset.screen = name;
+    document.body.dataset.screen = name;
+    hideToast();
+
+    if (name === 'login') resetStep1View();
+    if (name === 'step1') renderStep1();
+    if (name === 'step2') renderPeriod();
+    if (name === 'step3'){
+      state.periodConfirmed = true;
+      renderJobs();
+    }
+    syncRemote();
+    var scroller = document.querySelector('.screen[data-screen="' + name + '"] .content-scroll, .screen[data-screen="' + name + '"] .login-scroll');
+    if (scroller && name !== 'step1') scroller.scrollTop = 0;
+
+    ut.screen(name, from);
+    window.dispatchEvent(new CustomEvent('onboarding:screen', { detail: { name: name, from: from } }));
+    if (name === 'login') clearFlow();
+    else saveFlow();
+  }
+
+  document.addEventListener('click', function(e){
+    var target = e.target.closest('[data-go]');
+    if (!target || target.disabled) return;
+    if (target.dataset.login) ut.log('login', { method: target.dataset.login });
+    if (target.id === 'step1-next') logRegionDone();
+    go(target.dataset.go);
+  });
+
+  /* ============ STEP 0 · 도입부 ============ */
+  // 수정 전·후 화면이 버튼을 각자 가진다(data-intro). 지금 버전의 화면만 보인다(compare.js).
+  // '지역 선택하기' → STEP 1-1 목록 / '내 근처 선택하기' → 위치 동의(nearby.js)
+  document.querySelector('.screen.intro').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-intro]');
+    if (!btn) return;
+    var choice = btn.dataset.intro;
+    ut.log('intro_choice', { choice: choice });
+    if (choice === 'list'){
+      state.mode = 'list';
+      go('step1');
+    } else {
+      window.dispatchEvent(new CustomEvent('onboarding:nearby'));
+    }
+  });
+
+  function logRegionDone(){
+    ut.log('region_done', { mode: 'list', regions: state.selected.slice(), remote: state.remote });
+  }
+
+  /* ============ STEP 1 · 지역 선택 ============ */
+  function key(region, district){ return region + '|' + district; }
+  function isSelected(region, district){ return state.selected.indexOf(key(region, district)) > -1; }
+  function regionCount(region){
+    return state.selected.filter(function(k){ return k.split('|')[0] === region; }).length;
+  }
+  function districtsOf(region){
+    for (var i = 0; i < REGIONS.length; i++) if (REGIONS[i][0] === region) return REGIONS[i][1];
+    return [];
+  }
+  function chipLabel(k){
+    var parts = k.split('|');
+    return parts[1] === ALL ? parts[0] + ' 전체' : parts[1];
+  }
+
+  // '전체'와 개별 시·군·구는 함께 담지 않는다.
+  function toggle(region, district, via){
+    var k = key(region, district);
+    var idx = state.selected.indexOf(k);
+    if (idx > -1){
+      state.selected.splice(idx, 1);
+      ut.log('region_toggle', { key: k, on: false, via: via || 'list', count: state.selected.length });
+      renderStep1();
+      return;
+    }
+    var next = state.selected.filter(function(s){
+      var p = s.split('|');
+      if (p[0] !== region) return true;
+      return district === ALL ? false : p[1] !== ALL;
+    });
+    if (next.length + 1 > MAX_REGIONS){
+      ut.log('region_limit', { key: k });
+      showToast(toast);
+      return;
+    }
+    next.push(k);
+    state.selected = next;
+    ut.log('region_toggle', { key: k, on: true, via: via || (state.query.trim() ? 'search' : 'list'), count: next.length });
+    renderStep1();
+    chipRow.scrollLeft = chipRow.scrollWidth;
+  }
+
+  function checkIcons(){
+    var frag = document.createDocumentFragment();
+    frag.appendChild(img('assets/icon-line-check-off.svg', 20, 20, 'check check-off'));
+    frag.appendChild(img('assets/icon-line-check-on.svg', 20, 20, 'check check-on'));
+    return frag;
+  }
+
+  function renderDepth1(){
+    depth1.textContent = '';
+    REGIONS.forEach(function(r){
+      var name = r[0];
+      var btn = el('button', 'filter-item region-item' + (name === state.region ? ' is-current' : ''));
+      btn.type = 'button';
+      btn.setAttribute('role', 'option');
+      btn.setAttribute('aria-selected', name === state.region ? 'true' : 'false');
+      btn.appendChild(el('span', null, name));
+      var n = regionCount(name);
+      if (n) btn.appendChild(el('span', 'region-count', String(n)));
+      btn.addEventListener('click', function(){
+        if (state.region === name) return;
+        state.region = name;
+        renderDepth1();
+        renderDepth2();
+        depth2.scrollTop = 0;
+      });
+      depth1.appendChild(btn);
+    });
+  }
+
+  function districtButton(region, district, labelNodes){
+    var on = isSelected(region, district);
+    var btn = el('button', 'filter-item' + (on ? ' is-on' : ''));
+    btn.type = 'button';
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.appendChild(checkIcons());
+    btn.appendChild(labelNodes);
+    btn.addEventListener('click', function(){ toggle(region, district); });
+    return btn;
+  }
+
+  function renderDepth2(){
+    var top = depth2.scrollTop;
+    depth2.textContent = '';
+    var region = state.region;
+    depth2.appendChild(districtButton(region, ALL, el('span', null, region + ' 전체')));
+    districtsOf(region).forEach(function(d){
+      depth2.appendChild(districtButton(region, d, el('span', null, d)));
+    });
+    depth2.scrollTop = top;
+  }
+
+  function highlight(label, q){
+    var wrap = el('span');
+    var i = label.indexOf(q);
+    if (i < 0){ wrap.textContent = label; return wrap; }
+    if (i > 0) wrap.appendChild(document.createTextNode(label.slice(0, i)));
+    wrap.appendChild(el('span', 'hl', label.slice(i, i + q.length)));
+    if (i + q.length < label.length) wrap.appendChild(document.createTextNode(label.slice(i + q.length)));
+    return wrap;
+  }
+
+  function renderSearch(){
+    var q = state.query.trim();
+    var top = results.scrollTop;
+    results.textContent = '';
+    if (!q) return;
+    REGIONS.forEach(function(r){
+      var region = r[0];
+      var entries = [[ALL, region + ' 전체']].concat(r[1].map(function(d){ return [d, region + ' ' + d]; }));
+      entries.forEach(function(entry){
+        if (entry[1].indexOf(q) < 0) return;
+        results.appendChild(districtButton(region, entry[0], highlight(entry[1], q)));
+      });
+    });
+    results.scrollTop = top;
+  }
+
+  function renderSheet(){
+    var n = state.selected.length;
+    step1Bar.hidden = n > 0;
+    sheet.hidden = n === 0;
+    countEl.textContent = n;
+    var left = chipRow.scrollLeft;
+    chipRow.textContent = '';
+    state.selected.forEach(function(k){
+      var chip = el('button', 'chip');
+      chip.type = 'button';
+      chip.setAttribute('aria-label', chipLabel(k) + ' 선택 해제');
+      chip.appendChild(el('span', null, chipLabel(k)));
+      chip.appendChild(img('assets/icon-chip-close.svg', 14, 14));
+      chip.addEventListener('click', function(){
+        var p = k.split('|');
+        toggle(p[0], p[1], 'chip');
+      });
+      chipRow.appendChild(chip);
+    });
+    chipRow.scrollLeft = left;
+  }
+
+  function renderStep1(){
+    var searching = state.query.trim() !== '';
+    step1.classList.toggle('is-searching', searching);
+    regionCols.hidden = searching;
+    results.hidden = !searching;
+    clearBtn.hidden = state.query === '';
+    syncRemote();
+    renderDepth1();
+    renderDepth2();
+    renderSearch();
+    renderSheet();
+  }
+
+  function resetStep1View(){
+    input.value = '';
+    depth1.scrollTop = 0;
+    depth2.scrollTop = 0;
+    results.scrollTop = 0;
+    step1.classList.remove('is-keyboard');
+  }
+
+  // 검색 (입력이 멈춘 뒤의 검색어만 기록한다)
+  var searchLogTimer = null;
+  input.addEventListener('input', function(){
+    var wasSearching = state.query.trim() !== '';
+    state.query = input.value;
+    if (wasSearching !== (state.query.trim() !== '')) results.scrollTop = 0;
+    renderStep1();
+    clearTimeout(searchLogTimer);
+    searchLogTimer = setTimeout(function(){
+      var q = state.query.trim();
+      if (q) ut.log('region_search', { q: q, count: results.children.length });
+    }, 1200);
+  });
+  input.addEventListener('focus', function(){ step1.classList.add('is-keyboard'); });
+  input.addEventListener('blur', function(){ step1.classList.remove('is-keyboard'); });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') input.blur(); });
+  $('search-field').addEventListener('click', function(e){
+    if (!e.target.closest('#search-clear')) input.focus();
+  });
+  clearBtn.addEventListener('click', function(){
+    input.value = '';
+    state.query = '';
+    results.scrollTop = 0;
+    renderStep1();
+    input.focus();
+  });
+
+  // PC 키보드 목업: 탭해도 입력 포커스를 유지하고 '완료'에서만 닫는다.
+  document.querySelector('.keyboard').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  $('keyboard-done').addEventListener('click', function(){ input.blur(); });
+
+  // 재택 포함: STEP 1-1·1-2 체크박스가 같은 값을 쓴다.
+  function syncRemote(){
+    remoteChecks.forEach(function(b){ b.setAttribute('aria-checked', state.remote ? 'true' : 'false'); });
+  }
+  remoteChecks.forEach(function(b){
+    b.addEventListener('click', function(){
+      state.remote = !state.remote;
+      syncRemote();
+      ut.log('remote_toggle', { on: state.remote, where: b.dataset.remote });
+    });
+  });
+
+  // 초기화
+  $('select-reset').addEventListener('click', function(){
+    ut.log('region_reset', { count: state.selected.length });
+    state.selected = [];
+    renderStep1();
+  });
+
+  // 토스트 (STEP 1 지역 10곳 · STEP 3 업직종 5개)
+  var toastTimer = null;
+  function showToast(node){
+    hideToast();
+    node.classList.add('is-visible');
+    toastTimer = setTimeout(hideToast, 2000);
+  }
+  function hideToast(){
+    clearTimeout(toastTimer);
+    toast.classList.remove('is-visible');
+    jobToast.classList.remove('is-visible');
+  }
+
+  /* ============ STEP 2 · 근무기간 ============ */
+  function renderPeriod(){
+    periodList.querySelectorAll('[data-period]').forEach(function(btn){
+      btn.setAttribute('aria-pressed', btn.dataset.period === state.period ? 'true' : 'false');
+    });
+    step2Next.hidden = !(state.periodConfirmed && state.period);
+  }
+  periodList.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-period]');
+    if (!btn) return;
+    // 처음 선택하거나, STEP 3에서 돌아와 다른 기간을 고르면 바로 STEP 3으로 이동한다.
+    // 이미 고른 기간을 다시 누르면 그대로 두고 '다음'으로 이동한다.
+    ut.log('period_pick', { period: btn.dataset.period, again: state.periodConfirmed, same: btn.dataset.period === state.period });
+    if (state.periodConfirmed && btn.dataset.period === state.period) return;
+    state.period = btn.dataset.period;
+    go('step3');
+  });
+  // 이전: STEP 0에서 고른 방식(지역 목록 / 내 근처)으로 돌아간다.
+  $('step2-prev').addEventListener('click', function(){
+    go(state.mode === 'nearby' ? 'nearby' : 'step1');
+  });
+
+  /* ============ STEP 3 · 업직종 ============ */
+  function prepareJobs(){
+    var type = state.period === 'within-month' ? 'short' : 'long';
+    if (state.jobsFor !== type){
+      state.jobsFor = type;
+      state.jobs = [];
+    }
+  }
+
+  function renderJobs(){
+    jobGrid.textContent = '';
+    JOBS[state.jobsFor].forEach(function(job){
+      var id = job[0];
+      var on = state.jobs.indexOf(id) > -1;
+      var card = el('button', 'job-card');
+      card.type = 'button';
+      card.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var head = el('span', 'job-card-head');
+      head.appendChild(img('assets/job-' + id + '.svg', 20, 20, 'job-icon job-icon-off'));
+      head.appendChild(img('assets/job-' + id + '-on.svg', 20, 20, 'job-icon job-icon-on'));
+      head.appendChild(el('span', 'job-name', job[1]));
+      card.appendChild(head);
+      card.appendChild(el('span', 'job-desc', job[2]));
+      card.addEventListener('click', function(){
+        var i = state.jobs.indexOf(id);
+        if (i < 0 && state.jobs.length >= MAX_JOBS){
+          ut.log('job_limit', { id: id });
+          showToast(jobToast);
+          return;
+        }
+        if (i > -1) state.jobs.splice(i, 1);
+        else state.jobs.push(id);
+        card.setAttribute('aria-pressed', i > -1 ? 'false' : 'true');
+        step3Next.disabled = state.jobs.length === 0;
+        ut.log('job_toggle', { id: id, on: i < 0, count: state.jobs.length });
+      });
+      jobGrid.appendChild(card);
+    });
+    step3Next.disabled = state.jobs.length === 0;
+  }
+
+  // 온보딩 완료 → 홈(완료 화면)은 home.js가 그룹별(A/B) 연출과 함께 이어받는다.
+  step3Next.addEventListener('click', function(){
+    if (step3Next.disabled) return;
+    ut.log('onboarding_complete', summary());
+    window.dispatchEvent(new CustomEvent('onboarding:complete'));
+  });
+
+  // 기록용 최종 선택값
+  function summary(){
+    var nearby = state.mode === 'nearby';
+    return {
+      mode: state.mode,
+      regions: nearby ? [] : state.selected.slice(),
+      address: nearby ? state.place.address : null,
+      placeSource: nearby ? state.place.source : null,
+      radius: nearby ? state.radius : null,
+      remote: state.remote,
+      consent: state.consent,
+      geo: state.geo,
+      period: state.period,
+      jobs: state.jobs.slice()
+    };
+  }
+
+  /* ============ 화면 밀어서 뒤로 가기 ============ */
+  // iOS는 밀어서 뒤로 갈 때 '앞 기록'의 화면 스냅샷을 보여준다. 그래서 뒤로 갈 수 있는 곳에서만 기록을 쌓는다.
+  //   검색 상태 · 공고뷰 · 위치 동의 시트(nearby.js·detail.js가 쌓고 지움), STEP 2·3(이전과 같음)
+  // 나머지 화면은 기록이 없어 홈 화면 앱에서는 밀어도 아무 일이 없다.
+  // Safari 브라우저로 열었을 때만 맨 아래에 막이 기록을 하나 두어 프로토타입을 벗어나지 않게 한다.
+  var standalone = !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches));
+  var navStack = [];
+  var navIgnore = 0;
+  function navPush(kind){
+    try { history.pushState({ ob: kind }, ''); navStack.push(kind); } catch (e) {}
+  }
+  // 화면 안 버튼으로 닫았을 때 그 기록(과 그 위)을 지운다.
+  function navPop(kind){
+    var i = navStack.lastIndexOf(kind);
+    if (i < 0) return;
+    var n = navStack.length - i;
+    navStack.length = i;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function navReset(){
+    var n = navStack.length;
+    if (!n) return;
+    navStack.length = 0;
+    navIgnore++;
+    try { history.go(-n); } catch (e) { navIgnore--; }
+  }
+  function syncHistory(name, from){
+    if (name === 'step2' && (from === 'step1' || from === 'nearby')) navPush('step2');
+    else if (name === 'step3' && from === 'step2') navPush('step3');
+    else if (name === 'step2' && from === 'step3') navPop('step3');
+    else if ((name === 'step1' || name === 'nearby') && from === 'step2') navPop('step2');
+    else if (name === 'home' || name === 'login' || name === 'intro') navReset();
+  }
+  try {
+    if (standalone) history.replaceState({ ob: 'base' }, '');
+    else {
+      history.replaceState({ ob: 'guard' }, '');
+      history.pushState({ ob: 'base' }, '');
+    }
+    window.addEventListener('popstate', function(){
+      if (navIgnore > 0){ navIgnore--; return; }
+      var where = current;
+      var kind = navStack.pop();
+      var action = 'none';
+      if (!kind){
+        // 맨 아래(막이 기록)까지 왔다면 다시 막는다.
+        if (!standalone) history.pushState({ ob: 'base' }, '');
+      } else if (kind === 'step2'){ action = 'step2-prev'; go(state.mode === 'nearby' ? 'nearby' : 'step1', { fromPop: true }); }
+      else if (kind === 'step3'){ action = 'step3-prev'; go('step2', { fromPop: true }); }
+      else {
+        var back = new CustomEvent('onboarding:back', { cancelable: true, detail: { kind: kind, action: null } });
+        window.dispatchEvent(back);
+        action = back.detail.action || kind;
+      }
+      ut.log('browser_back', { screen: where, action: action });
+    });
+  } catch (e) {}
+
+  /* ============ 앱이 다시 열렸을 때 이어서 보기 ============ */
+  // iOS 홈 화면 앱은 잠깐 벗어났다 돌아오면 새로 열리기도 한다. 세션 중이면 마지막 화면과 선택값을 되살린다.
+  var FLOW_KEY = 'obut:flow';
+  function saveFlow(){
+    var s = ut.session && ut.session();
+    if (!s) return;
+    try { localStorage.setItem(FLOW_KEY, JSON.stringify({ sid: s.sid, screen: current, state: state, at: Date.now() })); } catch (e) {}
+  }
+  function clearFlow(){
+    try { localStorage.removeItem(FLOW_KEY); } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden && current !== 'login') saveFlow(); });
+  window.addEventListener('pagehide', function(){ if (current !== 'login') saveFlow(); });
+  function restoreFlow(){
+    var s = ut.session && ut.session();
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(FLOW_KEY)); } catch (e) {}
+    if (!s || !saved || saved.sid !== s.sid || !saved.screen || saved.screen === 'login') return;
+    if (new URLSearchParams(location.search).has('done')) return;
+    state = Object.assign(initialState(), saved.state, { query: '' });
+    ut.log('flow_restore', { screen: saved.screen, awayMs: Date.now() - saved.at });
+    if (saved.screen === 'home' && window.onboarding.restoreHome) window.onboarding.restoreHome();
+    else go(saved.screen);
+  }
+  // nearby.js·home.js까지 읽힌 뒤에 되살린다.
+  document.addEventListener('DOMContentLoaded', restoreFlow);
+
+  /* ============ 모바일 viewport ============ */
+  var root = document.documentElement;
+  function fitViewport(){
+    var vv = window.visualViewport;
+    root.style.setProperty('--app-h', ((vv && vv.height) || window.innerHeight) + 'px');
+    root.style.setProperty('--app-top', ((vv && vv.offsetTop) || 0) + 'px');
+  }
+  fitViewport();
+  window.addEventListener('resize', fitViewport);
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', fitViewport);
+    window.visualViewport.addEventListener('scroll', fitViewport);
+  }
+
+  /* ============ nearby.js · home.js · ut.js와 공유 ============ */
+  window.onboarding = {
+    getState: function(){ return state; },
+    go: go,
+    current: function(){ return current; },
+    jobName: function(id){
+      var all = JOBS.short.concat(JOBS.long);
+      for (var i = 0; i < all.length; i++) if (all[i][0] === id) return all[i][1];
+      return id;
+    },
+    defaultPlace: function(){ return Object.assign({}, DEFAULT_PLACE); },
+    // nearby.js·detail.js가 뒤로 갈 수 있는 상태(검색·공고뷰·동의 시트)를 열고 닫을 때 쓴다.
+    navPush: navPush,
+    navPop: navPop,
+    // '처음부터'·버전 전환(compare.js): 온보딩 상태를 비우고 로그인(또는 STEP 0)으로 돌아간다.
+    restart: function(to){
+      try {
+        var u = new URL(location.href);
+        u.searchParams.delete('done');
+        history.replaceState({ ob: 1 }, '', u);
+      } catch (e) {}
+      go('login');
+      if (to === 'intro') go('intro');
+    },
+    // 완료 화면을 바로 열 때 쓰는 기본 조건 (Figma 메인 화면과 같은 서초구 · 한 달 이상 · 카페 3개)
+    applyPreset: function(){
+      state = initialState();
+      state.mode = 'list';
+      state.selected = ['서울|서초구'];
+      state.region = '서울';
+      state.period = 'over-month';
+      state.periodConfirmed = true;
+      state.jobsFor = 'long';
+      state.jobs = ['cafe', 'serving', 'shopping-bag'];
+    }
+  };
+
+  document.body.dataset.screen = 'login';
+  renderStep1();
+})();
