@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="emoji/location/region-tiles">
+<path id="Vector" d="M15 4H8C5.79086 4 4 5.79086 4 8V15C4 17.2091 5.79086 19 8 19H15C17.2091 19 19 17.2091 19 15V8C19 5.79086 17.2091 4 15 4Z" fill="#FFC9A1"/>
+<path id="Vector_2" d="M15 21H8C5.79086 21 4 22.7909 4 25V32C4 34.2091 5.79086 36 8 36H15C17.2091 36 19 34.2091 19 32V25C19 22.7909 17.2091 21 15 21Z" fill="#FFC9A1"/>
+<path id="Vector_3" d="M32 21H25C22.7909 21 21 22.7909 21 25V32C21 34.2091 22.7909 36 25 36H32C34.2091 36 36 34.2091 36 32V25C36 22.7909 34.2091 21 32 21Z" fill="#FFC9A1"/>
+<path id="Vector_4" d="M32 4H25C22.7909 4 21 5.79086 21 8V15C21 17.2091 22.7909 19 25 19H32C34.2091 19 36 17.2091 36 15V8C36 5.79086 34.2091 4 32 4Z" fill="#FF8119"/>
+<path id="Vector_5" d="M28.5 4H32C34.21 4 36 5.79 36 8V15C36 17.21 34.21 19 32 19H28.5V4Z" fill="#F26600"/>
+<path id="Vector_6" d="M24.8 11.6L27.4 14.1L32.2 9.2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+</g>
+</svg>

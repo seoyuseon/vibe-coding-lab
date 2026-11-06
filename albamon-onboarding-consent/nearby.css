@@ -58,7 +58,7 @@
 body:not([data-ver="before"]) .intro-before,
 body[data-ver="before"] .intro-after{display:none;}
 
-/* ============ STEP 0 · 수정 후 (Figma 5172:178579) ============ */
+/* ============ STEP 0 · 수정 후 (Figma 수정 후 - C 5278:371253) ============ */
 .intro-after{
   position:relative;
   flex:1;
@@ -76,12 +76,12 @@ body[data-ver="before"] .intro-after{display:none;}
   text-align:center;
 }
 .intro2-sub{font-size:16px; font-weight:500; line-height:24px;}
-.intro2-title{font-size:28px; font-weight:700; line-height:36px; letter-spacing:-.5px;}
+.intro2-title{font-size:32px; font-weight:700; line-height:40px; letter-spacing:-.5px;}
 .intro2-actions{
   align-self:stretch;
   display:flex;
   gap:12px;
-  margin-top:72px;     /* 카드 top 332 − 문구 끝 260 */
+  margin-top:64px;     /* 카드 top 332 − 문구 끝 268 */
   padding:0 16px;
 }
 .intro2-card{
@@ -96,14 +96,13 @@ body[data-ver="before"] .intro-after{display:none;}
   padding:20px 16px;
   border-radius:20px;
   background:var(--fill-surface);
-  font-size:16px;
+  font-size:15px;
   font-weight:600;
-  line-height:24px;
+  line-height:22px;
   color:var(--typo-default);
   white-space:nowrap;
 }
 .intro2-card img{flex:none;}
-.intro2-icon{width:40px; height:40px; display:flex; align-items:center; justify-content:center;}
 /* 법무팀 검토 완료 문구 (Figma 주석). 두 줄 34px이 화면 아래 40px 위에서 끝난다. */
 .intro2-terms{
   position:absolute;
@@ -291,9 +290,9 @@ body.no-map .map-canvas{display:none;}
   filter:drop-shadow(0 1px 4px rgba(0,0,0,.1));
 }
 
-/* 검색 결과 (Figma 4739:102125) */
+/* 검색 안내 (Figma 4963:112271) · 검색 결과 없음 (5308:151505) */
 .nb-empty{
-  width:224px;
+  width:259px;
   margin:0 auto;
   display:flex;
   flex-direction:column;

@@ -28,6 +28,7 @@
   var input = $('nb-search-input');
   var clearBtn = $('nb-search-clear');
   var emptyEl = $('nb-empty');
+  var noneEl = $('nb-none');
   var resultsEl = $('nb-results');
   var nextBtn = $('nearby-next');
   var radiusTab = $('radius-tab');
@@ -179,7 +180,7 @@
 
   /* ============ 위치 동의 (수정 전 4722:376496 / 수정 후 5172:178579) ============ */
   // 수정 전: 내 근처 → 서비스 동의 시트 → OS 권한
-  // 수정 후: STEP 0 하단 문구('내 근처 선택하기'를 누르면 이용약관에 동의한 것으로 간주)로 동의를 대신하고 OS 권한만 묻는다.
+  // 수정 후: STEP 0 하단 문구('내 주변에서 찾기'를 누르면 이용약관에 동의한 것으로 간주)로 동의를 대신하고 OS 권한만 묻는다.
   function isBefore(){ return document.body.dataset.ver === 'before'; }
   window.addEventListener('onboarding:nearby', function(){
     if (isBefore()){ openConsent('intro'); return; }
@@ -191,7 +192,7 @@
     });
   });
 
-  // context: 'intro'(STEP 0 내 근처 선택하기) | 'locate'(지도의 현재 위치 버튼)
+  // context: 'intro'(STEP 0 내 근처·내 주변 버튼) | 'locate'(지도의 현재 위치 버튼)
   var consentContext = 'intro';
   var consentBusy = false;
   function openConsent(context){
@@ -416,8 +417,15 @@
   }
   function showEmpty(){
     emptyEl.hidden = false;
+    noneEl.hidden = true;
     resultsEl.hidden = true;
     resultsEl.textContent = '';
+  }
+  // 검색어는 있는데 주소·장소 결과가 하나도 없을 때
+  function showNone(){
+    showEmpty();
+    emptyEl.hidden = true;
+    noneEl.hidden = false;
   }
   input.addEventListener('focus', function(){
     if (searching) return;
@@ -547,8 +555,9 @@
   }
   function renderResults(items){
     resultsEl.textContent = '';
-    if (!items.length){ showEmpty(); return; }
+    if (!items.length){ showNone(); return; }
     emptyEl.hidden = true;
+    noneEl.hidden = true;
     resultsEl.hidden = false;
     items.forEach(function(it, i){
       var btn = el('button', 'nb-result');

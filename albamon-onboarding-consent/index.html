@@ -13,7 +13,7 @@
 <title>알바몬 - 위치 동의 플로우 비교</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=20261104-1">
-<link rel="stylesheet" href="nearby.css?v=20261104-2">
+<link rel="stylesheet" href="nearby.css?v=20261106-1">
 <link rel="stylesheet" href="home.css?v=20261104-1">
 <link rel="stylesheet" href="detail.css?v=20261104-1">
 <link rel="stylesheet" href="compare.css?v=20261104-1">
@@ -140,7 +140,7 @@
     </section>
 
     <!-- ============ STEP 0 · 도입부 ============ -->
-    <!-- 수정 전(4963:113049): 버튼 두 줄 + 캐릭터 / 수정 후(5172:178579): 카드 두 개 + 하단 이용약관 동의 문구. body[data-ver]로 하나만 보인다. -->
+    <!-- 수정 전(4963:113049): 버튼 두 줄 + 캐릭터 / 수정 후 - C(5278:371253): 카드 두 개 + 하단 이용약관 동의 문구. body[data-ver]로 하나만 보인다. -->
     <section class="screen intro" data-screen="intro" aria-label="시작" hidden>
       <div class="intro-before">
         <div class="intro-body">
@@ -157,21 +157,21 @@
       </div>
       <div class="intro-after">
         <div class="intro2-text">
-          <p class="intro2-sub">나에게 딱 맞는 일을 찾아드릴게요!</p>
-          <h1 class="intro2-title"><span class="intro-em">지역 설정</span>부터<br>시작해 볼까요?</h1>
+          <p class="intro2-sub">나에게 딱 맞는 알바 찾기</p>
+          <h1 class="intro2-title">어디서<br>일하고 싶으세요?</h1>
         </div>
         <div class="intro2-actions">
-          <button class="intro2-card" type="button" data-intro="list"><img src="assets/consent/intro-region-map.svg" width="40" height="40" alt="">지역 선택하기</button>
-          <button class="intro2-card" type="button" data-intro="nearby"><span class="intro2-icon"><img src="assets/consent/intro-place-scan.svg" width="30" height="30" alt=""></span>내 근처 선택하기</button>
+          <button class="intro2-card" type="button" data-intro="list"><img src="assets/consent/intro-region-tiles.svg" width="40" height="40" alt="">지역 직접 고르기</button>
+          <button class="intro2-card" type="button" data-intro="nearby"><img src="assets/consent/intro-region-map.svg" width="40" height="40" alt="">내 주변에서 찾기</button>
         </div>
-        <p class="intro2-terms">'내 근처 선택하기'를 누르면<br><button class="intro2-link" id="intro-terms" type="button">위치기반서비스 이용약관</button>에 동의한 것으로 간주합니다.</p>
+        <p class="intro2-terms">'내 주변에서 찾기'를 누르면<br><button class="intro2-link" id="intro-terms" type="button">위치기반서비스 이용약관</button>에 동의한 것으로 간주합니다.</p>
       </div>
     </section>
 
     <!-- ============ STEP 1-1 · 지역 선택 (4607:317716 외) ============ -->
     <section class="screen step1" data-screen="step1" aria-label="지역 선택" hidden>
       <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
-      <div class="title-block"><h1 class="title">어디서 일하고 싶으세요?</h1></div>
+      <div class="title-block"><h1 class="title">지역을 선택해 주세요</h1></div>
 
       <div class="search-row">
         <div class="search-field" id="search-field">
@@ -233,7 +233,7 @@
     <!-- 지도 상태: 검색창 + 반경 + 지도(바로 움직임) / 검색 상태: 타이틀이 생기고 지도 자리에 검색 결과 -->
     <section class="screen nearby" data-screen="nearby" aria-label="내 근처 지역 설정" hidden>
       <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
-      <div class="nb-title" aria-hidden="true"><div class="nb-title-inner"><h1 class="title">어디서 일하고 싶으세요?</h1></div></div>
+      <div class="nb-title" aria-hidden="true"><div class="nb-title-inner"><h1 class="title">지역을 선택해 주세요</h1></div></div>
       <div class="search-row nb-search-row">
         <div class="search-field nb-search-field" id="nb-search-field">
           <input class="search-input" id="nb-search-input" type="search" placeholder="지번, 도로명, 건물명으로 검색" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="지번, 도로명, 건물명으로 검색">
@@ -281,8 +281,13 @@
         </div>
         <div class="nb-search-view" id="nb-search-view" aria-hidden="true">
           <div class="nb-empty" id="nb-empty">
-            <p class="nb-empty-title">건물명, 도로명 또는 지번으로 검색해 보세요</p>
+            <p class="nb-empty-title">지번, 도로명, 건물명으로 검색해 보세요</p>
             <p class="nb-empty-desc">(예시) 서초대로 301, 서초동 1692-1</p>
+          </div>
+          <!-- 검색 결과가 없을 때 (Figma 5308:151505) -->
+          <div class="nb-empty" id="nb-none" hidden>
+            <p class="nb-empty-title">검색 결과가 없어요</p>
+            <p class="nb-empty-desc">지번, 도로명, 건물명으로 검색해 보세요</p>
           </div>
           <div class="nb-results" id="nb-results" hidden></div>
         </div>
@@ -566,7 +571,7 @@
 
 <script src="compare.js?v=20261104-1"></script>
 <script src="app.js?v=20261104-1"></script>
-<script src="nearby.js?v=20261104-2"></script>
+<script src="nearby.js?v=20261106-1"></script>
 <script src="jobs.js?v=20261104-1"></script>
 <script src="detail.js?v=20261104-1"></script>
 <script src="home.js?v=20261104-1"></script>
