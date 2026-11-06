@@ -123,30 +123,14 @@ body[data-ver="before"] .intro-after{display:none;}
 }
 
 /* ============ STEP 1-2 · 내 근처 (Figma 20261027 수정 4722:375626) ============ */
-/* 지도 상태 ↔ 검색 상태를 한 화면에서 바꾼다. 검색 상태에서는 타이틀이 펼쳐지며 검색창이 아래로 내려오고,
+/* 지도 상태 ↔ 검색 상태를 한 화면에서 바꾼다. 타이틀과 검색창은 그대로 두고(TO-BE 4963:112052),
    지도 자리에 검색 결과가 겹쳐 나타난다. */
 .screen.nearby{overflow:hidden;}
-.nb-title{
-  flex:none;
-  display:grid;
-  grid-template-rows:0fr;
-  transition:grid-template-rows .32s cubic-bezier(.2,.8,.2,1);
-}
-.nb-title-inner{
-  min-height:0;
-  overflow:hidden;
-  padding:0 16px;
-  opacity:0;
-  transform:translateY(-6px);
-  transition:opacity .24s ease, transform .32s cubic-bezier(.2,.8,.2,1);
-}
 .nb-search-row{
-  padding:0 16px;
+  padding:24px 16px 0;
   transition:padding .32s cubic-bezier(.2,.8,.2,1);
 }
-.nearby.is-searching .nb-title{grid-template-rows:1fr;}
-.nearby.is-searching .nb-title-inner{opacity:1; transform:none; transition-delay:.06s;}
-.nearby.is-searching .nb-search-row{padding:24px 16px 12px;}
+.nearby.is-searching .nb-search-row{padding-bottom:12px;}
 
 .nb-stage{position:relative; flex:1; min-height:0;}
 .nb-map-view,
@@ -217,7 +201,7 @@ body[data-ver="before"] .intro-after{display:none;}
   flex:0 1 auto;
   aspect-ratio:1 / 1;
   min-height:180px;
-  margin:16px 16px 0;
+  margin:16px;          /* 아래 16px: 화면이 낮아도 안내 문구와 붙지 않게 */
   overflow:hidden;
   border-radius:24px;
   background:var(--map-bg, #eef0f2);
@@ -496,8 +480,6 @@ body.no-map .map-canvas{display:none;}
   .bsheet,
   .overlay-dim,
   .pill-tab button,
-  .nb-title,
-  .nb-title-inner,
   .nb-search-row,
   .nb-map-view,
   .nb-search-view{transition:none;}

@@ -13,7 +13,7 @@
 <title>알바몬 - 위치 동의 플로우 비교</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=20261104-1">
-<link rel="stylesheet" href="nearby.css?v=20261106-1">
+<link rel="stylesheet" href="nearby.css?v=20261106-2">
 <link rel="stylesheet" href="home.css?v=20261104-1">
 <link rel="stylesheet" href="detail.css?v=20261104-1">
 <link rel="stylesheet" href="compare.css?v=20261104-1">
@@ -230,10 +230,10 @@
     </section>
 
     <!-- ============ STEP 1-2 · 내 근처 (20261027 수정 4722:375626 · 검색 4739:101834 / 4739:102125) ============ -->
-    <!-- 지도 상태: 검색창 + 반경 + 지도(바로 움직임) / 검색 상태: 타이틀이 생기고 지도 자리에 검색 결과 -->
+    <!-- 지도 상태(4963:112052): 타이틀 + 검색창 + 반경 + 지도(바로 움직임) / 검색 상태: 지도 자리에 검색 결과 -->
     <section class="screen nearby" data-screen="nearby" aria-label="내 근처 지역 설정" hidden>
       <div class="stepper" aria-label="3단계 중 1단계"><div class="stepper-track"><span class="is-done"></span><span></span><span></span></div></div>
-      <div class="nb-title" aria-hidden="true"><div class="nb-title-inner"><h1 class="title">지역을 선택해 주세요</h1></div></div>
+      <div class="title-block"><h1 class="title">지역을 선택해 주세요</h1></div>
       <div class="search-row nb-search-row">
         <div class="search-field nb-search-field" id="nb-search-field">
           <input class="search-input" id="nb-search-input" type="search" placeholder="지번, 도로명, 건물명으로 검색" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="지번, 도로명, 건물명으로 검색">
