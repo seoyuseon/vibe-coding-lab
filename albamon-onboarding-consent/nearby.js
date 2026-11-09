@@ -183,9 +183,13 @@
   // 수정 후: STEP 0 하단 문구('내 주변에서 찾기'를 누르면 이용약관에 동의한 것으로 간주)로 동의를 대신하고 OS 권한만 묻는다.
   function isBefore(){ return document.body.dataset.ver === 'before'; }
   window.addEventListener('onboarding:nearby', function(){
-    if (isBefore()){ openConsent('intro'); return; }
-    state().consent = true;
-    ut.log('consent_implied', { context: 'intro' });
+    // 수정 전에서 이미 동의했다면(STEP 1-2 '이전'으로 돌아와 다시 누름) 시트 없이 OS 권한만 묻는다.
+    if (isBefore()){
+      if (!state().consent){ openConsent('intro'); return; }
+    } else {
+      state().consent = true;
+      ut.log('consent_implied', { context: 'intro' });
+    }
     askOs('intro').then(function(pos){
       state().place = pos || ob.defaultPlace();
       enterNearby();
