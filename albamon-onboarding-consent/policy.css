@@ -1,0 +1,188 @@
+/* ============ 화면별 정책 패널 (PC 전용) ============ */
+/* 폰은 가운데 그대로 두고 오른쪽에 패널을 둔다. 폭이 좁은 화면과 모바일에서는 숨긴다. */
+:root{
+  --pol-w:360px;
+  --pol-gap:40px;
+}
+.policy{display:none;}
+
+@media (min-width:900px){
+  .page-bg{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) var(--phone-w) minmax(var(--pol-w), 1fr);
+    grid-template-rows:auto auto;
+    column-gap:var(--pol-gap);
+    row-gap:16px;
+  }
+  .cmp-bar{grid-column:2; grid-row:1; justify-self:center;}
+  .phone{grid-column:2; grid-row:2;}
+  .policy{
+    grid-column:3;
+    grid-row:2;
+    justify-self:start;
+    width:var(--pol-w);
+    height:var(--phone-h);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    border-radius:24px;
+    background:var(--fill-default);
+    box-shadow:0 12px 40px rgba(20,22,30,.12);
+  }
+}
+
+.pol-head{flex:none; padding:22px 20px 14px; border-bottom:1px solid var(--border-subtle);}
+.pol-title{font-size:18px; font-weight:700; line-height:26px; color:var(--typo-default);}
+.pol-meta{margin-top:2px; font-size:12px; line-height:17px; color:var(--typo-subtle);}
+
+.pol-list{
+  position:relative;
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:8px 0 16px;
+}
+.pol-foot{
+  flex:none;
+  padding:12px 20px 16px;
+  border-top:1px solid var(--border-subtle);
+  font-size:12px;
+  line-height:17px;
+  color:var(--typo-subtle);
+}
+
+/* 화면 한 개 = 접히는 항목 하나. 지금 보는 화면은 펼치고 왼쪽에 표시를 둔다. */
+.pol-sec{position:relative;}
+.pol-sec + .pol-sec{border-top:1px solid var(--border-subtle);}
+.pol-sec > summary{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:14px 20px;
+  cursor:pointer;
+  list-style:none;
+}
+.pol-sec > summary::-webkit-details-marker{display:none;}
+.pol-sec > summary::after{
+  content:'';
+  flex:none;
+  width:7px; height:7px;
+  margin-left:auto;
+  border-right:1.5px solid var(--typo-subtle);
+  border-bottom:1.5px solid var(--typo-subtle);
+  transform:translateY(-2px) rotate(45deg);
+  transition:transform .2s ease;
+}
+.pol-sec[open] > summary::after{transform:translateY(1px) rotate(-135deg);}
+.pol-sec.is-current::before{
+  content:'';
+  position:absolute;
+  left:0; top:12px;
+  width:3px; height:24px;
+  border-radius:0 3px 3px 0;
+  background:var(--fill-brand);
+}
+.pol-step{
+  flex:none;
+  min-width:56px;
+  font-size:12px;
+  font-weight:600;
+  line-height:17px;
+  color:var(--typo-subtle);
+}
+.pol-sec.is-current .pol-step{color:var(--typo-brand);}
+.pol-name{font-size:15px; font-weight:600; line-height:22px; color:var(--typo-default);}
+
+.pol-body{padding:0 20px 18px; font-size:13px; line-height:20px; color:var(--typo-secondary);}
+.pol-body ul{margin:0; padding:0; list-style:none;}
+.pol-body > ul{display:flex; flex-direction:column; gap:8px;}
+.pol-body li{position:relative; padding-left:12px;}
+.pol-body li::before{
+  content:'';
+  position:absolute;
+  left:2px; top:9px;
+  width:3px; height:3px;
+  border-radius:50%;
+  background:var(--typo-subtle);
+}
+.pol-body li ul{display:flex; flex-direction:column; gap:4px; margin-top:6px;}
+.pol-body b{font-weight:600; color:var(--typo-default);}
+.pol-note{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:var(--fill-surface);
+  font-size:12px;
+  line-height:18px;
+  color:var(--typo-subtle);
+}
+
+/* 태그: 전/후가 다른 화면 · 프로토타입에 없는 정책 */
+.pol-tag{
+  display:inline-flex;
+  align-items:center;
+  height:20px;
+  padding:0 6px;
+  border-radius:4px;
+  font-size:11px;
+  font-weight:600;
+  line-height:20px;
+  white-space:nowrap;
+  vertical-align:1px;
+}
+.pol-tag.is-diff{background:var(--fill-brand-subtle); color:var(--typo-brand);}
+.pol-tag.is-todo{background:var(--fill-surface-raised); color:var(--typo-secondary);}
+
+/* 짝 목록 (반경 · 근무기간 · 업직종 소분류) */
+.pol-pairs{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 12px;
+  margin-top:8px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:var(--fill-gray50);
+}
+.pol-pairs dt{margin:0; font-weight:600; color:var(--typo-default); white-space:nowrap;}
+.pol-pairs dd{margin:0; color:var(--typo-secondary);}
+
+.pol-more{margin-top:8px;}
+.pol-more > summary{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+  list-style:none;
+  font-weight:600;
+  color:var(--typo-default);
+}
+.pol-more > summary::-webkit-details-marker{display:none;}
+.pol-more > summary::after{content:'+'; color:var(--typo-subtle);}
+.pol-more[open] > summary::after{content:'−';}
+
+/* STEP 0 수정 전/후: 지금 보는 버전을 강조한다 */
+.pol-ver{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--border-subtle);
+  border-radius:12px;
+  color:var(--typo-subtle);
+  transition:border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+.pol-ver-label{margin-bottom:4px; font-size:12px; font-weight:700; line-height:17px;}
+body[data-ver="before"] .pol-ver[data-ver="before"],
+body:not([data-ver="before"]) .pol-ver[data-ver="after"]{
+  border-color:var(--fill-brand);
+  background:var(--fill-brand-subtle);
+  color:var(--typo-secondary);
+}
+body[data-ver="before"] .pol-ver[data-ver="before"] .pol-ver-label,
+body:not([data-ver="before"]) .pol-ver[data-ver="after"] .pol-ver-label{color:var(--typo-brand);}
+body[data-ver="before"] .pol-ver[data-ver="before"] .pol-ver-label::after,
+body:not([data-ver="before"]) .pol-ver[data-ver="after"] .pol-ver-label::after{content:' · 지금 보는 버전';}
+
+@media (prefers-reduced-motion:reduce){
+  .pol-sec > summary::after,
+  .pol-ver{transition:none;}
+}

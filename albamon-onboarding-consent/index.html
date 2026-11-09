@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="home.css?v=20261104-1">
 <link rel="stylesheet" href="detail.css?v=20261104-1">
 <link rel="stylesheet" href="compare.css?v=20261104-1">
+<link rel="stylesheet" href="policy.css?v=20261109-1">
 </head>
 <body>
 
@@ -559,6 +560,209 @@
 
 </div>
 
+<!-- ============ 화면별 정책 (PC 전용 · policy.js) ============ -->
+<!-- Figma TO-BE 가이드·주석이 최신이다. PO 온보딩 정책서는 TO-BE에 없는 내용만 옮겼다. 공개 페이지라 실험 수치·내부 링크는 넣지 않는다. -->
+<aside class="policy" id="policy" aria-label="화면별 정책">
+  <header class="pol-head">
+    <h2 class="pol-title">화면별 정책</h2>
+    <p class="pol-meta">Figma TO-BE 기준 · 2026.11.09 정리</p>
+  </header>
+  <div class="pol-list">
+
+    <details class="pol-sec" data-pol="overview">
+      <summary><span class="pol-step">개요</span><span class="pol-name">이 프로토타입</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>신규 온보딩 안에서 <b>위치 동의 방식만</b> 수정 전/후로 비교한다. 나머지 화면은 두 버전이 같다.</li>
+          <li>AS-IS(구 온보딩)와의 비교는 실험으로 한다. 대조군은 구 온보딩, 실험군은 신규 온보딩이다.</li>
+          <li>온보딩 실험은 신메인으로만 보여준다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="login">
+      <summary><span class="pol-step">진입</span><span class="pol-name">로그인 · 온보딩 진입 기준</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>앱을 처음 설치하고 <b>신규 회원 가입 또는 비로그인</b>일 때만 온보딩을 진행한다.</li>
+          <li>온보딩 없이 바로 가는 경우 <span class="pol-tag is-todo">프로토타입 미구현</span>
+            <ul>
+              <li>기존 개인 회원: 개인 메인으로 가고 코치마크를 보여준다(최초 1회).</li>
+              <li>기업 회원: 기업 메인으로 간다.</li>
+              <li>광고 외부 유입: redirect_url로 간다.</li>
+              <li>앱을 처음 설치한 게 아닐 때의 로그인·회원가입: redirect_url로 간다.</li>
+            </ul>
+          </li>
+          <li>로그인 화면은 AS-IS와 같다. X로 닫아도 STEP 0으로 간다.</li>
+        </ul>
+        <p class="pol-note">프로토타입은 어떤 로그인 버튼을 눌러도 신규 회원으로 보고 STEP 0으로 간다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="intro">
+      <summary><span class="pol-step">STEP 0</span><span class="pol-name">도입부</span><span class="pol-tag is-diff">전/후 차이</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>필수 정보는 위치·근무기간·업직종 세 가지이고, 건너뛸 수 없다.</li>
+          <li>위치는 둘 중 하나로 받는다. ‘지역 직접 고르기’는 행정구(시/군/구), ‘내 주변에서 찾기’는 좌표다.</li>
+        </ul>
+        <div class="pol-ver" data-ver="before">
+          <p class="pol-ver-label">수정 전</p>
+          <p>‘내 근처 선택하기’ → 위치기반서비스 이용약관 동의 시트 → OS 위치 권한. 시트에서 ‘다음에’를 누르면 기본 위치(시청역)로 간다.</p>
+        </div>
+        <div class="pol-ver" data-ver="after">
+          <p class="pol-ver-label">수정 후</p>
+          <p>‘내 주변에서 찾기’를 누르면 위치기반서비스 이용약관에 동의한 것으로 처리하고, 동의 시트 없이 바로 OS 위치 권한을 묻는다. 하단 고지 문구는 법무팀 검토를 마쳤다.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="os">
+      <summary><span class="pol-step">권한</span><span class="pol-name">OS 위치 권한 팝업</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>허용(한 번 허용 · 앱을 사용하는 동안 허용): 현재 위치를 중심으로 반경을 보여준다.</li>
+          <li>허용 안 함: 위치기반서비스 이용약관은 동의한 것으로 처리한다. 위치는 기본 위치인 시청역으로 두고, 검색해서 바꿀 수 있다.</li>
+        </ul>
+        <p class="pol-note">프로토타입은 실제 권한 대신 목업 팝업을 매번 띄우고, 허용하면 데모 위치(서울 서초구 서초대로 301)로 간다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="step1">
+      <summary><span class="pol-step">STEP 1-1</span><span class="pol-name">지역 선택</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>시/군/구까지 고를 수 있다. 최소 1개, 최대 10개이고, 넘기면 ‘최대 10개까지 선택할 수 있어요’ 토스트를 띄운다.</li>
+          <li>지역명으로 검색해서 고를 수도 있다.</li>
+          <li>‘재택 포함’을 켜면 재택 가능 공고도 함께 보여준다. 재택 가능 공고만 거르는 게 아니다.</li>
+          <li>기준 위치는 시 전체면 시청, 구·군이면 구청에서 10km다. 2개 이상이면 처음 고른 지역을 기준으로 한다.</li>
+          <li>고른 지역과 재택 여부는 STEP 0~3을 오가도 온보딩을 마칠 때까지 유지한다.</li>
+          <li>‘이전’을 누르면 STEP 0으로 간다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="nearby">
+      <summary><span class="pol-step">STEP 1-2</span><span class="pol-name">내 위치 기반 선택</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>시작 위치는 권한을 허용했으면 현재 위치, 아니면 시청역이다.</li>
+          <li>지도를 움직여 위치를 정하고 반경을 고른다.
+            <dl class="pol-pairs">
+              <dt>1km</dt><dd>걸어서 15분 이내 알바</dd>
+              <dt>3km</dt><dd>뛰어서 20분 이내 알바</dd>
+              <dt>7km</dt><dd>자전거 20분 이내 알바</dd>
+              <dt>10km</dt><dd>버스로 30분 이내 알바</dd>
+            </dl>
+          </li>
+          <li>지번·도로명·건물명으로 검색한다.
+            <ul>
+              <li>결과를 고르면 그 위치로 지도를 옮기고 검색창에 도로명을 보여준다.</li>
+              <li>검색어 없이 키보드를 닫거나 뒤로 가면 이전 위치를 그대로 둔다.</li>
+              <li>검색어가 있을 때 키보드를 닫으면 결과 화면을 유지한다.</li>
+              <li>결과가 없으면 ‘검색 결과가 없어요’를 보여준다.</li>
+            </ul>
+          </li>
+          <li>‘재택 포함’은 STEP 1-1과 같다.</li>
+          <li>‘이전’을 누르면 STEP 0으로 간다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="step2">
+      <summary><span class="pol-step">STEP 2</span><span class="pol-name">근무기간 선택</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>선택지마다 이 근무기간 필터로 저장한다.
+            <dl class="pol-pairs">
+              <dt>한 달 이내</dt><dd>하루, 1주일 이하, 1주일~1개월</dd>
+              <dt>한 달 이상</dt><dd>1개월~3개월, 3개월~6개월, 6개월~1년, 1년 이상</dd>
+              <dt>상관 없어요</dt><dd>근무기간 필터 없음</dd>
+            </dl>
+          </li>
+          <li>처음에는 기간을 누르면 바로 STEP 3으로 간다.</li>
+          <li>STEP 3에서 ‘이전’으로 돌아오면 ‘다음’ 버튼이 보인다. ‘다음’이나 다른 기간을 누르면 STEP 3으로 간다.</li>
+          <li>다시 들어간 STEP 3에서 업직종 묶음(단기·장기)이 같으면 고른 업직종을 유지하고, 다르면 새로 보여준다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="step3">
+      <summary><span class="pol-step">STEP 3</span><span class="pol-name">업직종 선택</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>최소 1개, 최대 5개다. 넘기면 ‘최대 5개까지 선택할 수 있어요’ 토스트를 띄운다.</li>
+          <li>한 달 이내는 단기 업직종 7개, 한 달 이상·상관 없어요는 장기 업직종 10개를 보여준다.</li>
+          <li>업직종마다 소분류 2개로 공고를 찾는다.
+            <details class="pol-more">
+              <summary>단기 업직종 7개</summary>
+              <dl class="pol-pairs">
+                <dt>행사·판촉</dt><dd>이벤트·행사스텝, 전단지배포</dd>
+                <dt>전시·안내</dt><dd>전시·컨벤션·세미나, 안내데스크·리셉션</dd>
+                <dt>물류·배송</dt><dd>입출고·창고관리, 상하차·소화물 분류</dd>
+                <dt>매장·판매</dt><dd>매장관리·판매, 유통점·마트</dd>
+                <dt>음식점·서빙</dt><dd>서빙, 레스토랑</dd>
+                <dt>제조·생산</dt><dd>포장·품질검사, 제조·가공·조립</dd>
+                <dt>청소·경비</dt><dd>청소·미화, 보안·경비·경호</dd>
+              </dl>
+            </details>
+            <details class="pol-more">
+              <summary>장기 업직종 10개</summary>
+              <dl class="pol-pairs">
+                <dt>매장·판매</dt><dd>매장관리·판매, 백화점·쇼핑몰</dd>
+                <dt>음식점·서빙</dt><dd>서빙, 일반음식점</dd>
+                <dt>행사·안내</dt><dd>이벤트·행사스텝, 안내데스크·리셉션</dd>
+                <dt>카페·디저트</dt><dd>커피전문점, 베이커리·도넛·떡</dd>
+                <dt>주방·조리</dt><dd>주방보조·설거지, 주방장·조리사</dd>
+                <dt>사무직</dt><dd>사무보조, 문서작성·자료조사</dd>
+                <dt>제조·생산</dt><dd>포장·품질검사, 제조·가공·조립</dd>
+                <dt>물류·배송</dt><dd>입출고·창고관리, 택배·배송기사</dd>
+                <dt>교육·학원</dt><dd>입시·보습학원, 보조교사</dd>
+                <dt>고객상담</dt><dd>고객상담·인바운드, 텔레마케팅·아웃바운드</dd>
+              </dl>
+            </details>
+          </li>
+          <li>‘공고 보기’를 누르면 온보딩을 마치고 메인으로 간다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="home">
+      <summary><span class="pol-step">완료</span><span class="pol-name">메인</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>온보딩에서 고른 값을 메인과 공통 검색조건 필터에 저장한다. 사용자가 나중에 고칠 수 있고, AI 추천 섹션 결과에 쓴다.
+            <dl class="pol-pairs">
+              <dt>지역</dt><dd>고른 지역</dd>
+              <dt>좌표</dt><dd>신메인은 좌표값, 구메인(실험 후 론칭 시)은 지역으로 바꾼 값</dd>
+              <dt>근무기간</dt><dd>STEP 2의 필터</dd>
+              <dt>업직종</dt><dd>고른 업직종</dd>
+            </dl>
+          </li>
+          <li>상단 위치는 지역이면 처음 고른 지역 + 10km, 내 주변이면 동 이름 + 고른 반경으로 보여준다.</li>
+          <li>메인 필터를 채용관 공통 검색조건과 맞춘다(여러 개면 대표 조건). <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+          <li>메인의 위치 동의 모달은 신메인·구메인 모두 없앤다.</li>
+          <li>코치마크는 신메인에 처음 들어온 사용자에게 1회 보여준다. 본 적 있는지는 기기에 저장한다. <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+        </ul>
+        <p class="pol-note">프로토타입은 시연을 위해 코치마크를 매번 보여준다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="common">
+      <summary><span class="pol-step">공통</span><span class="pol-name">뒤로 가기 · 중간 이탈</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>뒤로 갔다가 다시 돌아와도 고른 값을 유지한다.</li>
+          <li>중간에 앱을 나가면 진행한 단계까지 저장하고, 다시 들어오면 메인으로 간다. 저장 시점은 ‘다음’·‘공고 보기’를 누를 때다. <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+          <li>저장된 값이 하나도 없으면 지역은 서울을 기본으로 한다. <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+        </ul>
+      </div>
+    </details>
+
+  </div>
+  <p class="pol-foot">출처: Figma TO-BE 가이드·주석, PO 온보딩 정책서. 둘이 다르면 Figma TO-BE를 따른다.</p>
+</aside>
+
 <!-- 모바일: 로그인·STEP 0에서는 오른쪽 위, 완료 화면에서는 왼쪽 아래에 뜬다 -->
 <button class="cmp-fab" id="cmp-fab" type="button" aria-expanded="false" aria-controls="cmp-sheet"></button>
 <button class="cmp-backdrop" id="cmp-backdrop" type="button" tabindex="-1" aria-label="버전 선택 닫기"></button>
@@ -578,5 +782,6 @@
 <script src="jobs.js?v=20261104-1"></script>
 <script src="detail.js?v=20261104-1"></script>
 <script src="home.js?v=20261104-1"></script>
+<script src="policy.js?v=20261109-1"></script>
 </body>
 </html>
