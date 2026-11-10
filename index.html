@@ -33,6 +33,17 @@
       color: #222;
     }
 
+    .platform + .platform {
+      margin-top: 32px;
+    }
+
+    .platform-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      margin: 0 4px 12px;
+    }
+
     .page-list {
       display: flex;
       flex-direction: column;
@@ -68,7 +79,7 @@
       font-weight: 600;
     }
 
-    .page-path {
+    .page-date {
       font-size: 13px;
       color: #888;
     }
@@ -88,57 +99,94 @@
 <body>
   <div class="container">
     <h1>🐰 Seoyuseon Git Index</h1>
-    <div class="page-list">
-      <a href="pc_contents/index.html">
-        <div class="page-info">
-          <span class="page-title">콘텐츠LAB</span>
-          <span class="page-path">pc_contents/index.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-<a href="klik-visa-contents2/index.html">
-        <div class="page-info">
-          <span class="page-title">비자 정보·발급 가이드 (KLiK)</span>
-          <span class="page-path">klik-visa-contents2/index.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-      <a href="f2-7-calculator/index.html">
-        <div class="page-info">
-          <span class="page-title">F-2-7 비자 점수 계산기</span>
-          <span class="page-path">f2-7-calculator/index.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-      <a href="survey/survey.html">
-        <div class="page-info">
-          <span class="page-title">설문조사</span>
-          <span class="page-path">survey/survey.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-      <a href="contents-home/index.html">
-        <div class="page-info">
-          <span class="page-title">콘텐츠 홈 (모바일)</span>
-          <span class="page-path">contents-home/index.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-      <a href="contents-home/my.html">
-        <div class="page-info">
-          <span class="page-title">MY (실시간 인기 콘텐츠 롤링)</span>
-          <span class="page-path">contents-home/my.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-      <a href="albamon-onboarding/index.html">
-        <div class="page-info">
-          <span class="page-title">알바몬 온보딩 (탐색구조 Track)</span>
-          <span class="page-path">albamon-onboarding/index.html</span>
-        </div>
-        <span class="arrow">&rarr;</span>
-      </a>
-    </div>
+
+    <section class="platform">
+      <h2 class="platform-name">알바몬</h2>
+      <div class="page-list">
+        <a href="albamon-onboarding-consent/index.html">
+          <div class="page-info">
+            <span class="page-title">위치 동의 플로우 비교</span>
+            <time class="page-date" datetime="2026-11-09">2026.11.09</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="albamon-onboarding-ut/index.html">
+          <div class="page-info">
+            <span class="page-title">온보딩 UT</span>
+            <time class="page-date" datetime="2026-11-03">2026.11.03</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="albamon-onboarding/index.html">
+          <div class="page-info">
+            <span class="page-title">온보딩 (탐색구조 Track)</span>
+            <time class="page-date" datetime="2026-10-28">2026.10.28</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="albamon-alba-map/index.html">
+          <div class="page-info">
+            <span class="page-title">알바지도</span>
+            <time class="page-date" datetime="2026-08-18">2026.08.18</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="platform">
+      <h2 class="platform-name">잡코리아</h2>
+      <div class="page-list">
+        <a href="contents-home/index.html">
+          <div class="page-info">
+            <span class="page-title">콘텐츠 홈 (모바일)</span>
+            <time class="page-date" datetime="2026-05-21">2026.05.21</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="contents-my/my.html">
+          <div class="page-info">
+            <span class="page-title">MY (실시간 인기 콘텐츠 롤링)</span>
+            <time class="page-date" datetime="2026-05-18">2026.05.18</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="pc_contents/index.html">
+          <div class="page-info">
+            <span class="page-title">콘텐츠LAB</span>
+            <time class="page-date" datetime="2026-04-08">2026.04.08</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="survey/survey.html">
+          <div class="page-info">
+            <span class="page-title">설문조사</span>
+            <time class="page-date" datetime="2026-04-08">2026.04.08</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="platform">
+      <h2 class="platform-name">KLiK</h2>
+      <div class="page-list">
+        <a href="f2-7-calculator/index.html">
+          <div class="page-info">
+            <span class="page-title">F-2-7 비자 점수 계산기</span>
+            <time class="page-date" datetime="2026-04-14">2026.04.14</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="klik-visa-contents2/index.html">
+          <div class="page-info">
+            <span class="page-title">비자 정보·발급 가이드</span>
+            <time class="page-date" datetime="2026-04-08">2026.04.08</time>
+          </div>
+          <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
   </div>
 </body>
 </html>
