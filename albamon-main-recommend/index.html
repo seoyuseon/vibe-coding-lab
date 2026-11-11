@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 테스트폰에서 '홈 화면에 추가'로 열면 브라우저 주소창 없이 앱처럼 보인다. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="메인 추천 사유">
+<meta name="theme-color" content="#ffffff">
+<meta name="format-detection" content="telephone=no">
+<title>알바몬 - 메인 추천 사유</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261110-1">
+<link rel="stylesheet" href="home.css?v=20261110-1">
+<link rel="stylesheet" href="detail.css?v=20261110-1">
+<link rel="stylesheet" href="policy.css?v=20261110-1">
+</head>
+<body>
+
+<div class="page-bg">
+<div class="phone">
+
+  <!-- iPhone-status-bar(upper) · 모바일에서는 숨김 -->
+  <div class="statusbar-wrap">
+    <div class="statusbar">
+      <div class="status-time"><img src="assets/status-time.svg" width="33" height="15" alt=""></div>
+      <img class="status-indicator" src="assets/status-indicator.svg" width="6" height="6" alt="">
+      <div class="status-icons">
+        <img src="assets/status-network.svg" width="20" height="14" alt="">
+        <img src="assets/status-wifi.svg" width="16" height="14" alt="">
+        <img src="assets/status-battery.svg" width="25" height="14" alt="">
+      </div>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ============ 메인 (온보딩 위치 동의 프로토타입 완료 화면에서 복제 · 추천 사유는 home.js가 카드에 넣는다) ============ -->
+    <section class="screen home" aria-label="홈">
+      <div class="home-scroll" id="home-scroll">
+        <div class="home-content">
+          <div class="home-bg" aria-hidden="true"></div>
+
+          <header class="home-header" id="home-header">
+            <div class="home-header-bar">
+              <button class="home-location" id="home-location" type="button" data-home="location">
+                <span class="home-location-text">
+                  <img src="assets/home/header-location-pin.svg" width="20" height="20" alt="">
+                  <span id="home-location-label">서초구 10km</span>
+                </span>
+                <img src="assets/home/header-chevron-down.svg" width="20" height="20" alt="">
+              </button>
+              <button class="home-menu" type="button" aria-label="메뉴" data-home="menu">
+                <img src="assets/home/header-menu.svg" width="24" height="24" alt="">
+              </button>
+            </div>
+          </header>
+
+          <div class="home-search">
+            <div class="home-search-glow" aria-hidden="true"><img src="assets/home/search-bg.svg" alt=""></div>
+            <div class="home-search-row">
+              <button class="home-search-field" type="button" data-home="search">
+                <span>어떤 알바를 찾으세요?</span>
+                <img src="assets/home/search-icon.svg" width="22" height="22" alt="">
+              </button>
+            </div>
+          </div>
+
+          <nav class="quickmenu" aria-label="퀵메뉴">
+            <div class="quickmenu-row">
+              <button class="qm-item" type="button" data-home="qm:제트"><span class="qm-icon"><img class="qm-albaz" src="assets/home/qm-albaz.svg" alt=""></span>제트</button>
+              <button class="qm-item" type="button" data-home="qm:맞춤"><span class="qm-icon"><img class="qm-passassay" src="assets/home/qm-passassay.svg" alt=""></span>맞춤</button>
+              <button class="qm-item" type="button" data-home="qm:지역별"><span class="qm-icon"><img class="qm-place" src="assets/home/qm-place.svg" alt=""></span>지역별</button>
+              <button class="qm-item" type="button" data-home="qm:단기"><span class="qm-icon"><img class="qm-date-calendar" src="assets/home/qm-date-calendar.svg" alt=""><img class="qm-date-clock" src="assets/home/qm-date-clock.svg" alt=""></span>단기</button>
+              <button class="qm-item" type="button" data-home="qm:급구"><span class="qm-icon"><img class="qm-emergency" src="assets/home/qm-emergency.svg" alt=""></span>급구</button>
+            </div>
+            <div class="quickmenu-row">
+              <button class="qm-item" type="button" data-home="qm:초보가능"><span class="qm-icon"><img class="qm-beginner" src="assets/home/qm-beginner.svg" width="25.787" height="25.787" alt=""></span>초보가능</button>
+              <button class="qm-item" type="button" data-home="qm:한달이상"><span class="qm-icon"><img class="qm-calendar2" src="assets/home/qm-calendar2.svg" width="30" height="28" alt=""><img class="qm-calendar2-30" src="assets/home/qm-calendar2-30.svg" width="20.034" height="7.992" alt=""></span>한달이상</button>
+              <button class="qm-item" type="button" data-home="qm:재택"><span class="qm-icon"><img class="qm-home" src="assets/home/qm-home.svg" width="30" height="29" alt=""></span>재택</button>
+              <button class="qm-item" type="button" data-home="qm:고시급"><span class="qm-icon"><img class="fill" src="assets/home/qm-money-bag.svg" alt=""></span>고시급</button>
+              <button class="qm-item" type="button" data-home="qm:바로출근"><span class="qm-icon"><img class="qm-quick-start" src="assets/home/qm-quick-start.svg" alt=""></span>바로출근</button>
+            </div>
+          </nav>
+
+          <section class="rec" id="rec" aria-labelledby="rec-title">
+            <h2 class="rec-title" id="rec-title">
+              <span class="ai-signifier"><img src="assets/home/ai-signifier.svg" alt=""></span>
+              <span>김모니님을 위한 <em>실시간 추천 알바</em></span>
+            </h2>
+            <div class="filter-bar" id="filter-bar">
+              <div class="filter-scroll">
+                <button class="filter-btn" type="button" aria-label="필터" data-home="chip:필터"><img src="assets/home/filter-sliders.svg" width="18" height="18" alt=""></button>
+                <button class="chip home-chip is-selected" id="chip-job" type="button" data-home="chip:하는 일"><span class="chip-label">바리스타 외 2</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" id="chip-period" type="button" data-home="chip:기간"><span class="chip-label">일하는 기간</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button" data-home="chip:요일"><span class="chip-label">일하는 요일</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button" data-home="chip:시간"><span class="chip-label">일하는 시간</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button" data-home="chip:키워드"><span class="chip-label">키워드</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button" data-home="chip:초보 가능"><span class="chip-label">초보 가능</span></button>
+                <button class="chip home-chip" type="button" data-home="chip:브랜드 알바"><span class="chip-label">브랜드 알바</span></button>
+              </div>
+            </div>
+
+            <div class="job-list" id="job-list"></div>
+          </section>
+        </div>
+      </div>
+
+      <nav class="tabbar" aria-label="탭바">
+        <div class="tabbar-tabs">
+          <button class="tab" type="button" aria-current="page" data-home="tab:홈"><span class="tab-icon"><img src="assets/home/tab-home.svg" width="20" height="20" alt=""></span>홈</button>
+          <button class="tab" type="button" data-home="tab:커뮤니티"><span class="tab-icon"><img src="assets/home/tab-community.svg" width="20" height="20" alt=""></span>커뮤니티</button>
+          <button class="tab" type="button" data-home="tab:지도"><span class="tab-icon"><img src="assets/home/tab-map.svg" width="15.6771" height="15.3319" alt=""></span>지도</button>
+          <button class="tab" type="button" data-home="tab:채팅"><span class="tab-icon"><img src="assets/home/tab-chat.svg" width="14.5829" height="14.5833" alt=""></span>채팅</button>
+          <button class="tab" type="button" data-home="tab:MY"><span class="tab-icon"><img src="assets/home/tab-my.svg" width="20" height="20" alt=""></span>MY</button>
+        </div>
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+      </nav>
+
+    </section>
+
+  </div>
+
+  <!-- ============ 공고뷰 (4685:372142, 상단정보·근무조건·모집조건·근무지역·상세요강만) ============ -->
+  <section class="detail" id="detail" aria-label="채용정보" hidden>
+    <header class="dt-header">
+      <div class="dt-header-left">
+        <button class="dt-icon" id="detail-back" type="button" aria-label="뒤로"><img src="assets/detail/icon-back.svg" width="18.25" height="16.5" alt=""></button>
+        <h2 class="dt-header-title">채용정보</h2>
+      </div>
+      <div class="dt-header-right">
+        <button class="dt-icon" type="button" data-detail="capture" aria-label="캡처"><img src="assets/detail/icon-capture.svg" width="17.5" height="17.5" alt=""></button>
+        <button class="dt-icon" type="button" data-detail="folder" aria-label="스크랩함"><img src="assets/detail/icon-folder-plus.svg" width="24" height="24" alt=""><span class="dt-badge">2</span></button>
+        <button class="dt-icon" type="button" data-detail="share" aria-label="공유"><img src="assets/detail/icon-share.svg" width="18" height="18.12" alt=""></button>
+      </div>
+    </header>
+    <div class="dt-scroll" id="detail-scroll">
+      <div class="dt-top">
+        <p class="dt-posted" id="dt-posted"></p>
+        <div class="dt-title-block">
+          <h1 class="dt-title"><span id="dt-title"></span> <span class="dt-deadline" id="dt-deadline"></span></h1>
+          <div class="dt-company">
+            <span class="dt-logo" id="dt-logo" hidden><img alt=""></span>
+            <p class="dt-tags" id="dt-tags"></p>
+          </div>
+          <div class="dt-chips" id="dt-chips"></div>
+        </div>
+      </div>
+      <hr class="dt-divider">
+      <div class="dt-sections">
+        <section class="dt-sec" aria-labelledby="dt-cond-title">
+          <h3 class="dt-sec-title" id="dt-cond-title">근무조건</h3>
+          <dl class="dt-rows" id="dt-cond"></dl>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-recruit-title">
+          <h3 class="dt-sec-title" id="dt-recruit-title">모집조건</h3>
+          <dl class="dt-rows" id="dt-recruit"></dl>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-place-title">
+          <h3 class="dt-sec-title" id="dt-place-title">근무지역</h3>
+          <div class="dt-place">
+            <p class="dt-address"><span id="dt-address"></span><button class="dt-copy" type="button" data-detail="copy">복사</button></p>
+            <button class="dt-map" id="dt-map" type="button" data-detail="map">
+              <img class="dt-map-bg" src="assets/detail/map-strip.png" width="1280" height="280" alt="">
+              <span class="dt-map-btn">
+                <span class="dt-pin"><img src="assets/detail/icon-pin.svg" width="16" height="18" alt=""></span>
+                근무지 지도 보기
+                <img src="assets/detail/icon-arrow-right.svg" width="20" height="20" alt="">
+              </span>
+            </button>
+          </div>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-desc-title">
+          <h3 class="dt-sec-title" id="dt-desc-title">상세요강</h3>
+          <div class="dt-desc" id="dt-desc"></div>
+        </section>
+      </div>
+    </div>
+    <div class="dt-bottom">
+      <div class="dt-bottom-bar">
+        <button class="dt-icon" type="button" data-detail="scrap" aria-label="스크랩"><img src="assets/detail/icon-scrap.svg" width="19.5" height="18.5" alt=""></button>
+        <button class="dt-apply" id="detail-apply" type="button">지원하기</button>
+      </div>
+      <div class="dt-indicator" aria-hidden="true"><span></span></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 화면별 정책 (PC 전용 · policy.js) ============ -->
+<!-- Figma 메인 추천사유 노출 시안(혼합 Test)과 PO 추천 사유 표기 정책서를 옮겼다. 공개 페이지라 실험 수치·내부 링크는 넣지 않는다. -->
+<aside class="policy" id="policy" aria-label="화면별 정책">
+  <header class="pol-head">
+    <h2 class="pol-title">화면별 정책</h2>
+    <p class="pol-meta">Figma 혼합 Test · 정책서 기준 · 2026.11.10 정리</p>
+  </header>
+  <div class="pol-list">
+
+    <details class="pol-sec" data-pol="overview">
+      <summary><span class="pol-step">개요</span><span class="pol-name">이 프로토타입</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>메인 실시간 추천 알바 목록의 공고 카드에 <b>추천 사유</b>를 보여준다. 노출 효과는 실험으로 확인한다.</li>
+          <li>문구는 혼합안이다. 최근 검색은 질문형, 최근 지원은 담백형이다.
+            <ul>
+              <li>추천 사유는 카드마다 반복해서 보이므로 담백한 톤을 기본으로 한다.</li>
+              <li>담백한 문구만 있으면 눈에 덜 들어올 수 있어 검색 사유에만 재미 요소를 둔다.</li>
+              <li>같은 자리에 섞여 보이므로, 담백형과 말투가 가장 비슷한 질문형을 골랐다.</li>
+            </ul>
+          </li>
+          <li>온보딩 없이 메인부터 보여준다.</li>
+        </ul>
+        <p class="pol-note">데모 사용자(김모니)는 최근 ‘바리스타’를 검색했고 카페 알바에 지원한 개인 회원으로 본다. 메인 조건은 서초구 10km · 바리스타 외 2다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="home">
+      <summary><span class="pol-step">메인</span><span class="pol-name">추천 공고 목록 · 추천 사유</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>모바일 앱에서 보여준다. MW는 범위 밖이다.</li>
+          <li>목록에는 일반 공고(추천 엔진), CPC 광고 공고(CPT 대체 포함), 컨텐츠 공고가 섞인다.</li>
+          <li>추천 사유는 <b>추천 엔진이 준 일반 공고</b>에만 붙인다. CPC/CPT 광고 공고에는 붙이지 않는다(향후 협의).</li>
+          <li>추천 엔진의 후보 수집 기준(최근 검색한 키워드와 유사한 공고 · 최근 지원한 공고)에 따라 문구를 고른다.
+            <dl class="pol-pairs">
+              <dt>최근 검색</dt><dd class="pol-reason"><b>{키워드}</b> 찾고 계셨죠?</dd>
+              <dt>최근 지원</dt><dd class="pol-reason">최근 지원한 알바와 비슷해요</dd>
+            </dl>
+          </li>
+          <li>스크랩·클릭·이력서 풀처럼 사유로 쓸 수 없는 기준으로 노출된 공고에는 붙이지 않는다.</li>
+          <li>기업명 오른쪽에 아이콘과 함께 한 줄로 보여준다. 최근 검색 문구는 키워드만 굵게 쓴다.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="card">
+      <summary><span class="pol-step">카드</span><span class="pol-name">공고 카드 구성</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>기업명·공고 제목: 공고 등록 때 입력한 값. 한 줄까지 보여주고 넘치면 말줄임한다.</li>
+          <li>근무지역: 시/군/구 + 동/읍/면. 재택 공고는 ‘재택근무’, 하위 지역이 없으면 ‘서울 전체’처럼 쓴다.</li>
+          <li>근무조건: 근무요일(주 5일, 월~금, 요일협의) · 근무시간(hh:mm~hh:mm, 시간협의)</li>
+          <li>급여: 시급은 n,nnn원, 그 외 급여 유형은 n,nnn만원. 천원 이하 단위가 있으면 nnn,nnn원으로 쓴다. 급여 유형 색은 디자인 가이드를 따른다.</li>
+          <li>썸네일: 공고 사진, 없으면 기업 사진을 쓴다. 둘 다 없으면 보여주지 않는다.</li>
+          <li>카드를 누르면 공고뷰로 간다.</li>
+          <li>공고뷰를 보고 목록으로 돌아오면 읽음 표시한다. <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+          <li>스크랩: 누르면 채워지며 스크랩되고, 다시 누르면 해제된다. 토스트·알럿은 없다. 비회원·기업회원·지점코드 사용자에게는 로그인 알럿을 띄운다. <span class="pol-tag is-todo">프로토타입 미구현</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="detail">
+      <summary><span class="pol-step">공고뷰</span><span class="pol-name">채용정보</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>메인 공고 카드를 누르면 열린다.</li>
+        </ul>
+        <p class="pol-note">프로토타입은 상단 정보·근무조건·모집조건·근무지역·상세요강만 그리고, ‘지원하기’는 동작하지 않는다.</p>
+      </div>
+    </details>
+
+  </div>
+  <p class="pol-foot">출처: Figma 메인 추천사유 노출 시안, PO 추천 사유 표기 정책서</p>
+</aside>
+</div>
+
+<script src="app.js?v=20261110-1"></script>
+<script src="jobs.js?v=20261110-1"></script>
+<script src="detail.js?v=20261110-1"></script>
+<script src="home.js?v=20261110-1"></script>
+<script src="policy.js?v=20261110-1"></script>
+</body>
+</html>

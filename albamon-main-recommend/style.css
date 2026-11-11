@@ -1,0 +1,139 @@
+/* ============ Tokens (Figma: 탐색구조 Track handoff · 261020) ============ */
+:root{
+  /* fill */
+  --fill-default:#ffffff;
+  --fill-brand:#ff6d12;
+  --fill-brand-subtle:#fff6ee;
+  --fill-surface:#f4f6f7;
+  --fill-surface-raised:#e2e6e8;
+  --fill-gray50:#f6f7f8;
+
+  /* typography */
+  --typo-default:#131618;
+  --typo-secondary:#30363c;
+  --typo-subtle:#6c767f;
+  --typo-brand:#ff6d12;
+
+  /* border */
+  --border-subtle:#e2e6e8;
+
+  --phone-w:390px;
+  --phone-h:844px;
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,Roboto,sans-serif;
+  color:var(--typo-default);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  /* 테스트폰에서 길게 눌러도 글자 선택·미리보기가 뜨지 않게 한다. */
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+input{-webkit-user-select:text; user-select:text;}
+button{
+  font:inherit;
+  color:inherit;
+  background:none;
+  border:0;
+  padding:0;
+  margin:0;
+  cursor:pointer;
+}
+img{display:block;}
+p,h1{margin:0;}
+
+.page-bg{
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#E7E9EE;
+  padding:32px 16px;
+}
+
+/* ============ Phone frame — 390x844 (Figma frame) ============ */
+.phone{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  width:var(--phone-w);
+  height:var(--phone-h);
+  background:var(--fill-default);
+  border-radius:44px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(20,22,30,.28), 0 0 0 10px #111417;
+}
+
+/* ============ Status bar (iPhone-status-bar(upper)) ============ */
+/* 메인은 상태바 아래까지 깔린다. */
+.statusbar-wrap{
+  position:absolute;
+  inset:0 0 auto;
+  z-index:20;
+}
+.statusbar{
+  position:relative;
+  height:44px;
+  overflow:hidden;
+}
+.status-time{
+  position:absolute;
+  left:21px; top:12px;
+  width:54px; height:21px;
+  border-radius:20px;
+  overflow:hidden;
+}
+.status-time img{
+  position:absolute;
+  left:calc(50% + .5px); top:50%;
+  transform:translate(-50%,-50%);
+}
+.status-indicator{position:absolute; right:71px; top:8px;}
+.status-icons{
+  position:absolute;
+  right:14px; top:16px;
+  display:flex;
+  gap:4px;
+  align-items:center;
+}
+
+/* ============ Screens ============ */
+.screens{
+  position:relative;
+  flex:1;
+  min-height:0;
+}
+.screen{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  background:var(--fill-default);
+}
+
+/* ============ Mobile — 실제 앱처럼 화면 전체 사용 ============ */
+@media (max-width:520px){
+  html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+  .page-bg{
+    display:block;
+    min-height:0;
+    padding:0;
+    background:var(--fill-default);
+  }
+  .phone{
+    position:fixed;
+    left:0; top:var(--app-top, 0px);
+    width:100%;
+    height:var(--app-h, 100dvh);
+    border-radius:0;
+    box-shadow:none;
+    padding-top:env(safe-area-inset-top);
+  }
+  /* 실제 기기 OS 상태바와 중복되지 않도록 목업 상태바를 숨긴다. */
+  .statusbar-wrap{display:none;}
+}
