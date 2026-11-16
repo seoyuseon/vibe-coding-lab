@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 테스트폰에서 '홈 화면에 추가'로 열면 브라우저 주소창 없이 앱처럼 보인다. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="구 메인 온보딩 완료">
+<meta name="theme-color" content="#ffffff">
+<meta name="format-detection" content="telephone=no">
+<title>알바몬 - 구 메인 온보딩 완료</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261116-1">
+<link rel="stylesheet" href="home.css?v=20261116-1">
+</head>
+<body>
+
+<div class="page-bg">
+
+<!-- 시안 비교 (PC 상단 바) -->
+<div class="variant-bar" aria-label="완료 화면 시안">
+  <div class="variant-switch" id="variant-switch" role="tablist"></div>
+  <button class="variant-replay" type="button" data-replay><img src="assets/icon-redo.svg" width="16" height="16" alt="">다시 보기</button>
+</div>
+
+<div class="phone">
+
+  <!-- iPhone-status-bar(upper) · 모바일에서는 숨김 -->
+  <div class="statusbar-wrap">
+    <div class="statusbar">
+      <div class="status-time"><img src="assets/status-time.svg" width="33" height="15" alt=""></div>
+      <img class="status-indicator" src="assets/status-indicator.svg" width="6" height="6" alt="">
+      <div class="status-icons">
+        <img src="assets/status-network.svg" width="20" height="14" alt="">
+        <img src="assets/status-wifi.svg" width="16" height="14" alt="">
+        <img src="assets/status-battery.svg" width="25" height="14" alt="">
+      </div>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ============ 구 메인 · 온보딩 완료 (Figma 5731:9793) ============ -->
+    <section class="screen home" aria-label="홈">
+      <div class="home-scroll" id="home-scroll">
+        <div class="home-content">
+          <div class="home-bg" aria-hidden="true"></div>
+
+          <!-- MobileHeader -->
+          <header class="home-header" id="home-header">
+            <div class="home-header-bar">
+              <button class="home-location" id="home-location" type="button">
+                <span class="home-location-text">
+                  <span class="home-pin"><img src="assets/home/header-pin.svg" alt=""></span>
+                  <span id="home-location-label">서초구 외 2</span>
+                </span>
+                <img src="assets/home/header-arrowdown.svg" width="22" height="22" alt="">
+              </button>
+              <div class="home-header-icons">
+                <button class="home-icon" type="button" aria-label="검색"><img src="assets/home/header-search.svg" width="24" height="24" alt=""></button>
+                <button class="home-icon" type="button" aria-label="메뉴"><img src="assets/home/header-menu.svg" width="24" height="24" alt=""></button>
+              </div>
+            </div>
+          </header>
+
+          <!-- 실시간 추천 알바 (카드 한 장에 공고 3건, 가로로 넘김) -->
+          <section class="rec" id="rec" aria-label="실시간 추천 알바">
+            <div class="rec-track" id="rec-track"></div>
+            <div class="rec-more-wrap">
+              <button class="rec-more" id="rec-more" type="button">
+                실시간 추천 알바 더보기
+                <img src="assets/home/more-chevron-right.svg" width="16" height="16" alt="">
+              </button>
+            </div>
+          </section>
+
+          <div class="home-body">
+            <!-- quickmenu -->
+            <nav class="quickmenu" aria-label="퀵메뉴">
+              <div class="qm-row qm-row-1">
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-albaz" src="assets/home/qm-albaz.svg" width="32" height="23.9885" alt=""></span>제트</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-place" src="assets/home/qm-place.svg" width="30" height="30" alt=""></span>지역별</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-passassay" src="assets/home/qm-passassay.svg" width="30" height="30" alt=""></span>맞춤</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-calendar" src="assets/home/qm-date-calendar.svg" width="28.4211" height="25.6579" alt=""><img class="qm-clock" src="assets/home/qm-date-clock.svg" width="15.7895" height="15.7895" alt=""></span>단기</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-emergency" src="assets/home/qm-emergency.svg" width="24.889" height="28" alt=""></span>급구</button>
+              </div>
+              <div class="qm-row qm-row-2">
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-quick-start" src="assets/home/qm-quick-start.svg" width="31" height="30" alt=""></span>바로출근</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-home" src="assets/home/qm-home.svg" width="30" height="29" alt=""></span>재택</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img class="qm-beginner" src="assets/home/qm-beginner.svg" width="25.7869" height="25.7868" alt=""></span>초보가능</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img src="assets/home/qm-weekly-pay.svg" width="32" height="32" alt=""></span>주휴수당</button>
+                <button class="qm-item" type="button"><span class="qm-icon"><img src="assets/home/qm-honey.svg" width="32" height="32" alt=""></span>꿀알바<span class="qm-new">신규</span></button>
+              </div>
+            </nav>
+
+            <!-- 필터 (FilterBar · A 2/2 시안의 선택 상태 기준) -->
+            <div class="filter-row" id="filter-row">
+              <div class="filter-scroll" id="filter-scroll">
+                <button class="filter-btn" type="button" aria-label="필터"><img src="assets/home/filter-icon.svg" width="18" height="18" alt=""></button>
+                <button class="chip home-chip is-selected" id="chip-job" type="button"><span class="chip-label">바리스타 외 2</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip is-selected" id="chip-period" type="button"><span class="chip-label">한 달 이내</span><img class="chev-on" src="assets/home/chevron-selected.svg" width="16" height="16" alt=""><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">일하는 요일</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">일하는 시간</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">키워드</span><img class="chev-off" src="assets/home/chevron-default.svg" width="16" height="16" alt=""></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">초보 가능</span></button>
+                <button class="chip home-chip" type="button"><span class="chip-label">브랜드 알바</span></button>
+              </div>
+            </div>
+
+            <!-- CarouselFocusSection · 적극 채용중 -->
+            <section class="focus-sec" aria-labelledby="focus-title">
+              <div class="sec-title">
+                <span class="sec-emoji"><img src="assets/home/emoji-fire.svg" alt=""></span>
+                <h2 id="focus-title">적극 채용중</h2>
+                <span class="tag-ad tag-ad-title">AD</span>
+              </div>
+              <div class="focus-scroll">
+                <div class="focus-grid" id="focus-grid"></div>
+              </div>
+            </section>
+
+            <!-- ListBasicSection -->
+            <section class="list-sec" id="list-sec" aria-label="추천 공고"></section>
+          </div>
+        </div>
+      </div>
+
+      <!-- D-Tabber_알바몬 -->
+      <nav class="tabbar" aria-label="탭바">
+        <div class="tabbar-tabs">
+          <button class="tab" type="button" aria-current="page"><span class="tab-icon"><img src="assets/home/tab-home.svg" width="20" height="20" alt=""></span>홈</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-community.svg" width="20" height="20" alt=""></span>커뮤니티</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-map.svg" width="15.6771" height="15.3319" alt=""></span>지도</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-chat.svg" width="14.5829" height="14.5833" alt=""></span>채팅</button>
+          <button class="tab" type="button"><span class="tab-icon"><img src="assets/home/tab-my.svg" width="20" height="20" alt=""></span>MY</button>
+        </div>
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+      </nav>
+
+      <!-- B · 적용 토스트 (Figma 5822:19147) -->
+      <div class="home-toast" id="home-toast" role="status" aria-live="polite">
+        <img src="assets/home/toast-check.svg" width="16" height="16" alt="">
+        <span>선택한 조건을 적용했어요</span>
+      </div>
+
+      <!-- A · 코치마크 (Figma 5822:13819 · 5822:16446) -->
+      <div class="coach" id="coach" hidden>
+        <div class="coach-spot" id="coach-spot"><div class="coach-clone" id="coach-clone" aria-hidden="true"></div></div>
+        <div class="coach-tip" id="coach-tip" role="dialog" aria-live="polite">
+          <img class="coach-arrow" src="assets/home/coach-arrow.svg" width="54" height="8" alt="">
+          <div class="coach-box">
+            <p class="coach-text" id="coach-text"></p>
+            <div class="coach-foot">
+              <span class="coach-step" id="coach-step"></span>
+              <span class="coach-actions">
+                <button class="coach-skip" id="coach-skip" type="button">건너뛰기</button>
+                <button class="coach-next" id="coach-next" type="button"></button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- 시안 비교 (모바일 좌하단 런처 → 시트) -->
+<button class="variant-fab" id="variant-fab" type="button" aria-expanded="false" aria-controls="variant-sheet">A-1</button>
+<button class="variant-backdrop" id="variant-backdrop" type="button" tabindex="-1" aria-label="시안 선택 닫기"></button>
+<div class="variant-sheet" id="variant-sheet" role="dialog" aria-label="완료 화면 시안">
+  <div class="variant-sheet-head"><span>완료 화면 시안</span><button class="variant-close" id="variant-close" type="button" aria-label="닫기">×</button></div>
+  <div class="variant-options" id="variant-options" role="tablist"></div>
+  <div class="variant-actions">
+    <button class="variant-replay" type="button" data-replay><img src="assets/icon-redo.svg" width="16" height="16" alt="">다시 보기</button>
+  </div>
+</div>
+</div>
+
+<script src="jobs.js?v=20261116-1"></script>
+<script src="home.js?v=20261116-1"></script>
+</body>
+</html>
