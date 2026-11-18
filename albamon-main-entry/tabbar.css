@@ -1,0 +1,171 @@
+/* ============ A안 바텀 탭: 떠 있는 유리 탭 바 (Figma TabBar/Floating · A안 176:12385) ============ */
+/* iOS 26 탭 바(리퀴드 글래스) 패턴. 토스 등 캡처를 재서 맞췄다(2026-11-17):
+   거의 불투명한 흰 바탕 + 위아래 빛 그라데이션 · 1px 회색 테두리 · 가운데로 퍼지는 옅은 그림자 · 회색 알약(검정 10%).
+   아이콘은 XDS Core 24px, 라벨은 11px SemiBold. */
+:root{
+  --tf-h:64px;          /* 탭 바 높이 */
+  --tf-side:16px;       /* 좌우 여백 */
+  --tf-bottom:26px;     /* 화면 아래에서 띄우는 거리 (목업 홈 인디케이터 위) */
+  --tf-pad:4px;         /* 알약 안쪽 여백 */
+}
+
+.tabfloat{
+  position:absolute;
+  left:var(--tf-side);
+  right:var(--tf-side);
+  bottom:var(--tf-bottom);
+  z-index:12;           /* 화면 위 · 공고뷰(19) 아래 */
+  height:var(--tf-h);
+  display:flex;
+  padding:var(--tf-pad);
+  border-radius:calc(var(--tf-h) / 2);
+  /* 위는 밝고 아래로 살짝 어두워지다 아래 가장자리에서 다시 밝아진다 (유리 두께감) */
+  background:linear-gradient(180deg, rgba(255,255,255,.94) 0%, rgba(247,247,247,.88) 80%, rgba(255,255,255,.94) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),     /* 위쪽 빛 반사 */
+    inset 0 0 0 1px rgba(0,0,0,.1),         /* 테두리 (Figma stroke inside 1px) */
+    0 0 20px rgba(0,0,0,.06),               /* 가운데로 퍼지는 그림자 */
+    0 4px 12px rgba(0,0,0,.04);
+}
+.tf-tab .tab-icon{width:24px; height:24px;}
+
+/* 선택한 탭 뒤 알약. tabs.js가 --tf-i(0~4)로 자리를 옮긴다. */
+.tf-pill{
+  position:absolute;
+  left:var(--tf-pad);
+  top:var(--tf-pad);
+  bottom:var(--tf-pad);
+  width:calc((100% - var(--tf-pad) * 2) / 5);
+  border-radius:calc((var(--tf-h) - var(--tf-pad) * 2) / 2);
+  background:rgba(0,0,0,.1);
+  transform:translateX(calc(var(--tf-i, 0) * 100%));
+  transition:transform .42s cubic-bezier(.34,1.3,.5,1);
+  pointer-events:none;
+}
+
+.tf-tab{
+  position:relative;
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  font-size:11px;
+  font-weight:600;
+  line-height:15px;
+  color:var(--home-text-primary);
+  transition:transform .15s ease;
+}
+.tf-tab:active{transform:scale(.94);}
+/* 선택한 탭만 채운 아이콘 (D-Tabber 규칙) */
+.tf-tab .ic-on{display:none;}
+.tf-tab[aria-current="page"] .ic-on{display:block;}
+.tf-tab[aria-current="page"] .ic-off{display:none;}
+
+/* ---- A안 추천 탭 툴팁 (레퍼런스: 어두운 알약형 + 컬러 이모지 + 닫기) ----
+   높이 40 알약 · #30363C(fill/surface-inverse) 96% · 14px SemiBold 흰 글자 · 이모지 22(키워드에 맞춤: 바리스타 → 커피) · 닫기 16(회색).
+   추천 탭이 왼쪽에서 두 번째라 말풍선을 탭 가운데에 둘 수 없어, 꼬리(XDS Tooltip 14×7)로 탭을 가리킨다.
+   등장: 탭에서 톡 튀어나오고 이모지가 살짝 흔들린다 → 떠 있는 동안 천천히 위아래로 뜬다 → 닫으면 작아지며 사라진다. */
+.tf-tip{
+  position:absolute;
+  z-index:12;
+  left:0;
+  bottom:calc(var(--tf-bottom) + var(--tf-h) + 2px);
+  display:none;
+  pointer-events:none;
+}
+body.show-tip .tf-tip{display:block; animation:tf-tip-in .55s cubic-bezier(.2,.9,.3,1.25) both;}
+.tf-tip.is-leaving{animation:tf-tip-out .2s ease forwards !important;}
+.tf-tip-float{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  animation:tf-tip-float 2.4s ease-in-out .6s infinite;
+}
+.tf-tip-box{
+  height:40px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 10px 0 10px;
+  border-radius:999px;
+  background:rgba(48,54,60,.96);
+  box-shadow:0 6px 18px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12);
+  font-size:14px;
+  font-weight:600;
+  line-height:20px;
+  letter-spacing:-.1px;
+  color:#fff;
+  white-space:nowrap;
+  pointer-events:auto;
+}
+.tf-tip-emoji{
+  position:relative;
+  flex:none;
+  width:22px; height:22px;
+  animation:tf-tip-wiggle .7s ease .25s both;
+}
+.tf-tip-emoji img{position:absolute; left:0; top:0;}   /* JAMS emoji-coffee 32 칸 그대로 22로 줄임 (숨긴 '원본' 레이어는 뺐다) */
+.tf-tip-text{padding-right:2px;}
+.tf-tip-close{flex:none; display:flex; padding:4px; margin-right:-2px; border-radius:50%;}
+.tf-tip-close img{filter:invert(1); opacity:.55;}   /* XDS 아이콘 기본색(#131618) → 연한 회색 */
+.tf-tip-arrow{margin-top:-1px; opacity:.96;}
+@keyframes tf-tip-in{
+  0%{opacity:0; transform:translateY(10px) scale(.86);}
+  60%{opacity:1;}
+  100%{opacity:1; transform:none;}
+}
+@keyframes tf-tip-out{to{opacity:0; transform:translateY(6px) scale(.9);}}
+@keyframes tf-tip-float{0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);}}
+@keyframes tf-tip-wiggle{
+  0%{transform:scale(.6) rotate(-14deg);}
+  45%{transform:scale(1.12) rotate(8deg);}
+  70%{transform:scale(.97) rotate(-4deg);}
+  100%{transform:none;}
+}
+
+/* 목업 홈 인디케이터 (콘텐츠 위에 선만 그린다) */
+.phone-indicator{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  z-index:12;
+  height:34px;
+  pointer-events:none;
+}
+.phone-indicator span{
+  position:absolute;
+  left:50%; bottom:6px;
+  width:134px; height:5px;
+  transform:translateX(-50%);
+  border-radius:10px;
+  background:#000;
+}
+
+/* ============ 시안별 노출 ============ */
+body[data-tabbar="asis"] .tabfloat,
+body[data-tabbar="asis"] .phone-indicator{display:none;}
+body[data-tabbar="float"] .tabbar-asis{display:none;}
+/* 2번째 탭: 추천 탭 시안(A·C)은 추천 / 그 밖(B·D)은 커뮤니티 */
+body:not([data-feed="tab"]) .tf-rec,
+body[data-feed="tab"] .tf-community{display:none;}
+/* 목록 맨 아래가 탭 바에 가리지 않도록 여백을 둔다 (home.css·feed.css가 --tab-h를 쓴다). */
+body[data-tabbar="float"]{--tab-h:calc(var(--tf-bottom) + var(--tf-h) + 16px);}
+
+/* ============ Mobile ============ */
+@media (max-width:520px){
+  :root{--tf-bottom:max(12px, calc(env(safe-area-inset-bottom) - 10px));}
+  .phone-indicator{display:none !important;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .tf-pill,
+  .tf-tab{transition:none;}
+  body.show-tip .tf-tip,
+  .tf-tip.is-leaving,
+  .tf-tip-float,
+  .tf-tip-emoji{animation:none !important;}
+}

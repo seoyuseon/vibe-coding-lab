@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 테스트폰에서 '홈 화면에 추가'로 열면 브라우저 주소창 없이 앱처럼 보인다. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="메인 진입점">
+<meta name="theme-color" content="#ffffff">
+<meta name="format-detection" content="telephone=no">
+<title>알바몬 - 메인 진입점</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261118-5">
+<link rel="stylesheet" href="home.css?v=20261118-5">
+<link rel="stylesheet" href="feed.css?v=20261118-5">
+<link rel="stylesheet" href="tabbar.css?v=20261118-5">
+<link rel="stylesheet" href="toptabs.css?v=20261118-5">
+<link rel="stylesheet" href="detail.css?v=20261118-5">
+<link rel="stylesheet" href="compare.css?v=20261118-5">
+<link rel="stylesheet" href="guide.css?v=20261118-5">
+</head>
+<body>
+
+<div class="page-bg">
+
+<!-- ============ 시안 전환 (compare.js) · PC: 폰 위 막대 / 모바일: 떠 있는 버튼 → 바텀시트 ============ -->
+<div class="cmp-bar" aria-label="메인 진입점 시안">
+  <div class="cmp-switch" role="tablist">
+    <button type="button" role="tab" data-ver-pick="asis" title="홈 · 커뮤니티 · 지도 · 채팅 · MY">현재</button>
+    <button type="button" role="tab" data-ver-pick="a" title="커뮤니티 자리에 추천 탭 · 떠 있는 유리 탭 바">A · 바텀 탭</button>
+    <button type="button" role="tab" data-ver-pick="b" title="피드 공고 미리보기(가로로 넘김) + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지">B · 추천 카드</button>
+    <button type="button" role="tab" data-ver-pick="c" title="B안 메인 + A안 바텀 추천 탭(툴팁 없음)">C · 탭 + 카드</button>
+    <button type="button" role="tab" data-ver-pick="d" title="헤더 아래 홈 · 추천 탭 · 바텀 탭은 커뮤니티 유지">D · 상단 탭</button>
+  </div>
+</div>
+
+<div class="phone">
+
+  <!-- iPhone-status-bar(upper) · 모바일에서는 숨김 -->
+  <div class="statusbar-wrap">
+    <div class="statusbar">
+      <div class="status-time"><img src="assets/status-time.svg" width="33" height="15" alt=""></div>
+      <img class="status-indicator" src="assets/status-indicator.svg" width="6" height="6" alt="">
+      <div class="status-icons">
+        <img src="assets/status-network.svg" width="20" height="14" alt="">
+        <img src="assets/status-wifi.svg" width="16" height="14" alt="">
+        <img src="assets/status-battery.svg" width="25" height="14" alt="">
+      </div>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ============ 메인 (지금 운영 중인 메인 · Figma AMX Draft 유선 'as is' 169:4559) ============ -->
+    <!-- 첫 화면부터 적극 채용중·공고 리스트까지 옮겼다. 그 아래 구간(바로가기·배너·커뮤니티·브랜드 등)은 뺐다. 카드는 home.js가 넣는다. -->
+    <section class="screen home" aria-label="홈">
+      <div class="home-scroll" id="home-scroll">
+        <div class="home-content">
+          <div class="home-bg" aria-hidden="true"></div>
+
+          <!-- MobileHeader -->
+          <header class="home-header" id="home-header">
+            <div class="home-header-bar">
+              <button class="home-location" type="button" data-home="location">
+                <span class="home-location-pin"><img src="assets/main/header-place.svg" width="14.1663" height="16.6666" alt=""></span>
+                <span>서울 전체</span>
+                <img src="assets/main/header-arrowdown.svg" width="22" height="22" alt="">
+              </button>
+              <div class="home-header-actions">
+                <button class="home-icon-btn" type="button" aria-label="검색" data-home="search"><img src="assets/main/header-search.svg" width="24" height="24" alt=""></button>
+                <button class="home-icon-btn" type="button" aria-label="메뉴" data-home="menu"><img src="assets/main/header-menu.svg" width="24" height="24" alt=""></button>
+              </div>
+            </div>
+          </header>
+
+          <!-- D안 상단 칩 탭 (Figma 'D안 - Top 버전' 170:18843 · ChipTab md): 홈 · 실시간 추천 알바 + 바로가기 최근 본 ↗ · 스크랩 ↗.
+               위에 붙지 않고 내용과 함께 스크롤된다. toptabs.js -->
+          <nav class="d-tabs" id="d-tabs" aria-label="메인 탭">
+            <div class="d-tabs-row" role="tablist">
+              <button class="d-tab" type="button" role="tab" data-dtab="home" aria-selected="true">홈</button>
+              <button class="d-tab" type="button" role="tab" data-dtab="rec" aria-selected="false">실시간 추천 알바</button>
+              <button class="d-tab" type="button" data-home="dtab:최근 본">최근 본<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
+              <button class="d-tab" type="button" data-home="dtab:스크랩">스크랩<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
+            </div>
+          </nav>
+
+          <!-- 홈 패널: 메인 내용 전부. D안 추천 탭에서만 접는다(toptabs.css) -->
+          <div class="dp dp-home" data-panel="home">
+
+          <!-- B안 (Figma 177:28071): 피드 공고 미리보기(2개씩 묶어 가로로 넘김) + 더 보기 버튼. 상단 카드·더보기 대신 보인다(body[data-ver="b"]) -->
+          <div class="b-preview" aria-label="실시간 추천 알바">
+            <div class="b-scroll" id="b-scroll"><div class="b-pages" id="b-pages"></div></div>
+            <button class="b-more" id="b-more" type="button">실시간 추천 알바 더 보기<img src="assets/main/more-chevron-white.svg" width="20" height="20" alt=""></button>
+          </div>
+
+          <!-- 상단 실시간 추천 카드 (가운데 카드에 초점, 좌우로 넘긴다) -->
+          <div class="top-rec" id="top-rec" aria-label="실시간 추천 알바"></div>
+
+          <!-- 실시간 추천 알바 더보기 → 실시간 추천 피드 -->
+          <button class="rec-more" id="rec-more" type="button">실시간 추천 알바 더보기<img src="assets/main/more-chevron.svg" width="16" height="16" alt=""></button>
+
+          <div class="home-sheet">
+            <nav class="quickmenu" aria-label="퀵메뉴">
+              <div class="quickmenu-row">
+              <button class="qm-item" type="button" data-home="qm:제트"><span class="qm-icon"><img class="qm-albaz" src="assets/main/qm-albaz.svg" width="32" height="23.9885" alt=""></span>제트</button>
+              <button class="qm-item" type="button" data-home="qm:지역별"><span class="qm-icon"><img class="qm-place" src="assets/main/qm-place.svg" width="30" height="30" alt=""></span>지역별</button>
+              <button class="qm-item" type="button" data-home="qm:맞춤"><span class="qm-icon"><img class="qm-passassay" src="assets/main/qm-passassay.svg" width="30" height="30" alt=""></span>맞춤</button>
+              <button class="qm-item" type="button" data-home="qm:단기"><span class="qm-icon"><img class="qm-date-cal" src="assets/main/qm-date-calendar.svg" width="28.4211" height="25.6579" alt=""><img class="qm-date-clock" src="assets/main/qm-date-clock.svg" width="15.7895" height="15.7895" alt=""></span>단기</button>
+              <button class="qm-item" type="button" data-home="qm:급구"><span class="qm-icon"><img class="qm-emergency" src="assets/main/qm-emergency.svg" width="24.889" height="28" alt=""></span>급구</button>
+              </div>
+              <div class="quickmenu-row">
+              <button class="qm-item" type="button" data-home="qm:바로출근"><span class="qm-icon"><img class="qm-quick" src="assets/main/qm-quick-start.svg" width="31" height="30" alt=""></span>바로출근</button>
+              <button class="qm-item" type="button" data-home="qm:재택"><span class="qm-icon"><img class="qm-home" src="assets/main/qm-home.svg" width="30" height="29" alt=""></span>재택</button>
+              <button class="qm-item" type="button" data-home="qm:초보가능"><span class="qm-icon"><img class="qm-beginner" src="assets/main/qm-beginner.svg" width="25.7869" height="25.7868" alt=""></span>초보가능</button>
+              <button class="qm-item" type="button" data-home="qm:실수령UP"><span class="qm-icon"><img src="assets/main/qm-dcoin.svg" width="32" height="32" alt=""></span><span class="qm-label-split"><span>실수령</span><span>UP</span></span></button>
+              <button class="qm-item" type="button" data-home="qm:꿀알바"><span class="qm-icon"><img src="assets/main/qm-honey.svg" width="32" height="32" alt=""></span>꿀알바<span class="qm-new">신규</span></button>
+              </div>
+            </nav>
+            <div class="home-filter">
+              <div class="home-filter-row">
+                <button class="hf-icon" type="button" aria-label="필터" data-home="chip:필터"><img src="assets/main/filter-icon.svg" width="20" height="20" alt=""></button>
+                <button class="hf-chip" type="button" data-home="chip:하는 일">하는 일<img src="assets/main/filter-arrow.svg" width="16" height="16" alt=""></button>
+                <button class="hf-chip" type="button" data-home="chip:일하는 기간">일하는 기간<img src="assets/main/filter-arrow.svg" width="16" height="16" alt=""></button>
+                <button class="hf-chip" type="button" data-home="chip:일하는 요일">일하는 요일<img src="assets/main/filter-arrow.svg" width="16" height="16" alt=""></button>
+                <button class="hf-chip" type="button" data-home="chip:일하는 시간">일하는 시간<img src="assets/main/filter-arrow.svg" width="16" height="16" alt=""></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-sections">
+            <!-- CarouselFocusSection: 적극 채용중 (3줄 × 4장, 통째로 좌우 스크롤) -->
+            <section class="focus-sec" aria-labelledby="focus-title">
+              <h2 class="sec-title" id="focus-title"><img src="assets/main/focus-fire.svg" width="20" height="20" alt="">적극 채용중<span class="tag-ad">AD</span></h2>
+              <div class="focus-scroll"><div class="focus-grid" id="focus-grid"></div></div>
+            </section>
+            <!-- ListBasicSection -->
+            <section class="list-sec" id="list-sec" aria-label="추천 공고"></section>
+          </div>
+
+          </div>
+
+          <!-- 추천 패널 (D안): 피드 화면의 필터 칩·카드를 toptabs.js가 복제해 넣는다 -->
+          <div class="dp dp-rec" id="dp-rec" data-panel="rec" aria-label="실시간 추천 알바"></div>
+        </div>
+      </div>
+
+      <!-- 현재(asis) 탭바: D-Tabber_알바몬 selected=홈 -->
+      <nav class="tabbar tabbar-asis" aria-label="탭바">
+        <div class="tabbar-tabs">
+          <button class="tab" type="button" aria-current="page" data-home="tab:홈"><span class="tab-icon"><img src="assets/home/tab-home.svg" width="20" height="20" alt=""></span>홈</button>
+          <button class="tab" type="button" data-home="tab:커뮤니티"><span class="tab-icon"><img src="assets/home/tab-community.svg" width="20" height="20" alt=""></span>커뮤니티</button>
+          <button class="tab" type="button" data-home="tab:지도"><span class="tab-icon"><img src="assets/home/tab-map.svg" width="15.6771" height="15.3319" alt=""></span>지도</button>
+          <button class="tab" type="button" data-home="tab:채팅"><span class="tab-icon"><img src="assets/home/tab-chat.svg" width="14.5829" height="14.5833" alt=""></span>채팅</button>
+          <button class="tab" type="button" data-home="tab:MY"><span class="tab-icon"><img src="assets/home/tab-my.svg" width="20" height="20" alt=""></span>MY</button>
+        </div>
+        <div class="home-indicator" aria-hidden="true"><span></span></div>
+      </nav>
+
+    </section>
+
+    <!-- ============ 실시간 추천 피드 (Figma 5828:213493 '[실시간 추천 피드] 개인화 추천 사유 노출') ============ -->
+    <!-- 현재: 메인 '더보기'로 밀어 들어오는 화면(뒤로 가기 있음) / 바텀 탭: 탭 첫 화면(뒤로 가기 없음). 카드는 feed.js가 넣는다. -->
+    <section class="screen feed is-off" id="feed" aria-label="실시간 추천 알바">
+      <div class="feed-head">
+        <div class="feed-nav">
+          <button class="feed-back" id="feed-back" type="button" aria-label="뒤로"><img src="assets/feed/back.svg" width="24" height="24" alt=""></button>
+          <h2 class="feed-title">실시간 추천 알바</h2>
+        </div>
+        <div class="feed-filter">
+          <div class="feed-filter-row">
+            <button class="fchip fchip-loc" type="button" data-feed="chip:지역"><img src="assets/feed/chip-location.svg" width="16" height="16" alt=""><span>서초구 10km</span><img src="assets/feed/chip-chevron-selected.svg" width="16" height="16" alt=""></button>
+            <span class="fchip-sep" aria-hidden="true"></span>
+            <button class="fchip" type="button" data-feed="chip:하는일"><span>하는일</span><img src="assets/feed/chip-chevron.svg" width="16" height="16" alt=""></button>
+            <button class="fchip" type="button" data-feed="chip:일하는 기간"><span>일하는 기간</span><img src="assets/feed/chip-chevron.svg" width="16" height="16" alt=""></button>
+            <button class="fchip" type="button" data-feed="chip:일하는 요일"><span>일하는 요일</span><img src="assets/feed/chip-chevron.svg" width="16" height="16" alt=""></button>
+            <button class="fchip" type="button" data-feed="chip:일하는 시간"><span>일하는 시간</span><img src="assets/feed/chip-chevron.svg" width="16" height="16" alt=""></button>
+            <button class="fchip" type="button" data-feed="chip:키워드"><span>키워드</span><img src="assets/feed/chip-chevron.svg" width="16" height="16" alt=""></button>
+            <button class="fchip" type="button" data-feed="chip:초보 가능"><span>초보 가능</span></button>
+            <button class="fchip" type="button" data-feed="chip:브랜드 알바"><span>브랜드 알바</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="feed-scroll" id="feed-scroll">
+        <div class="feed-list" id="feed-list"></div>
+      </div>
+      <button class="feed-refresh" type="button" aria-label="새로운 알바 보기" data-feed="refresh"><img src="assets/feed/restart.svg" width="24" height="24" alt=""></button>
+    </section>
+
+  </div>
+
+  <!-- ============ A안 바텀 탭: 떠 있는 유리 탭 바 (tabbar.css · tabs.js) ============ -->
+  <!-- A안: 커뮤니티 자리(2번째)에 추천 / B안: 커뮤니티 그대로(body[data-feed]). 선택한 탭은 채운 아이콘 + 알약 배경. 아이콘은 모두 XDS Core 24px (Figma TabBar/Floating · A안) -->
+  <nav class="tabfloat" id="tabfloat" aria-label="탭바">
+    <span class="tf-pill" aria-hidden="true"></span>
+    <button class="tf-tab" type="button" data-tab="home" aria-current="page"><span class="tab-icon"><img class="ic-on" src="assets/tab/home-fill.svg" width="24" height="24" alt=""><img class="ic-off" src="assets/tab/home-line.svg" width="24" height="24" alt=""></span>홈</button>
+    <button class="tf-tab tf-rec" type="button" data-tab="feed"><span class="tab-icon"><img class="ic-on" src="assets/tab/rec-on.svg" width="24" height="24" alt=""><img class="ic-off" src="assets/tab/rec-off.svg" width="24" height="24" alt=""></span>추천</button>
+    <button class="tf-tab tf-community" type="button" data-tab="community"><span class="tab-icon"><img src="assets/tab/community-line.svg" width="24" height="24" alt=""></span>커뮤니티</button>
+    <button class="tf-tab" type="button" data-tab="map"><span class="tab-icon"><img src="assets/tab/map-pin-line.svg" width="24" height="24" alt=""></span>지도</button>
+    <button class="tf-tab" type="button" data-tab="chat"><span class="tab-icon"><img src="assets/tab/chat-line.svg" width="24" height="24" alt=""></span>채팅</button>
+    <button class="tf-tab" type="button" data-tab="my"><span class="tab-icon"><img src="assets/tab/person-line.svg" width="24" height="24" alt=""></span>MY</button>
+  </nav>
+  <!-- A안 추천 탭 툴팁 (레퍼런스: 어두운 알약 + 컬러 이모지 + 닫기). 이모지는 키워드에 맞춘 JAMS emoji-coffee(바리스타),
+       닫기 XDS interface/close, 꼬리 XDS Tooltip. tabs.js가 위치(추천 탭 가운데)·노출·사라짐을 정한다. -->
+  <div class="tf-tip" id="tf-tip" role="status">
+    <div class="tf-tip-float">
+      <div class="tf-tip-box">
+        <span class="tf-tip-emoji"><img src="assets/main/tooltip-coffee.svg" width="22" height="22" alt=""></span>
+        <span class="tf-tip-text">바리스타 새 추천 알바 6개</span>
+        <button class="tf-tip-close" id="tf-tip-close" type="button" aria-label="툴팁 닫기"><img src="assets/main/tooltip-close.svg" width="16" height="16" alt=""></button>
+      </div>
+      <img class="tf-tip-arrow" id="tf-tip-arrow" src="assets/main/tooltip-arrow.svg" width="14" height="7" alt="">
+    </div>
+  </div>
+  <div class="phone-indicator" aria-hidden="true"><span></span></div>
+
+  <!-- ============ 공고뷰 (4685:372142, 상단정보·근무조건·모집조건·근무지역·상세요강만) ============ -->
+  <section class="detail" id="detail" aria-label="채용정보" hidden>
+    <header class="dt-header">
+      <div class="dt-header-left">
+        <button class="dt-icon" id="detail-back" type="button" aria-label="뒤로"><img src="assets/detail/icon-back.svg" width="18.25" height="16.5" alt=""></button>
+        <h2 class="dt-header-title">채용정보</h2>
+      </div>
+      <div class="dt-header-right">
+        <button class="dt-icon" type="button" data-detail="capture" aria-label="캡처"><img src="assets/detail/icon-capture.svg" width="17.5" height="17.5" alt=""></button>
+        <button class="dt-icon" type="button" data-detail="folder" aria-label="스크랩함"><img src="assets/detail/icon-folder-plus.svg" width="24" height="24" alt=""><span class="dt-badge">2</span></button>
+        <button class="dt-icon" type="button" data-detail="share" aria-label="공유"><img src="assets/detail/icon-share.svg" width="18" height="18.12" alt=""></button>
+      </div>
+    </header>
+    <div class="dt-scroll" id="detail-scroll">
+      <div class="dt-top">
+        <p class="dt-posted" id="dt-posted"></p>
+        <div class="dt-title-block">
+          <h1 class="dt-title"><span id="dt-title"></span> <span class="dt-deadline" id="dt-deadline"></span></h1>
+          <div class="dt-company">
+            <span class="dt-logo" id="dt-logo" hidden><img alt=""></span>
+            <p class="dt-tags" id="dt-tags"></p>
+          </div>
+          <div class="dt-chips" id="dt-chips"></div>
+        </div>
+      </div>
+      <hr class="dt-divider">
+      <div class="dt-sections">
+        <section class="dt-sec" aria-labelledby="dt-cond-title">
+          <h3 class="dt-sec-title" id="dt-cond-title">근무조건</h3>
+          <dl class="dt-rows" id="dt-cond"></dl>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-recruit-title">
+          <h3 class="dt-sec-title" id="dt-recruit-title">모집조건</h3>
+          <dl class="dt-rows" id="dt-recruit"></dl>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-place-title">
+          <h3 class="dt-sec-title" id="dt-place-title">근무지역</h3>
+          <div class="dt-place">
+            <p class="dt-address"><span id="dt-address"></span><button class="dt-copy" type="button" data-detail="copy">복사</button></p>
+            <button class="dt-map" id="dt-map" type="button" data-detail="map">
+              <img class="dt-map-bg" src="assets/detail/map-strip.png" width="1280" height="280" alt="">
+              <span class="dt-map-btn">
+                <span class="dt-pin"><img src="assets/detail/icon-pin.svg" width="16" height="18" alt=""></span>
+                근무지 지도 보기
+                <img src="assets/detail/icon-arrow-right.svg" width="20" height="20" alt="">
+              </span>
+            </button>
+          </div>
+        </section>
+        <hr class="dt-line">
+        <section class="dt-sec" aria-labelledby="dt-desc-title">
+          <h3 class="dt-sec-title" id="dt-desc-title">상세요강</h3>
+          <div class="dt-desc" id="dt-desc"></div>
+        </section>
+      </div>
+    </div>
+    <div class="dt-bottom">
+      <div class="dt-bottom-bar">
+        <button class="dt-icon" type="button" data-detail="scrap" aria-label="스크랩"><img src="assets/detail/icon-scrap.svg" width="19.5" height="18.5" alt=""></button>
+        <button class="dt-apply" id="detail-apply" type="button">지원하기</button>
+      </div>
+      <div class="dt-indicator" aria-hidden="true"><span></span></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 시안 설명 (PC 전용 · guide.js) ============ -->
+<!-- 공개 페이지라 내부 수치·Figma 링크는 넣지 않는다. 근거 수치는 사용자 노션 문서에 있다. -->
+<aside class="policy" id="guide" aria-label="시안 설명">
+  <header class="pol-head">
+    <h2 class="pol-title">시안 설명</h2>
+    <p class="pol-meta">메인 진입점 개선 · 2026.11.18 정리</p>
+  </header>
+  <div class="pol-list">
+
+    <details class="pol-sec" data-pol="overview" open>
+      <summary><span class="pol-step">목적</span><span class="pol-name">왜 피드 진입점인가</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>실시간 추천 피드는 메인에서 들어가는 길 중 <b>공고 조회·지원으로 가장 많이 이어진다</b>. 한 번 들어가면 공고를 여러 개 본다.</li>
+          <li>그런데 <b>메인에서 피드로 들어가는 사람은 적다</b>. 지금 입구는 상단 카드 아래 연한 '더보기' 버튼 하나다.</li>
+          <li>같은 사람끼리 비교해도 피드의 지원 전환이 높아, 원래 지원을 많이 하는 사람이 몰려서 생긴 차이만은 아니다.</li>
+          <li>그래서 이번 메인 개선은 <b>피드로 들어가는 길을 넓히는 것</b>을 목표로 두고 시안을 비교한다.</li>
+        </ul>
+        <p class="pol-note">노출을 늘리면 가볍게 들어오는 사람이 섞여 피드 전환 평균은 내려갈 수 있다. 시안 효과는 실험으로 확인한다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="asis">
+      <summary><span class="pol-step">현재</span><span class="pol-name">운영 중인 메인</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li>상단 추천 카드(5장 × 공고 3개)를 좌우로 넘기고, 그 아래 '실시간 추천 알바 더보기'로 피드에 들어간다.</li>
+          <li>상단 카드와 피드는 <b>서로 다른 로직</b>의 공고를 보여준다. 그래서 '더보기'가 카드의 연장으로 읽히지 않고, 카드를 누른 사람 중 더보기까지 가는 사람이 적다.</li>
+          <li>바텀 탭: 홈 · 커뮤니티 · 지도 · 채팅 · MY</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="a">
+      <summary><span class="pol-step">A안</span><span class="pol-name">바텀 탭에 추천</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: 바텀 탭 2번째(커뮤니티 자리)에 '추천' 탭을 두고, 떠 있는 유리 탭 바(iOS 26 스타일)로 바꾼다. 메인 '더보기'도 추천 탭으로 간다.</li>
+          <li><b>툴팁</b>: 메인에서 추천 탭 위에 알약형 툴팁(키워드에 맞는 이모지 + 최근 검색 키워드 + 개수, 예: 바리스타 → 커피)으로 새 추천을 알린다. 탭에서 튀어나와 천천히 떠 있고, 닫거나 추천 탭에 들어가면 사라진다.</li>
+          <li><b>왜</b>: 어느 화면에서든 한 번에 피드로 갈 수 있다.
+            <ul>
+              <li>커뮤니티 탭은 바텀 탭 중 사용도 공고 전환도 가장 낮다.</li>
+              <li>커뮤니티 이용자는 메인의 커뮤니티 섹션으로 더 많이 들어온다. 탭을 빼도 커뮤니티 이용은 남는다.</li>
+              <li>채팅은 지원 뒤 사장님 연락을 받는 곳이라 빼지 않는다.</li>
+              <li>새로 생긴 탭은 눈에 잘 띄지 않는다. 툴팁으로 '나에게 맞는 새 공고가 왔다'고 알려 첫 진입을 돕는다.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>커뮤니티 글쓴이는 대부분 바텀 탭을 거쳐 들어온다. 글 작성이 줄지 본다.</li>
+              <li>툴팁이 자주 뜨면 무시된다. 노출 조건(예: 새 추천이 있을 때 하루 한 번)을 정해야 한다.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="b">
+      <summary><span class="pol-step">B안</span><span class="pol-name">메인에서 피드 미리보기</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: 상단 추천 카드와 '더보기' 자리에 피드 공고를 2개씩 묶어 가로로 넘기는 미리보기와 '실시간 추천 알바 더 보기' 버튼을 둔다. 미리보기 맨 끝에는 다음 공고를 넘기는 방향(오른쪽)으로 흐리게 보여주는 '이어서 보기' 카드가 있다(누르면 피드 7번째 공고부터). 퀵메뉴는 카드형이다.</li>
+          <li><b>바텀 탭</b>: 모양만 A안처럼 바꾸고 <b>커뮤니티는 그대로</b> 둔다(추천 탭 없음). 피드는 지금처럼 밀려 들어오는 화면으로 연다.</li>
+          <li><b>왜</b>: 바텀 탭만 바꿔서는 진입이 바로 늘지 않을 수 있어, 메인 첫 화면에서 피드로 이끈다.
+            <ul>
+              <li>미리보기에 <b>피드와 같은 공고·같은 순서·같은 카드</b>를 보여줘 '이어서 더 보기'가 자연스럽다.</li>
+              <li>카드에 <b>추천 사유</b>(최근 검색·지원과 비슷)를 붙여, 왜 나에게 추천했는지 보여주고 더 볼 이유를 만든다.</li>
+              <li>버튼을 눈에 띄는 주황 버튼으로 키운다. 지금 '더보기'는 연한 텍스트 버튼이다.</li>
+              <li>지금 상단 카드도 넘겨 보는 사람이 많아 가로로 넘기는 방식은 익숙하다. 다만 2장째에서 크게 줄고 그 뒤로는 조금씩 줄어, 미리보기는 <b>3묶음(공고 6개)</b>으로 짧게 두고 피드로 넘긴다.</li>
+              <li>끝까지 넘기는 사람은 가장 관심이 높은 사람이다. 버튼을 하나 더 두는 대신 <b>실제 다음 공고를 흐리게 보여줘</b> '이어서 볼 게 있다'고 알리고, 본 데 이어서 피드로 잇는다. 아래 버튼과 역할이 겹치지 않는다.</li>
+              <li>바텀 탭·메인 버튼·공고 카드에 모두 입구를 두면 경로가 겹친다. B안은 <b>입구를 메인으로 모은다</b>.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>상단에 보이는 공고가 줄어, 피드로 넘어가지 않는 사람의 공고 클릭이 줄 수 있다.</li>
+              <li>지금 상단 카드에는 광고 공고가 섞인다. 미리보기에 광고를 섞을지 정해야 한다.</li>
+              <li>미리보기와 버튼이 첫 화면 절반을 차지해 퀵메뉴가 조금 아래로 내려간다.</li>
+            </ul>
+          </li>
+        </ul>
+        <p class="pol-note">A안은 바텀 탭으로, B안은 메인으로 입구를 하나씩 넓힌다. 현재와 비교해 어느 입구가 피드 진입을 더 늘리는지 따로 볼 수 있다(탭 바 모양 변경은 두 안 공통). 주요 지표는 피드 진입, 메인 이용자당 공고 조회·지원이고, 상단 공고 클릭·광고 클릭·커뮤니티 이용을 함께 본다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="c">
+      <summary><span class="pol-step">C안</span><span class="pol-name">추천 탭 + 피드 미리보기</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: A안과 B안을 합친 안. 메인은 B안(피드 미리보기 + '더 보기' 버튼 + '이어서 보기' 카드 · 카드형 퀵메뉴), 바텀 탭은 A안(커뮤니티 자리에 '추천' 탭)이다. 툴팁은 띄우지 않는다.</li>
+          <li><b>이동</b>: '더 보기'·'이어서 보기'를 누르면 피드를 따로 띄우지 않고 추천 탭으로 간다. 메인에서 본 미리보기와 추천 탭이 같은 피드라는 것이 자연스럽게 이어진다.</li>
+          <li><b>왜</b>: 메인 첫 화면(미리보기)과 어느 화면에서나 닿는 바텀 탭, 두 입구를 모두 넓힌다.
+            <ul>
+              <li>처음 B안 초안이 이 조합이었다. B안은 경로가 겹친다는 우려로 탭을 뺐고, 이 안은 두 입구를 다 열었을 때를 비교하려고 따로 둔다.</li>
+              <li>A안·B안과 나란히 보면 진입이 늘어난 것이 바텀 탭 덕인지 메인 미리보기 덕인지, 둘을 합치면 더 늘어나는지 가늠할 수 있다.</li>
+              <li>메인에 미리보기·버튼·이어서 보기가 이미 있어, 툴팁까지 띄우면 같은 말을 반복하게 된다. 새 탭은 메인에서 들어간 경험으로 알게 한다.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>바텀 탭·미리보기·버튼·이어서 보기까지 피드 입구가 한 화면에 여럿이다. 복잡하거나 같은 말을 반복한다고 느끼지 않는지 본다.</li>
+              <li>A안의 커뮤니티 글 작성, B안의 상단 공고 클릭 변화를 모두 함께 살펴야 한다.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="d">
+      <summary><span class="pol-step">D안</span><span class="pol-name">헤더 아래 칩 탭</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: 헤더 바로 아래에 칩 탭 '홈 · 실시간 추천 알바'와 바로가기 '최근 본 · 스크랩'을 한 줄로 둔다. '실시간 추천 알바'를 누르면 같은 자리에서 피드로 바뀌고, 최근 본·스크랩은 다른 화면으로 가는 바로가기(↗)다. 상단 추천 카드와 '더보기'는 빼서 퀵메뉴부터 시작한다. 바텀 탭(커뮤니티)은 그대로다.</li>
+          <li><b>탭은 위에 붙지 않는다</b>: 헤더와 공통 필터가 이미 위에 붙어서, 탭까지 붙이면 위가 너무 두꺼워진다. 내리면 탭은 함께 올라가 사라진다.</li>
+          <li><b>왜</b>: 메인을 열자마자 맨 위에서 '추천 피드가 홈과 나란한 화면'이라는 걸 보여준다.
+            <ul>
+              <li>A안과 같은 '추천 탭'을 위치만 바꾼 안이다. A안과 견주면 입구를 위에 둘지 아래에 둘지 볼 수 있다.</li>
+              <li>바텀 탭 구성을 바꾸지 않아 커뮤니티 이용에 영향이 없다.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>내리면 탭이 사라져, 메인 아래쪽에서는 다시 맨 위로 올라와야 피드로 갈 수 있다.</li>
+              <li>같은 줄에 화면이 바뀌는 탭(홈·실시간 추천 알바)과 다른 화면으로 가는 바로가기(최근 본·스크랩)가 섞여 있다. 화살표만으로 둘이 구분되는지 본다.</li>
+              <li>상단 추천 카드가 빠져, 메인에서 피드 공고를 미리 볼 곳이 없다. 칩 이름만 보고 들어가게 된다.</li>
+              <li>추천 탭에서 헤더의 지역(서울 전체)과 피드의 지역 칩(구 단위 + 반경)이 한 화면에 같이 보인다. 지역 기준을 하나로 맞출지 정해야 한다.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+  </div>
+  <p class="pol-foot">근거: 앱 메인·피드 이용 로그(2026년 11월 2주차). 수치는 내부 문서에 정리했다.</p>
+</aside>
+
+</div>
+
+<button class="cmp-fab" id="cmp-fab" type="button" aria-expanded="false" aria-controls="cmp-sheet"></button>
+<button class="cmp-backdrop" id="cmp-backdrop" type="button" tabindex="-1" aria-label="시안 선택 닫기"></button>
+<div class="cmp-sheet" id="cmp-sheet" role="dialog" aria-label="메인 진입점 시안">
+  <div class="cmp-sheet-head"><span>메인 진입점 시안</span><button class="cmp-close" id="cmp-close" type="button" aria-label="닫기">×</button></div>
+  <div class="cmp-options" role="tablist">
+    <button type="button" role="tab" data-ver-pick="asis"><strong>현재</strong><span>홈 · 커뮤니티 · 지도 · 채팅 · MY</span></button>
+    <button type="button" role="tab" data-ver-pick="a"><strong>A · 바텀 탭</strong><span>커뮤니티 자리에 추천 탭 · 떠 있는 유리 탭 바</span></button>
+    <button type="button" role="tab" data-ver-pick="b"><strong>B · 추천 카드</strong><span>피드 공고 미리보기 + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지</span></button>
+    <button type="button" role="tab" data-ver-pick="c"><strong>C · 탭 + 카드</strong><span>B안 메인 + A안 바텀 추천 탭(툴팁 없음)</span></button>
+    <button type="button" role="tab" data-ver-pick="d"><strong>D · 상단 탭</strong><span>헤더 아래 홈 · 추천 탭 · 바텀 탭은 커뮤니티 유지</span></button>
+  </div>
+</div>
+
+<script src="app.js?v=20261118-5"></script>
+<script src="jobs.js?v=20261118-5"></script>
+<script src="detail.js?v=20261118-5"></script>
+<script src="home.js?v=20261118-5"></script>
+<script src="feed.js?v=20261118-5"></script>
+<script src="tabs.js?v=20261118-5"></script>
+<script src="compare.js?v=20261118-5"></script>
+<script src="toptabs.js?v=20261118-5"></script>
+<script src="guide.js?v=20261118-5"></script>
+</body>
+</html>
