@@ -114,12 +114,14 @@ body[data-feed="tab"] .feed-back{display:none;}
 }
 
 /* ---- 카드 (개선안) ---- */
+/* 여백: 위아래 16 · 좌우 20 · 머리와 정보 사이 6 · 정보 줄 사이 0 → 높이 144
+   (알바몬 디자이너 논의로 카드 높이를 줄임, Figma AMX Draft 177:28071 · 사용자 2026-11-18. 이전 20/8/2 → 162) */
 .fcard{
   position:relative;
   display:flex;
   flex-direction:column;
-  gap:8px;
-  padding:20px;
+  gap:6px;
+  padding:16px 20px;
   border-radius:16px;
   background:var(--fill-default);
   cursor:pointer;
@@ -166,7 +168,7 @@ body[data-feed="tab"] .feed-back{display:none;}
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.fc-info{display:flex; flex-direction:column; gap:2px;}
+.fc-info{display:flex; flex-direction:column; gap:0;}
 .fc-row{
   display:flex;
   align-items:center;

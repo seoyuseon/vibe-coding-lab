@@ -12,14 +12,14 @@
 <meta name="format-detection" content="telephone=no">
 <title>알바몬 - 메인 진입점</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261118-5">
-<link rel="stylesheet" href="home.css?v=20261118-5">
-<link rel="stylesheet" href="feed.css?v=20261118-5">
-<link rel="stylesheet" href="tabbar.css?v=20261118-5">
-<link rel="stylesheet" href="toptabs.css?v=20261118-5">
-<link rel="stylesheet" href="detail.css?v=20261118-5">
-<link rel="stylesheet" href="compare.css?v=20261118-5">
-<link rel="stylesheet" href="guide.css?v=20261118-5">
+<link rel="stylesheet" href="style.css?v=20261118-6">
+<link rel="stylesheet" href="home.css?v=20261118-6">
+<link rel="stylesheet" href="feed.css?v=20261118-6">
+<link rel="stylesheet" href="tabbar.css?v=20261118-6">
+<link rel="stylesheet" href="toptabs.css?v=20261118-6">
+<link rel="stylesheet" href="detail.css?v=20261118-6">
+<link rel="stylesheet" href="compare.css?v=20261118-6">
+<link rel="stylesheet" href="guide.css?v=20261118-6">
 </head>
 <body>
 
@@ -30,9 +30,11 @@
   <div class="cmp-switch" role="tablist">
     <button type="button" role="tab" data-ver-pick="asis" title="홈 · 커뮤니티 · 지도 · 채팅 · MY">현재</button>
     <button type="button" role="tab" data-ver-pick="a" title="커뮤니티 자리에 추천 탭 · 떠 있는 유리 탭 바">A · 바텀 탭</button>
-    <button type="button" role="tab" data-ver-pick="b" title="피드 공고 미리보기(가로로 넘김) + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지">B · 추천 카드</button>
+    <button type="button" role="tab" data-ver-pick="b" title="피드 공고 미리보기(가로로 넘김) + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지">B-1 · 추천 카드</button>
+    <button type="button" role="tab" data-ver-pick="b2" title="B-1과 같고 미리보기 카드에서 근무 요일·시간을 뺀 축약 카드">B-2 · 축약 카드</button>
     <button type="button" role="tab" data-ver-pick="c" title="B안 메인 + A안 바텀 추천 탭(툴팁 없음)">C · 탭 + 카드</button>
-    <button type="button" role="tab" data-ver-pick="d" title="헤더 아래 홈 · 추천 탭 · 바텀 탭은 커뮤니티 유지">D · 상단 탭</button>
+    <button type="button" role="tab" data-ver-pick="d" title="헤더 아래 홈 · 실시간 추천 알바 칩 탭 · 바텀 탭은 커뮤니티 유지">D · 상단 탭</button>
+    <button type="button" role="tab" data-ver-pick="dplus" title="D안 칩 줄에 최근 본 · 스크랩 바로가기까지">D+ · 바로가기</button>
   </div>
 </div>
 
@@ -81,15 +83,15 @@
             <div class="d-tabs-row" role="tablist">
               <button class="d-tab" type="button" role="tab" data-dtab="home" aria-selected="true">홈</button>
               <button class="d-tab" type="button" role="tab" data-dtab="rec" aria-selected="false">실시간 추천 알바</button>
-              <button class="d-tab" type="button" data-home="dtab:최근 본">최근 본<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
-              <button class="d-tab" type="button" data-home="dtab:스크랩">스크랩<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
+              <button class="d-tab d-tab-link" type="button" data-home="dtab:최근 본">최근 본<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
+              <button class="d-tab d-tab-link" type="button" data-home="dtab:스크랩">스크랩<img src="assets/main/tab-arrow-right-up.svg" width="16" height="16" alt=""></button>
             </div>
           </nav>
 
           <!-- 홈 패널: 메인 내용 전부. D안 추천 탭에서만 접는다(toptabs.css) -->
           <div class="dp dp-home" data-panel="home">
 
-          <!-- B안 (Figma 177:28071): 피드 공고 미리보기(2개씩 묶어 가로로 넘김) + 더 보기 버튼. 상단 카드·더보기 대신 보인다(body[data-ver="b"]) -->
+          <!-- B·C안 (Figma 177:28071 · B-2 206:45106): 피드 공고 미리보기(2개씩 2묶음 가로로 넘김) + 더 보기 버튼. 상단 카드·더보기 대신 보인다(body[data-main="card"]) -->
           <div class="b-preview" aria-label="실시간 추천 알바">
             <div class="b-scroll" id="b-scroll"><div class="b-pages" id="b-pages"></div></div>
             <button class="b-more" id="b-more" type="button">실시간 추천 알바 더 보기<img src="assets/main/more-chevron-white.svg" width="20" height="20" alt=""></button>
@@ -300,6 +302,7 @@
           <li>그런데 <b>메인에서 피드로 들어가는 사람은 적다</b>. 지금 입구는 상단 카드 아래 연한 '더보기' 버튼 하나다.</li>
           <li>같은 사람끼리 비교해도 피드의 지원 전환이 높아, 원래 지원을 많이 하는 사람이 몰려서 생긴 차이만은 아니다.</li>
           <li>그래서 이번 메인 개선은 <b>피드로 들어가는 길을 넓히는 것</b>을 목표로 두고 시안을 비교한다.</li>
+          <li><b>바텀 탭 모양은 A~D안 모두 의도적으로 바꿨다</b>. 화면 아래에 붙은 막대 대신 요즘 앱처럼 떠 있는 둥근 탭 바로 바꾸고, 탭 바 뒤와 양옆으로 화면이 비쳐 보이게 해 아래쪽을 시원하게 했다. 탭 구성(추천·커뮤니티)은 시안마다 다르다.</li>
         </ul>
         <p class="pol-note">노출을 늘리면 가볍게 들어오는 사람이 섞여 피드 전환 평균은 내려갈 수 있다. 시안 효과는 실험으로 확인한다.</p>
       </div>
@@ -341,17 +344,17 @@
     </details>
 
     <details class="pol-sec" data-pol="b">
-      <summary><span class="pol-step">B안</span><span class="pol-name">메인에서 피드 미리보기</span></summary>
+      <summary><span class="pol-step">B-1안</span><span class="pol-name">메인에서 피드 미리보기</span></summary>
       <div class="pol-body">
         <ul>
-          <li><b>무엇</b>: 상단 추천 카드와 '더보기' 자리에 피드 공고를 2개씩 묶어 가로로 넘기는 미리보기와 '실시간 추천 알바 더 보기' 버튼을 둔다. 미리보기 맨 끝에는 다음 공고를 넘기는 방향(오른쪽)으로 흐리게 보여주는 '이어서 보기' 카드가 있다(누르면 피드 7번째 공고부터). 퀵메뉴는 카드형이다.</li>
+          <li><b>무엇</b>: 상단 추천 카드와 '더보기' 자리에 피드 공고를 2개씩 묶어 가로로 넘기는 미리보기(2묶음, 공고 4개)와 '실시간 추천 알바 더 보기' 버튼을 둔다. 미리보기 맨 끝에는 다음 공고를 넘기는 방향(오른쪽)으로 흐리게 보여주는 '이어서 보기' 카드가 있다(누르면 피드 5번째 공고부터). 퀵메뉴는 카드형이다.</li>
           <li><b>바텀 탭</b>: 모양만 A안처럼 바꾸고 <b>커뮤니티는 그대로</b> 둔다(추천 탭 없음). 피드는 지금처럼 밀려 들어오는 화면으로 연다.</li>
           <li><b>왜</b>: 바텀 탭만 바꿔서는 진입이 바로 늘지 않을 수 있어, 메인 첫 화면에서 피드로 이끈다.
             <ul>
               <li>미리보기에 <b>피드와 같은 공고·같은 순서·같은 카드</b>를 보여줘 '이어서 더 보기'가 자연스럽다.</li>
               <li>카드에 <b>추천 사유</b>(최근 검색·지원과 비슷)를 붙여, 왜 나에게 추천했는지 보여주고 더 볼 이유를 만든다.</li>
               <li>버튼을 눈에 띄는 주황 버튼으로 키운다. 지금 '더보기'는 연한 텍스트 버튼이다.</li>
-              <li>지금 상단 카드도 넘겨 보는 사람이 많아 가로로 넘기는 방식은 익숙하다. 다만 2장째에서 크게 줄고 그 뒤로는 조금씩 줄어, 미리보기는 <b>3묶음(공고 6개)</b>으로 짧게 두고 피드로 넘긴다.</li>
+              <li>지금 상단 카드도 넘겨 보는 사람이 많아 가로로 넘기는 방식은 익숙하다. 다만 2장째에서 크게 줄고, 피드에서도 첫 화면(공고 4개쯤)만 보고 바로 나가는 사람이 많다. 그래서 미리보기는 <b>2묶음(공고 4개)</b>으로 짧게 두고 피드로 넘긴다.</li>
               <li>끝까지 넘기는 사람은 가장 관심이 높은 사람이다. 버튼을 하나 더 두는 대신 <b>실제 다음 공고를 흐리게 보여줘</b> '이어서 볼 게 있다'고 알리고, 본 데 이어서 피드로 잇는다. 아래 버튼과 역할이 겹치지 않는다.</li>
               <li>바텀 탭·메인 버튼·공고 카드에 모두 입구를 두면 경로가 겹친다. B안은 <b>입구를 메인으로 모은다</b>.</li>
             </ul>
@@ -364,7 +367,28 @@
             </ul>
           </li>
         </ul>
-        <p class="pol-note">A안은 바텀 탭으로, B안은 메인으로 입구를 하나씩 넓힌다. 현재와 비교해 어느 입구가 피드 진입을 더 늘리는지 따로 볼 수 있다(탭 바 모양 변경은 두 안 공통). 주요 지표는 피드 진입, 메인 이용자당 공고 조회·지원이고, 상단 공고 클릭·광고 클릭·커뮤니티 이용을 함께 본다.</p>
+        <p class="pol-note">A안은 바텀 탭으로, B안(B-1·B-2)은 메인으로 입구를 하나씩 넓힌다. 현재와 비교해 어느 입구가 피드 진입을 더 늘리는지 따로 볼 수 있다(탭 바 모양 변경은 두 안 공통). 주요 지표는 피드 진입, 메인 이용자당 공고 조회·지원이고, 상단 공고 클릭·광고 클릭·커뮤니티 이용을 함께 본다.</p>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="b2">
+      <summary><span class="pol-step">B-2안</span><span class="pol-name">축약 카드 미리보기</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: B-1안과 같고, 미리보기 카드에서 <b>근무 요일·시간 줄만 뺀</b> 축약 카드를 쓴다. 카드가 낮아진 만큼 퀵메뉴가 올라온다. 추천 사유는 B-1안과 같게 두고, 피드에 들어가면 카드는 원래대로다.</li>
+          <li><b>왜</b>: 메인 미리보기는 핵심만 보여주고 자세한 건 피드와 공고에서 보게 한다.
+            <ul>
+              <li>지금 상단 추천 카드처럼 공고를 줄여 보여주는 방식도 성과가 있었다. 가볍게 훑고 넘기기 쉽다.</li>
+              <li>B-1안과 카드 한 줄만 다르게 두어, 카드 정보량이 피드 진입과 공고 조회에 주는 영향을 따로 본다.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>근무 요일·시간은 알바를 고를 때 중요한 조건이다(공통 필터에도 있다). 빠지면 공고를 눌러 봐야 알 수 있어, 공고 조회는 늘어도 고르기는 어려워질 수 있다.</li>
+              <li>미리보기 카드와 피드 카드 모양이 달라, 이어서 볼 때 같은 목록이라는 느낌이 약해질 수 있다.</li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </details>
 
@@ -372,7 +396,7 @@
       <summary><span class="pol-step">C안</span><span class="pol-name">추천 탭 + 피드 미리보기</span></summary>
       <div class="pol-body">
         <ul>
-          <li><b>무엇</b>: A안과 B안을 합친 안. 메인은 B안(피드 미리보기 + '더 보기' 버튼 + '이어서 보기' 카드 · 카드형 퀵메뉴), 바텀 탭은 A안(커뮤니티 자리에 '추천' 탭)이다. 툴팁은 띄우지 않는다.</li>
+          <li><b>무엇</b>: A안과 B안을 합친 안. 메인은 B-1안(피드 미리보기 + '더 보기' 버튼 + '이어서 보기' 카드 · 카드형 퀵메뉴), 바텀 탭은 A안(커뮤니티 자리에 '추천' 탭)이다. 툴팁은 띄우지 않는다.</li>
           <li><b>이동</b>: '더 보기'·'이어서 보기'를 누르면 피드를 따로 띄우지 않고 추천 탭으로 간다. 메인에서 본 미리보기와 추천 탭이 같은 피드라는 것이 자연스럽게 이어진다.</li>
           <li><b>왜</b>: 메인 첫 화면(미리보기)과 어느 화면에서나 닿는 바텀 탭, 두 입구를 모두 넓힌다.
             <ul>
@@ -395,20 +419,40 @@
       <summary><span class="pol-step">D안</span><span class="pol-name">헤더 아래 칩 탭</span></summary>
       <div class="pol-body">
         <ul>
-          <li><b>무엇</b>: 헤더 바로 아래에 칩 탭 '홈 · 실시간 추천 알바'와 바로가기 '최근 본 · 스크랩'을 한 줄로 둔다. '실시간 추천 알바'를 누르면 같은 자리에서 피드로 바뀌고, 최근 본·스크랩은 다른 화면으로 가는 바로가기(↗)다. 상단 추천 카드와 '더보기'는 빼서 퀵메뉴부터 시작한다. 바텀 탭(커뮤니티)은 그대로다.</li>
+          <li><b>무엇</b>: 헤더 바로 아래에 칩 탭 '홈 · 실시간 추천 알바'를 둔다. '실시간 추천 알바'를 누르면 같은 자리에서 피드로 바뀐다. 상단 추천 카드와 '더보기'는 빼서 퀵메뉴부터 시작한다. 바텀 탭(커뮤니티)은 그대로다.</li>
           <li><b>탭은 위에 붙지 않는다</b>: 헤더와 공통 필터가 이미 위에 붙어서, 탭까지 붙이면 위가 너무 두꺼워진다. 내리면 탭은 함께 올라가 사라진다.</li>
           <li><b>왜</b>: 메인을 열자마자 맨 위에서 '추천 피드가 홈과 나란한 화면'이라는 걸 보여준다.
             <ul>
               <li>A안과 같은 '추천 탭'을 위치만 바꾼 안이다. A안과 견주면 입구를 위에 둘지 아래에 둘지 볼 수 있다.</li>
               <li>바텀 탭 구성을 바꾸지 않아 커뮤니티 이용에 영향이 없다.</li>
+              <li>바로가기(최근 본·스크랩)는 넣지 않았다. 입구 위치의 효과만 보려고 D+안으로 따로 뺐다.</li>
             </ul>
           </li>
           <li><b>살필 것</b>
             <ul>
               <li>내리면 탭이 사라져, 메인 아래쪽에서는 다시 맨 위로 올라와야 피드로 갈 수 있다.</li>
-              <li>같은 줄에 화면이 바뀌는 탭(홈·실시간 추천 알바)과 다른 화면으로 가는 바로가기(최근 본·스크랩)가 섞여 있다. 화살표만으로 둘이 구분되는지 본다.</li>
               <li>상단 추천 카드가 빠져, 메인에서 피드 공고를 미리 볼 곳이 없다. 칩 이름만 보고 들어가게 된다.</li>
               <li>추천 탭에서 헤더의 지역(서울 전체)과 피드의 지역 칩(구 단위 + 반경)이 한 화면에 같이 보인다. 지역 기준을 하나로 맞출지 정해야 한다.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="pol-sec" data-pol="dplus">
+      <summary><span class="pol-step">D+안</span><span class="pol-name">칩 탭 + 바로가기</span></summary>
+      <div class="pol-body">
+        <ul>
+          <li><b>무엇</b>: D안 칩 줄에 바로가기 '최근 본 ↗ · 스크랩 ↗'까지 한 줄로 둔다. 바로가기는 다른 화면으로 간다(프로토타입에서는 동작 없음). 나머지는 D안과 같다.</li>
+          <li><b>왜</b>: 칩 줄을 '내 탐색 바로가기' 줄로 키우는 방향이다. 다시 찾는 공고(최근 본·스크랩)를 메인 맨 위에서 바로 연다.
+            <ul>
+              <li>D안과 따로 두는 이유: 바로가기로 빠지는 사람이 생기면, 피드 진입이 바뀌어도 칩 탭 때문인지 바로가기로 흩어져서인지 나눠 보기 어렵다. 진입점 실험은 D안으로 보고, 이 방향은 따로 키운다.</li>
+            </ul>
+          </li>
+          <li><b>살필 것</b>
+            <ul>
+              <li>같은 줄에 화면이 바뀌는 탭(홈·실시간 추천 알바)과 다른 화면으로 가는 바로가기(최근 본·스크랩)가 섞여 있다. 화살표만으로 둘이 구분되는지 본다.</li>
+              <li>바로가기를 더 둘지(지원 현황·최근 검색 등), 무엇을 어떤 순서로 둘지 정해야 한다.</li>
             </ul>
           </li>
         </ul>
@@ -428,20 +472,22 @@
   <div class="cmp-options" role="tablist">
     <button type="button" role="tab" data-ver-pick="asis"><strong>현재</strong><span>홈 · 커뮤니티 · 지도 · 채팅 · MY</span></button>
     <button type="button" role="tab" data-ver-pick="a"><strong>A · 바텀 탭</strong><span>커뮤니티 자리에 추천 탭 · 떠 있는 유리 탭 바</span></button>
-    <button type="button" role="tab" data-ver-pick="b"><strong>B · 추천 카드</strong><span>피드 공고 미리보기 + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지</span></button>
+    <button type="button" role="tab" data-ver-pick="b"><strong>B-1 · 추천 카드</strong><span>피드 공고 미리보기 + 더 보기 버튼 · 바텀 탭은 커뮤니티 유지</span></button>
+    <button type="button" role="tab" data-ver-pick="b2"><strong>B-2 · 축약 카드</strong><span>B-1과 같고 미리보기 카드에서 근무 요일·시간을 뺌</span></button>
     <button type="button" role="tab" data-ver-pick="c"><strong>C · 탭 + 카드</strong><span>B안 메인 + A안 바텀 추천 탭(툴팁 없음)</span></button>
-    <button type="button" role="tab" data-ver-pick="d"><strong>D · 상단 탭</strong><span>헤더 아래 홈 · 추천 탭 · 바텀 탭은 커뮤니티 유지</span></button>
+    <button type="button" role="tab" data-ver-pick="d"><strong>D · 상단 탭</strong><span>헤더 아래 홈 · 실시간 추천 알바 칩 탭 · 바텀 탭은 커뮤니티 유지</span></button>
+    <button type="button" role="tab" data-ver-pick="dplus"><strong>D+ · 상단 탭 + 바로가기</strong><span>D안 칩 줄에 최근 본 · 스크랩 바로가기까지</span></button>
   </div>
 </div>
 
-<script src="app.js?v=20261118-5"></script>
-<script src="jobs.js?v=20261118-5"></script>
-<script src="detail.js?v=20261118-5"></script>
-<script src="home.js?v=20261118-5"></script>
-<script src="feed.js?v=20261118-5"></script>
-<script src="tabs.js?v=20261118-5"></script>
-<script src="compare.js?v=20261118-5"></script>
-<script src="toptabs.js?v=20261118-5"></script>
-<script src="guide.js?v=20261118-5"></script>
+<script src="app.js?v=20261118-6"></script>
+<script src="jobs.js?v=20261118-6"></script>
+<script src="detail.js?v=20261118-6"></script>
+<script src="home.js?v=20261118-6"></script>
+<script src="feed.js?v=20261118-6"></script>
+<script src="tabs.js?v=20261118-6"></script>
+<script src="compare.js?v=20261118-6"></script>
+<script src="toptabs.js?v=20261118-6"></script>
+<script src="guide.js?v=20261118-6"></script>
 </body>
 </html>

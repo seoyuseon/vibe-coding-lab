@@ -3,9 +3,11 @@
    칩: 높이 40 · 칩 사이 8 · 안쪽 0 12 · 둥근 끝 · 15px Medium(Body/sm/medium) · 아이콘 16(사이 4)
    · 고른 칩 Fill/Element/surface-inverse #30363C + 흰 글자 · 나머지 Fill/Element/surface #F4F6F7 + #131618.
    '홈'은 Figma대로 폭 44. 최근 본·스크랩은 다른 화면으로 가는 바로가기(↗)라 탭으로 바뀌지 않는다(동작 없음).
+   D안(?ver=d)은 '홈 · 실시간 추천 알바' 두 칩만, D+안(?ver=dplus)은 바로가기까지 보인다(실험 지표를 나눠 보려고 분리 · 사용자 2026-11-18).
+   둘 다 body[data-feed="top"]으로 고른다.
    위에 붙지 않는다(sticky 아님): 운영 메인은 헤더와 공통 필터가 위에 붙어서 탭까지 붙일 수 없다(사용자 2026-11-18). */
 .d-tabs{display:none;}
-body[data-ver="d"] .d-tabs{
+body[data-feed="top"] .d-tabs{
   display:block;
   position:relative;
   z-index:1;
@@ -37,22 +39,24 @@ body[data-ver="d"] .d-tabs{
 .d-tab[data-dtab="home"]{min-width:44px;}
 .d-tab[aria-selected="true"]{background:var(--fill-surface-inverse); color:#fff;}
 .d-tab img{flex:none;}
+.d-tab-link{display:none;}
+body[data-ver="dplus"] .d-tab-link{display:flex;}
 
 /* ---- D안 홈: 운영 메인에서 상단 추천 카드·'더보기'·분홍 배경을 빼고, 위쪽(헤더~필터)은 흰 바탕 ---- */
-body[data-ver="d"] .home-bg,
-body[data-ver="d"] .top-rec,
-body[data-ver="d"] .rec-more{display:none;}
-body[data-ver="d"] .home-header{background:#fff;}
-body[data-ver="d"] .home-sheet{margin-top:0; border-radius:0; background:#fff;}
+body[data-feed="top"] .home-bg,
+body[data-feed="top"] .top-rec,
+body[data-feed="top"] .rec-more{display:none;}
+body[data-feed="top"] .home-header{background:#fff;}
+body[data-feed="top"] .home-sheet{margin-top:0; border-radius:0; background:#fff;}
 /* 퀵메뉴 좌우 20 (Figma quickmenu: 1줄 12/8 · 2줄 8/16) */
-body[data-ver="d"] .quickmenu-row{padding:12px 20px 8px;}
-body[data-ver="d"] .quickmenu-row + .quickmenu-row{padding:8px 20px 16px;}
+body[data-feed="top"] .quickmenu-row{padding:12px 20px 8px;}
+body[data-feed="top"] .quickmenu-row + .quickmenu-row{padding:8px 20px 16px;}
 
 /* ---- 패널: 홈(메인 내용 전부) / 추천(피드 복제) ----
    안 보이는 패널은 display:none 대신 높이를 0으로 접어, 안쪽 가로 스크롤(적극 채용중 등) 위치를 지킨다. */
 .dp-rec,
-body[data-ver="d"][data-top="rec"] .dp-home{height:0; overflow:hidden; visibility:hidden;}
-body[data-ver="d"][data-top="rec"] .dp-rec{height:auto; overflow:visible; visibility:visible;}
+body[data-feed="top"][data-top="rec"] .dp-home{height:0; overflow:hidden; visibility:hidden;}
+body[data-feed="top"][data-top="rec"] .dp-rec{height:auto; overflow:visible; visibility:visible;}
 /* 탭을 바꾸면 들어오는 패널이 그 방향에서 살짝 밀려 들어온다. */
 .dp.is-in-r{animation:d-in-r .28s cubic-bezier(.2,.8,.2,1);}
 .dp.is-in-l{animation:d-in-l .28s cubic-bezier(.2,.8,.2,1);}
@@ -60,13 +64,13 @@ body[data-ver="d"][data-top="rec"] .dp-rec{height:auto; overflow:visible; visibi
 @keyframes d-in-l{from{transform:translateX(-40px); opacity:0;} to{transform:none; opacity:1;}}
 
 /* 추천 탭: 피드와 같은 배경(surface). 헤더·칩 줄은 흰 바탕 그대로. */
-body[data-ver="d"][data-top="rec"] .screen.home,
-body[data-ver="d"][data-top="rec"] .home-content{background:var(--fill-surface);}
+body[data-feed="top"][data-top="rec"] .screen.home,
+body[data-feed="top"][data-top="rec"] .home-content{background:var(--fill-surface);}
 .dp-rec .feed-list{padding:8px 16px 16px;}   /* 탭 바 여백은 .home-content가 둔다 */
 
 /* 피드 새로고침 버튼(복제): D안 추천 탭에서만 */
 .screen.home .d-refresh{display:none;}
-body[data-ver="d"][data-top="rec"] .screen.home .d-refresh{display:flex;}
+body[data-feed="top"][data-top="rec"] .screen.home .d-refresh{display:flex;}
 
 @media (prefers-reduced-motion:reduce){
   .d-tab{transition:none;}

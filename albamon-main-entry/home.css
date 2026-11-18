@@ -440,7 +440,7 @@ body[data-main="card"] .rec-more{display:none;}
 body[data-main="card"] .screen.home,
 body[data-main="card"] .home-content{background:var(--fill-surface);}
 /* 2개씩 묶어 가로로 넘긴다. 화면 끝까지 이어지고, 묶음 폭은 340(390 기준)이라 다음 묶음이 22px 보인다.
-   끝없이 이어지지 않고, 맨 끝에 '이어 보기' 카드(다음 공고 미리보기)가 있다. (Figma의 '마지막 묶음 358'은 쓰지 않는다) */
+   2묶음(공고 4개) 뒤 맨 끝에 '이어서 보기' 카드(다음 공고 미리보기)가 있다. (Figma 프레임은 아직 3묶음 · '마지막 묶음 358'은 쓰지 않는다) */
 .b-scroll{
   container-type:inline-size;
   overflow-x:auto;
@@ -495,6 +495,9 @@ body[data-main="card"] .home-content{background:var(--fill-surface);}
 /* JobPostingCard/General: 피드 카드(feed.css .fcard)와 같다. 사유가 없으면 기업명 오른쪽 66 + 4를 비운다(Figma). */
 .b-card .fc-top{padding-right:70px;}
 .b-card .fc-top.has-reason{padding-right:22px;}
+/* B-2안 축약 카드 (Figma AMX Draft 206:45106 'B-2안 - 공고 카드 축약 버전', 사용자 2026-11-18):
+   B-1과 같은 카드에서 근무 요일·시간 줄만 뺀다 → 높이 124. 추천 사유는 B-1과 같게 둔다(둘의 차이를 그 줄 하나로). */
+body[data-ver="b2"] .b-card .fc-when{display:none;}
 .b-more{
   height:52px;
   margin:0 16px;

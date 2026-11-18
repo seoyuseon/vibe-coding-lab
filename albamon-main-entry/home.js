@@ -180,7 +180,9 @@
   /* ---- 카드 메인(B·C안): 피드 공고 미리보기 (JobPostingCard/General · Figma 177:28214) ---- */
   // 추천 피드 맨 앞 공고를 같은 순서로 2개씩 묶어 가로로 넘긴다(미리보기 → 피드로 이어진다).
   // 추천 사유도 피드와 같은 로직·문구로 붙인다. 묶음 수는 B_PAGES로 정한다(끝없이 이어지지 않는다).
-  var B_PAGES = 3;
+  // 2묶음(공고 4개): 피드도 첫 화면(공고 4개쯤)만 보고 나가는 사람이 많아, 미리보기를 짧게 두고 피드로 넘긴다(PO 논의 · 사용자 2026-11-18, 이전 3묶음).
+  // B-2안(?ver=b2)은 같은 카드에서 근무 요일·시간 줄만 뺀 축약 카드다(home.css · Figma 206:45106).
+  var B_PAGES = 2;
   var bPages = $('b-pages');
   var bAll = window.jobFeed ? window.jobFeed.buildFeed() : [];
   var bJobs = bAll.slice(0, B_PAGES * 2);
@@ -206,7 +208,9 @@
     card.appendChild(head);
     var info = el('div', 'fc-info');
     info.appendChild(bRow('card-location', [el('span', null, c.location)]));
-    info.appendChild(bRow('card-clock', [el('span', null, c.days), img('assets/feed/card-dot.svg', 2, 2), el('span', null, c.time)]));
+    var when = bRow('card-clock', [el('span', null, c.days), img('assets/feed/card-dot.svg', 2, 2), el('span', null, c.time)]);
+    when.classList.add('fc-when');   // B-2안에서 뺀다
+    info.appendChild(when);
     info.appendChild(bRow('card-won', [el('span', 'fc-pay-type' + (c.payType !== '시급' ? ' is-monthly' : ''), c.payType), el('span', 'fc-pay', c.pay)]));
     card.appendChild(info);
     var act = el('div', 'fc-actions');
@@ -220,7 +224,7 @@
     bPages.appendChild(pageEl);
   }
   // 끝까지 넘긴 사람을 피드로 잇는 '이어서 보기' 카드 (Figma AMX Draft 190:35603 · 사용자 시안 2026-11-18)
-  // 묶음과 같은 폭에 피드의 다음 공고 2개(7·8번째)를 흐리게 겹쳐 보여주고, 누르면 피드 7번째 공고부터 이어 본다.
+  // 묶음과 같은 폭에 피드의 다음 공고 2개(5·6번째)를 흐리게 겹쳐 보여주고, 누르면 피드 5번째 공고부터 이어 본다.
   var bTease = el('div', 'b-tease');
   bTease.setAttribute('role', 'button');
   bTease.tabIndex = 0;
